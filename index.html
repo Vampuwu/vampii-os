@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[ VAMPII.OS v4.444 ] //</title>
+    <meta name="description" content="VAMPII.OS // Milivia // ミリヴィア - music and a very real yes yes OS">
+    <meta name="theme-color" content="#12000a">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦇</text></svg>">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="shine.css">
+    <link rel="stylesheet" href="polish.css">
+    <link rel="stylesheet" href="fonts/dotgothic16.css">
+    <link rel="stylesheet" href="fonts/m-plus-1-code.css">
+    <link rel="stylesheet" href="pixel.css">
+</head>
+<!-- suffering for eternity trying to work out what does what I am scared but I hate modern social media, I did a web design course how hard can it be?
+You know what I hate more tho? PHONES so no, this won't work on your little tech giant evil rectangle -->
+<body class="notranslate">
+
+    <div id="boot-flicker" aria-hidden="true"></div>
+    <div class="cyber-bg" aria-hidden="true"></div>
+    <div id="grid-layer" class="perspective-grid" aria-hidden="true"></div>
+
+    <nav id="custom-context-menu" class="readable-ui" role="menu" aria-label="System Menu">
+        <div class="context-item" role="menuitem" tabindex="0" onclick="os.summon('info'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">[ 情報を見る ]</div>
+        <div class="context-item" role="menuitem" tabindex="0" onclick="os.summon('blog'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">[ ブログを読む ]</div>
+        <div class="context-item" role="menuitem" tabindex="0" onclick="os.summon('settings'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">[ 設定 / CONFIG ]</div>
+        <div class="context-item" role="menuitem" tabindex="0" onclick="location.reload();" onkeydown="if(event.key==='Enter') this.click();">[ 再起動 / RELOAD ]</div>
+    </nav>
+
+    <header class="top-nav readable-ui" role="banner">
+        <div class="os-title glitch-aberration">> VAMPII.OS v4.444 // ヴァンピィ // ミリヴィア //</div>
+        <span id="sys-clock" class="clock-display" aria-live="polite"></span>
+    </header>
+
+    <main id="desktop" class="desktop-area" role="main">
+        
+        <aside class="system-hud readable-ui" aria-label="whats going on">
+            <div class="hud-head"><div class="hud-who" id="hud-who"></div><canvas id="hud-moon" width="15" height="15" aria-hidden="true"></canvas></div>
+            <dl class="hud-rows">
+                <p class="hud-h" data-t="hudSys"></p>
+                <dt data-t="hudUp"></dt><dd id="sys-uptime">00:00:00</dd>
+                <dt data-t="hudCpu"></dt><dd class="hud-cpu"><canvas id="cpu-graph" class="hud-graph" aria-hidden="true"></canvas><span id="cpu-load">0%</span></dd>
+                <dt data-t="hudOpen"></dt><dd id="hud-procs"></dd>
+                <p class="hud-h" data-t="hudNow"></p>
+                <dt data-t="hudPlaying"></dt><dd class="hud-npl"><i class="hud-eq" aria-hidden="true"><b></b><b></b><b></b><b></b></i><span id="hud-np"></span></dd>
+                <dt data-t="hudMoon"></dt><dd id="hud-moonv"></dd>
+                <dt data-t="hudVisits"></dt><dd id="hud-visits"></dd>
+                <p class="hud-h" data-t="hudLog"></p>
+                <dt data-t="hudPost"></dt><dd id="hud-post"></dd>
+                <dt data-t="hudUpdated"></dt><dd id="hud-upd"></dd>
+                <dt data-t="hudSecurity"></dt><dd><span id="hud-sec"></span></dd>
+            </dl>
+            <div class="hud-ticker" id="hex-stream" aria-hidden="true"></div>
+        </aside>
+
+        <nav class="desktop-icons readable-ui" aria-label="Desktop Shortcuts">
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('info'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">💻</div>
+                <span class="icon-label">info.exe</span>
+                <span class="jp-sub">情報</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('blog'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">📝</div>
+                <span class="icon-label">blog.log</span>
+                <span class="jp-sub">日記</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('music'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">🎛️</div>
+                <span class="icon-label">music.sys</span>
+                <span class="jp-sub">音楽</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('books.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">📕</div>
+                <span class="icon-label">books.exe</span>
+                <span class="jp-sub">本</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('notes.txt'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">🗒️</div>
+                <span class="icon-label">notes.txt</span>
+                <span class="jp-sub">メモ</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('paint.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">🎨</div>
+                <span class="icon-label">paint.exe</span>
+                <span class="jp-sub">お絵かき</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('gallery.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">📺</div>
+                <span class="icon-label">gallery.exe</span>
+                <span class="jp-sub">絵</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('timer.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">⏲</div>
+                <span class="icon-label">timer.exe</span>
+                <span class="jp-sub">タイマー</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('copier.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">🖨</div>
+                <span class="icon-label">copier.exe</span>
+                <span class="jp-sub">コピー機</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('duck.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">🦆</div>
+                <span class="icon-label">duck.exe</span>
+                <span class="jp-sub">アヒル</span>
+            </div>
+            <div class="icon-wrap" data-app="files" role="button" tabindex="0" onclick="os.summon('files'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">🗂</div>
+                <span class="icon-label">files/</span>
+                <span class="jp-sub">ファイル</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('calc.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">📟</div>
+                <span class="icon-label">calc.exe</span>
+                <span class="jp-sub">電卓</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('noisebox.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">🎹</div>
+                <span class="icon-label">noisebox.exe</span>
+                <span class="jp-sub">音箱</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('games.exe'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">🎮</div>
+                <span class="icon-label">games.exe</span>
+                <span class="jp-sub">ゲーム</span>
+            </div>
+            <div class="icon-wrap" role="button" tabindex="0" onclick="os.summon('settings'); os.clickAudio();" onkeydown="if(event.key==='Enter') this.click();">
+                <div class="icon-emoji" aria-hidden="true">⚙️</div>
+                <span class="icon-label">config.sys</span>
+                <span class="jp-sub">設定</span>
+            </div>
+        </nav>
+    </main>
+
+    <div class="serial-tag" aria-hidden="true"><span class="barcode"></span>UNIT 4-444 // SN 0x4444-VMP</div>
+
+    <footer class="footer-bar readable-ui" role="contentinfo">
+        <span style="color: var(--neon-secondary);">© 2026 Milivia. All Rights Reserved. VAMPII.OS</span>&nbsp;// <span>  2013 Diploma of Web Design carrying hard,  I hate modern internet this bettererer yes yes これは完璧だ！(✿◡ ‿ ◡)// </span>
+    </footer>
+
+    <div class="blinkie-hell" aria-hidden="true">
+        <div id="blinkie-container" class="blinkie-viewport">
+            <span id="blinkie-text" class="blinkie-text">// VAMPII.OS // ( •̀ ω •́ )✧ 私の日本語は下手です // (っ´ཀ`)っ // 音楽を作りたいですか、疲れています！ o(￣┰￣*)ゞ ✧ // ♡ ヴァンピィ ♡ ミリヴィア ♡ //</span>
+        </div>
+    </div>
+
+    <template id="info">
+        <div class="readable-ui banner-box" aria-hidden="true">
+            <span id="typed-banner"></span><span style="animation: blink 1s infinite;">_</span>
+        </div>
+        <h3 class="readable-ui section-title">:: PROFILE / プロフィール ::</h3>
+        <p class="window-text">
+            日本語をまったりお勉強中です(⁠⁠´⁠ω⁠｀⁠⁠)
+            <br>
+            その練習と、「Milivia // ミリヴィア」名義でつくっている自分の音をお届けする場所として、このサイトを作ってみました🌸✨
+            <br>
+            よかったらゆっくりしていってくださいね〜🎵
+        </p>
+    </template>
+
+
+    <template id="blog">
+        <p class="file-path">// blog.log</p>
+        <h3 class="readable-ui section-title">another blog</h3>
+        
+        <div class="module-toolbar" role="group" aria-label="Blog Filters">
+            <button class="filter-chip active" onclick="os.filterBlog('ALL')">[ ALL ]</button>
+            <button class="filter-chip" onclick="os.filterBlog('ゲーム')">[ ゲーム ]</button>
+            <button class="filter-chip" onclick="os.filterBlog('日常')">[ 日常 ]</button>
+            <button class="filter-chip" onclick="os.filterBlog('ガジェット')">[ ガジェット ]</button>
+            <button class="filter-chip" onclick="os.filterBlog('ネット')">[ ネット ]</button>
+            <button class="filter-chip" onclick="os.filterBlog('音楽')">[ 音楽 ]</button>
+        </div>
+
+        <div id="blog-container" class="data-container" role="region" aria-label="Blog Posts" aria-live="polite"></div>
+    </template>
+
+    <!-- PLS NOTICE ME FUTURE ME, test again once I actally bounce a song from ableton, should work but cbf testing now as of writing -->
+    <template id="music">
+        <p class="file-path">// music_player.sys</p>
+        <div class="readable-ui banner-box">
+            <marquee scrollamount="5" style="color: var(--neon-primary); letter-spacing: 2px;">
+                <span id="now-playing-text" aria-live="polite">// [オーディオプレーヤー：停止中 - トラックの追加待ち] //</span>
+            </marquee>
+        </div>
+        
+        <div class="np-deck readable-ui" id="np-deck">
+            <div class="np-screen">
+                <img class="np-thumb" id="np-thumb" alt="" hidden>
+                <div class="np-idle" aria-hidden="true"><b>NO SIGNAL</b><span>信号なし // pick a track</span></div>
+                <div id="yt-container" class="yt-frame">
+                    <iframe id="yt-player" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="YouTube Audio Player"></iframe>
+                </div>
+            </div>
+            <div class="np-main">
+                <div class="np-state" id="np-state">■ STOPPED // 停止中</div>
+                <div class="np-title" id="np-title">- - -</div>
+                <div class="np-artist" id="np-artist">トラックを選んでね // pick a track</div>
+                <div class="np-chips" id="np-chips"></div>
+                <div class="np-bar" id="np-bar" role="slider" tabindex="0" aria-label="seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i><b></b></div>
+                <div class="np-time"><span id="np-cur">0:00</span><span id="np-dur">0:00</span></div>
+                <div class="np-ctrl">
+                    <button data-np="prev" aria-label="previous track" title="前 // prev">⏮</button>
+                    <button data-np="play" class="np-play" aria-label="play or pause" title="再生 // play">▶</button>
+                    <button data-np="next" aria-label="next track" title="次 // next">⏭</button>
+                    <button data-np="mute" class="np-mute" aria-label="mute" title="ミュート // mute">VOL</button>
+                    <a id="np-yt" class="np-yt" target="_blank" rel="noopener" hidden>YouTube ↗</a>
+                </div>
+            </div>
+        </div>
+
+        <audio id="local-audio-player" style="display: none;"></audio>
+        
+        <ul id="music-container" style="list-style: none; padding: 0; margin: 18px 0 0 0; display: flex; flex-direction: column; gap: 10px; font-size: 15px;" role="list" aria-label="Tracklist"></ul>
+        
+        <div style="margin-top: 20px; border-top: 1px dashed var(--neon-primary); padding-top: 16px;">
+            <button onclick="os.toggleSetupModal(); os.clickAudio();" class="readable-ui action-btn">
+                [ 🎛️ VIEW PRODUCTION_SETUP.TXT // 制作環境・プラグインを表示 ]
+            </button>
+        </div>
+    </template>
+
+    <template id="settings">
+        <p class="file-path">// config.sys</p>
+        <h3 class="readable-ui section-title">:: SYSTEM SETTINGS / 設定 ::</h3>
+
+        <div class="bios-sec" role="group" aria-labelledby="theme-label">
+            <p id="theme-label" class="readable-ui settings-label">ACCENT COLOUR // アクセントの色:</p>
+            <div class="theme-picker-box">
+                <button class="theme-btn" onclick="os.setTheme('pink'); os.clickAudio();" style="background: #ff007f;" aria-label="NEON PINK theme" title="NEON PINK"></button>
+                <button class="theme-btn" onclick="os.setTheme('blue'); os.clickAudio();" style="background: #00f0ff;" aria-label="NEON BLUE theme" title="NEON BLUE"></button>
+                <button class="theme-btn" onclick="os.setTheme('purple'); os.clickAudio();" style="background: #bd00ff;" aria-label="PURPLE theme" title="PURPLE"></button>
+                <button class="theme-btn" onclick="os.setTheme('red'); os.clickAudio();" style="background: #ff003c;" aria-label="RED theme" title="RED"></button>
+                <button class="theme-btn" onclick="os.setTheme('yellow'); os.clickAudio();" style="background: #fff200;" aria-label="NEON YELLOW theme" title="NEON YELLOW"></button>
+            </div>
+        </div>
+
+        <div class="bios-sec" id="wall-box">
+            <p class="readable-ui settings-label">WALLPAPER // 壁紙:</p>
+            <div class="wall-picker" id="wall-picker" role="radiogroup" aria-label="Wallpaper"></div>
+        </div>
+
+        <div class="bios-sec">
+            <p class="readable-ui settings-label">VISUAL OVERLAYS // ビジュアルオーバーレイ:</p>
+            <div class="bios-rows">
+                <button id="rain-btn" onclick="os.toggleMatrixRain(); os.clickAudio();" class="settings-btn readable-ui" aria-pressed="false">[ デジタルレイン / DIGITAL RAIN: OFF ]</button>
+            </div>
+        </div>
+
+        <div class="bios-sec">
+            <p class="readable-ui settings-label">MOTION // モーション:</p>
+            <div class="bios-rows">
+                <button id="motion-btn" onclick="os.toggleReducedMotion(); os.clickAudio();" class="settings-btn readable-ui" aria-pressed="false">[ 動きを減らす / REDUCE MOTION ]</button>
+            </div>
+        </div>
+
+        <div class="bios-sec">
+            <p class="readable-ui settings-label">INTERFACE // インターフェース:</p>
+            <div id="ui-prefs" class="bios-rows"></div>
+        </div>
+    </template>
+
+
+    <script src="posts/db.js"></script>
+    <script src="posts/db_ticker.js"></script>
+    <script src="posts/db_setup.js"></script>
+    <script src="posts/db_blog.js"></script>
+    <script src="posts/db_music.js"></script>
+    <script src="posts/db_books.js"></script>
+    <script src="posts/db_gallery.js"></script>
+    <!-- MODULAR JS FILES NO MORE PAIN.JS with all the snippets I copypasta real codin hourz LMAOO it still hurt send hope -->
+    <!-- order matters here btw, os_core has to load before the others or everything breaks -->
+    <script src="site_text.js"></script>
+    <script src="os_core.js"></script>
+    <script src="loader.js"></script>
+    <script src="files_store.js"></script>
+    <script src="sfx.js"></script>
+    <script src="os_apps.js"></script>
+    <script src="moon.js"></script>
+    <script src="system_fx.js"></script>
+    <script src="desktop_fx.js"></script>
+    <script src="rain_fx.js"></script>
+    <script src="icons_fx.js"></script>
+    <script src="books_app.js"></script>
+    <script src="notes_app.js"></script>
+    <script src="apps_db.js"></script>
+    <script src="pixel_icons.js"></script>
+    <script src="colour_tri.js"></script>
+    <script src="polish_fx.js"></script>
+    <script src="config_bios.js"></script>
+    <script src="music_fx.js"></script>
+    <script src="hud_fx.js"></script>
+    <!-- I hate this btw lmao hello person reading this, this is the 4th iteration of me trying to escape the big companies grasp on me, its v4.444 because of aesthetics ok, that number won't ever change, 4 4's wowe a foursome.. that made more sense in my head. -->
+</body>
+</html>
+
