@@ -59,23 +59,6 @@ window.os = window.os || {};
         document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('cl-pop')) $('cl-pop').remove(); });
     }
 
-    let glowRaf = 0, gx = 0, gy = 0;
-    function glow() {
-        document.addEventListener('pointermove', e => {
-            if (still() || lite() || e.pointerType !== 'mouse') return;
-            gx = e.clientX; gy = e.clientY;
-            if (glowRaf) return;
-            glowRaf = requestAnimationFrame(() => {
-                glowRaf = 0;
-                let w = document.querySelector('#desktop > div.is-active[id^="win-"]:not(.is-min)'); if (!w) return;
-                let g = w.querySelector(':scope > .wglow'); if (!g) { g = document.createElement('i'); g.className = 'wglow'; g.setAttribute('aria-hidden', 'true'); w.appendChild(g); let b = document.createElement('i'); b.className = 'wbloom'; b.setAttribute('aria-hidden', 'true'); w.appendChild(b); }
-                let r = w.getBoundingClientRect();
-                w.style.setProperty('--gx', (gx - r.left) + 'px'); w.style.setProperty('--gy', (gy - r.top) + 'px');
-                let near = Math.max(0, 1 - Math.max(0, Math.max(r.left - gx, gx - r.right, r.top - gy, gy - r.bottom)) / 140);
-                w.style.setProperty('--gk', near.toFixed(2));
-            });
-        }, { passive: true });
-    }
 
     // phones got warned. now they get the banner
     function phoneBanner() {
@@ -122,11 +105,6 @@ window.os = window.os || {};
             .cl-moon { position: relative; width: 9px; height: 9px; border-radius: 50%; background: #2a2433; overflow: hidden; }
             .cl-moon::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: #f3ecd8; transform: translateX(calc((1 - var(--lit)) * 100% * var(--side))); opacity: calc(0.25 + var(--lit) * 0.75); }
             .cl-d.full .cl-moon { box-shadow: 0 0 6px rgba(255, 245, 220, 0.8); }
-            /* the light that follows you round the window edge */
-            .wglow { position: absolute; inset: -2px; z-index: 50; pointer-events: none; border-radius: inherit; padding: 2px; opacity: var(--gk, 0); transition: opacity 0.25s;
-                background: radial-gradient(220px circle at calc(var(--gx, 50%) + 2px) calc(var(--gy, 50%) + 2px), #fff, color-mix(in srgb, var(--neon-secondary) 80%, #fff) 18%, color-mix(in srgb, var(--neon-primary) 60%, transparent) 45%, transparent 75%);
-                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
-            .wbloom { position: absolute; inset: -150px; z-index: -1; pointer-events: none; opacity: var(--gk, 0); transition: opacity 0.3s; background: radial-gradient(200px circle at calc(var(--gx, 50%) + 150px) calc(var(--gy, 50%) + 150px), color-mix(in srgb, var(--neon-primary) 36%, transparent), transparent 70%); }
             .desktop-icons .icon-wrap { position: relative; }
             .desktop-icons .icon-wrap::before { content: ''; position: absolute; left: 50%; top: 18px; width: 70px; height: 50px; margin-left: -35px; z-index: -1; pointer-events: none; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--neon-primary) 45%, transparent), transparent); opacity: 0; transform: scale(0.6); transition: opacity 0.2s, transform 0.25s; }
             .desktop-icons .icon-wrap:hover::before, .desktop-icons .icon-wrap:focus-visible::before { opacity: 1; transform: none; }
@@ -201,8 +179,10 @@ window.os = window.os || {};
         if (mn && os.moon) { const lit = () => { let m = os.moon(); mn.title = Math.round(m.lit * 100) + '%'; }; lit(); setInterval(lit, 300000); }
         let cm = $('custom-context-menu');
         if (cm && !cm.querySelector('[data-x="files"]')) {
-            [['files', T('ctxFiles', '[ ファイル / FILES ]')], ['gallery.exe', T('ctxGallery', '[ 絵 / GALLERY ]')]].forEach(([id, label]) => {
+            [['files', T('ctxFiles', '[ ファイル / FILES ]'), '🗂'], ['gallery.exe', T('ctxGallery', '[ 絵 / GALLERY ]'), '📺']].forEach(([id, label, em]) => {
                 let it = document.createElement('div'); it.className = 'context-item'; it.dataset.x = id; it.setAttribute('role', 'menuitem'); it.tabIndex = 0; it.textContent = label;
+                let ic = document.createElement('i'); ic.className = 'mn-ic'; ic.dataset.em = em; it.insertBefore(ic, it.firstChild);
+                it.addEventListener('mouseenter', () => { if (os.sfx) os.sfx('hover'); });
                 it.onclick = () => { os.summon(id); if (os.clickAudio) os.clickAudio(); };
                 it.onkeydown = e => { if (e.key === 'Enter') it.click(); };
                 let rel = [...cm.children].find(c => /再起動|RELOAD/.test(c.textContent)); cm.insertBefore(it, rel || null);
@@ -235,7 +215,7 @@ window.os = window.os || {};
         if (document.documentElement.classList.contains('reduce-motion')) draw(); else loop();
     }
     function go() {
-        css(); clock(); glow(); bits(); wave();
+        css(); clock(); bits(); wave();
         // someone sent a song link. open noisebox + hand it over
         const song = () => {
             if (!/^#nb=/.test(location.hash)) return;

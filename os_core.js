@@ -248,8 +248,9 @@ function setupDrag(e) {
 
     let rect = dragElement.getBoundingClientRect();
     let dragStartTime = Date.now(); // was going to use this for a "snap back if released too fast" thing, never finished it
-    let shiftX = clientX - rect.left;
-    let shiftY = clientY - rect.top;
+    let po = dragElement.offsetParent ? dragElement.offsetParent.getBoundingClientRect() : { left: 0, top: 0 };
+    let shiftX = clientX - rect.left + po.left;
+    let shiftY = clientY - rect.top + po.top;
 
     let lastX = clientX, vx = 0, zone = null, ghost = null, freed = false;
     const canSnap = !os.isPhone();
@@ -263,7 +264,7 @@ function setupDrag(e) {
             if (Math.abs(cx - clientX) < 6 && Math.abs(cy - clientY) < 6) return;
             let k = shiftX / Math.max(1, dragElement.offsetWidth);
             dragElement.classList.remove('is-max', 'snap-l', 'snap-r');
-            shiftX = Math.round(dragElement.offsetWidth * k); shiftY = 18;
+            shiftX = Math.round(dragElement.offsetWidth * k) + po.left; shiftY = 18 + po.top;
             if (dragElement.id === 'win-paint.exe' && typeof os.resizePaint === 'function') setTimeout(os.resizePaint, 60);
         }
         freed = true;

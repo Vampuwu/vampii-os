@@ -252,7 +252,19 @@ window.os = window.os || {};
         ta.addEventListener('input', () => { poke(); if (busy) return; D.nod = 1; D.ly = 1; D.lx = 0; lookT = performance.now() + 1500; setTimeout(() => { D.nod = 0; }, 110); });
         cv.addEventListener('pointerenter', () => { poke(); if (!busy) D.happy = 1; });
         cv.addEventListener('pointerleave', () => { D.happy = 0; D.wf = 0; });
+        let dragged = false;
+        const grab = e => {
+            if (e.target.closest('textarea, button, .win-btns') || (e.button && e.button !== 0)) return;
+            let w = root.closest('[id^="win-"]'), h = w && w.querySelector('.window-header'); if (!h || typeof setupDrag !== 'function') return;
+            let p0 = e.touches ? e.touches[0] : e, x0 = p0.clientX, y0 = p0.clientY; dragged = false;
+            const mv = ev => { let q = ev.touches ? ev.touches[0] : ev; if (Math.abs(q.clientX - x0) + Math.abs(q.clientY - y0) > 4) dragged = true; };
+            const up = () => { document.removeEventListener('mousemove', mv); document.removeEventListener('touchmove', mv); document.removeEventListener('mouseup', up); document.removeEventListener('touchend', up); };
+            document.addEventListener('mousemove', mv); document.addEventListener('touchmove', mv); document.addEventListener('mouseup', up); document.addEventListener('touchend', up);
+            setupDrag({ type: e.type, clientX: x0, clientY: y0, touches: e.touches, target: h, preventDefault: () => { if (e.type !== 'touchstart') e.preventDefault(); } });
+        };
+        [d, root.querySelector('.dk-tape'), root.querySelector('.dk-note')].forEach(el => { el.addEventListener('mousedown', grab); el.addEventListener('touchstart', grab, { passive: true }); });
         d.addEventListener('click', () => {
+            if (dragged) { dragged = false; return; }
             poke(); if (busy) return;
             // poke it too much + it turns its back on you
             let now = performance.now(); clicks = clicks.filter(t => now - t < 2500); clicks.push(now);
@@ -312,6 +324,7 @@ window.os = window.os || {};
             --pp: color-mix(in srgb, var(--neon-primary) 14%, #fff5f9); --ink: color-mix(in srgb, var(--neon-primary) 35%, #4a1c36);
             background: linear-gradient(90deg, transparent 21px, color-mix(in srgb, var(--neon-primary) 45%, transparent) 21px 22px, transparent 22px), radial-gradient(circle, rgba(80,30,60,0.06) 0.6px, transparent 1px) 0 0 / 4px 4px, linear-gradient(172deg, color-mix(in srgb, var(--neon-primary) 6%, #fffafc), var(--pp) 55%, color-mix(in srgb, var(--neon-primary) 22%, #ffeef5));
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -10px 14px -10px color-mix(in srgb, var(--neon-primary) 30%, transparent); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%); }
+        .dk-duck, .dk-tape, .dk-note { cursor: grab; } .dk-note textarea { cursor: text; }
         .dk-tape { position: absolute; z-index: 2; left: 50%; top: 214px; width: 84px; height: 18px; margin-left: -46px; transform: rotate(-4deg); opacity: 0.88;
             background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--neon-primary) 45%, rgba(255,255,255,0.5)) 0 5px, color-mix(in srgb, var(--neon-secondary) 30%, rgba(255,255,255,0.6)) 5px 10px); box-shadow: 0 1px 2px rgba(0,0,0,0.2); clip-path: polygon(2% 0, 98% 6%, 100% 100%, 0 94%); }
         .dk-note::after { content: ''; position: absolute; right: 0; bottom: 0; width: 24px; height: 24px; background: linear-gradient(135deg, color-mix(in srgb, var(--neon-primary) 40%, #e9cbd8) 0 46%, color-mix(in srgb, var(--neon-primary) 5%, #fff8fb) 54%, var(--pp)); box-shadow: -2px -2px 4px rgba(0,0,0,0.2); }

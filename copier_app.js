@@ -8,6 +8,7 @@ window.os = window.os || {};
     // a4 lying sideways on the glass, like you actually put it
     const PW = 594, PH = 420;
     const ZOOMS = [50, 71, 100, 141, 200];
+    const FX = [['neg', 'ネガ', 'NEG', 'negative'], ['flip', '鏡像', 'FLIP', 'mirror'], ['dots', '網点', 'DOTS', 'halftone dots'], ['tile', '4面', '4UP', 'four on one sheet']];
     const mk = (w, h) => { let c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
     const rnd = s => () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
     const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -16,7 +17,7 @@ window.os = window.os || {};
     let M = { paper: 25, toner: 100, made: 0 };
     try { Object.assign(M, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
     const keep = () => { try { localStorage.setItem(KEY, JSON.stringify(M)); } catch (e) {} };
-    let S = { n: 1, dark: 2, zoom: 2, colour: false, lid: false, busy: false, stop: false, jam: null, door: false, item: null, out: [], view: -1, msg: '' };
+    let S = { n: 1, dark: 2, zoom: 2, colour: false, fx: { neg: false, flip: false, dots: false, tile: false }, lid: false, busy: false, stop: false, jam: null, door: false, item: null, out: [], view: -1, msg: '' };
 
     function fit(c, kind, name) {
         let k = Math.min(PW / c.width, PH / c.height, 1.6), w = c.width * k, h = c.height * k;
@@ -51,14 +52,16 @@ window.os = window.os || {};
         let c = mk(PW, PH), x = c.getContext('2d'), R = rnd(o.seed), it = o.item, z = ZOOMS[o.zoom] / 100;
         x.fillStyle = o.lid ? '#fff' : '#000'; x.fillRect(0, 0, PW, PH);
         x.save(); x.scale(z, z);
-        if (it) {
+        const fx = o.fx || {}, rot = (R() - 0.5) * 0.025;
+        if (it) (fx.tile ? [[0, 0], [1, 0], [0, 1], [1, 1]] : [null]).forEach(q => {
             x.save();
-            x.translate(it.x + it.w / 2, it.y + it.h / 2); x.rotate((R() - 0.5) * 0.025); x.translate(-it.w / 2, -it.h / 2);
+            if (q) { x.translate(q[0] * PW / 2 / z, q[1] * PH / 2 / z); x.scale(0.5, 0.5); }
+            x.translate(it.x + it.w / 2, it.y + it.h / 2); x.rotate(rot); if (fx.flip) x.scale(-1, 1); x.translate(-it.w / 2, -it.h / 2);
             if (it.kind === 'paper') { x.fillStyle = '#fff'; x.fillRect(0, 0, it.w, it.h); }
             x.drawImage(it.c, 0, 0, it.w, it.h);
             if (it.kind === 'paper' && o.lid) { x.strokeStyle = 'rgba(0,0,0,0.3)'; x.lineWidth = 1.2; x.strokeRect(0.5, 0.5, it.w - 1, it.h - 1); }
             x.restore();
-        }
+        });
         if (!o.print) dirt(x);
         x.restore();
         let im = x.getImageData(0, 0, PW, PH), d = im.data, src = new Uint8ClampedArray(d);
@@ -69,10 +72,13 @@ window.os = window.os || {};
         let t = 0.47 + (o.dark - 2) * 0.075, w = o.colour ? 0.3 : 0.11;
         let tf = o.toner <= 0 ? 0.12 : o.toner < 15 ? 0.3 + o.toner / 15 * 0.55 : 1;
         let off = o.colour ? [[(R() * 4 | 0) - 2, (R() * 3 | 0) - 1], [0, 0], [(R() * 4 | 0) - 2, (R() * 3 | 0) - 1]] : null;
-        const sm = v => { v = (v - (t - w)) / (2 * w); return v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v); };
+        const sm0 = v => { v = (v - (t - w)) / (2 * w); return v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v); };
+        const dot = (v, xx, y) => { let a = (xx + y) * 0.46, b = (xx - y) * 0.46, scr = 0.5 + 0.24 * (Math.cos(a) + Math.cos(b)); v = (v + (0.5 - t) - scr) * 5 + 0.5; return v <= 0 ? 0 : v >= 1 ? 1 : v; };
+        let px = 0, py = 0;
+        const sm = v => { v = fx.dots ? dot(v, px, py) : sm0(v); return fx.neg ? 1 - v : v; };
         const PAP = [246, 243, 235], INK = [24, 22, 27];
         for (let y = 0; y < PH; y++) for (let xx = 0; xx < PW; xx++) {
-            let i = (y * PW + xx) * 4, n = (R() - 0.5) * (o.colour ? 0.3 : 0.24) + col[xx] + row[y];
+            let i = (y * PW + xx) * 4, n = (R() - 0.5) * (o.colour ? 0.3 : 0.24) * (fx.dots ? 0.4 : 1) + col[xx] + row[y]; px = xx; py = y;
             let mot = tf < 1 ? 0.75 + 0.25 * Math.sin(xx * 0.06 + y * 0.013) * Math.sin(y * 0.05 - xx * 0.02) : 1;
             if (!o.colour) {
                 let v = sm((src[i] * 0.3 + src[i + 1] * 0.59 + src[i + 2] * 0.11) / 255 + n);
@@ -115,11 +121,12 @@ window.os = window.os || {};
         let b = root.querySelector('.cp-lcd b'), s = root.querySelector('.cp-lcd span');
         let m = S.msg || (S.jam ? T('copyJam', '紙づまり // PAPER JAM → ドアB / DOOR B') : M.paper <= 0 ? T('copyNoPaper', '用紙切れ // OUT OF PAPER') : S.lid ? T('copyLid', 'ふた開いてるよ // LID IS OPEN') : !S.item ? T('copyEmpty', 'ガラス空っぽ // GLASS IS EMPTY') : T('copyReady', 'コピーできます // READY'));
         b.textContent = m;
-        s.textContent = S.n + '枚 · ' + T('copyDarkShort', '濃度') + ' ' + (S.dark + 1) + ' · ' + ZOOMS[S.zoom] + '% · ' + (S.colour ? 'カラー COL' : '白黒 B/W') + (M.toner < 15 ? ' · ' + T('copyTonerLow', 'トナー少 TONER LOW') : '');
+        s.textContent = S.n + '枚 · ' + T('copyDarkShort', '濃度') + ' ' + (S.dark + 1) + ' · ' + ZOOMS[S.zoom] + '% · ' + (S.colour ? 'カラー COL' : '白黒 B/W') + FX.filter(f => S.fx[f[0]]).map(f => ' · ' + f[2]).join('') + (M.toner < 15 ? ' · ' + T('copyTonerLow', 'トナー少 TONER LOW') : '');
         root.querySelector('.cp-n').textContent = S.n;
         root.querySelectorAll('.cp-leds i').forEach((e, i) => e.classList.toggle('on', i <= S.dark));
         root.querySelector('[data-a="z"]').textContent = ZOOMS[S.zoom] + '%';
         root.querySelector('[data-a="col"]').classList.toggle('on', S.colour);
+        root.querySelectorAll('[data-fx]').forEach(e => e.classList.toggle('on', !!S.fx[e.dataset.fx]));
         root.querySelector('.cp-paper em').textContent = M.paper; root.querySelector('.cpm-gauge i').style.width = Math.max(0, M.paper) / 25 * 100 + '%';
         root.classList.toggle('jam', !!S.jam); root.classList.toggle('lid', S.lid); root.classList.toggle('busy', S.busy); root.classList.toggle('door', S.door);
         root.classList.toggle('empty', M.paper <= 0); root.classList.toggle('low', M.toner < 15);
@@ -138,7 +145,7 @@ window.os = window.os || {};
             root.classList.remove('scan'); void root.offsetWidth; root.classList.add('scan');
             if (S.lid) setTimeout(() => say(T('copyBright', 'まぶしっ // OW MY EYES')), 300);
             await wait(1450);
-            let o = { item: S.item, lid: !S.lid, dark: S.dark, zoom: S.zoom, colour: S.colour, toner: M.toner, seed: (Math.random() * 1e9) | 0 };
+            let o = { item: S.item, lid: !S.lid, dark: S.dark, zoom: S.zoom, colour: S.colour, fx: Object.assign({}, S.fx), toner: M.toner, seed: (Math.random() * 1e9) | 0 };
             // it jams. not on your first go tho
             if (M.made > 2 && Math.random() < 0.07) {
                 o.crumple = true; S.jam = { c: copy(o), name: nameOf(S.item), gen: S.item ? S.item.gen + 1 : 0 };
@@ -161,7 +168,7 @@ window.os = window.os || {};
         let root = $('cp-root'); if (root) root.classList.add('printing');
         await wait(1500);
         let k = Math.min((PW - 36) / c.width, (PH - 36) / c.height), w = c.width * k, h = c.height * k;
-        let o = { item: { c, kind: 'paper', name, x: (PW - w) / 2, y: (PH - h) / 2, w, h, gen: 0 }, lid: true, dark: 2, zoom: 2, colour: true, toner: M.toner, seed: (Math.random() * 1e9) | 0, print: true };
+        let o = { item: { c, kind: 'paper', name, x: (PW - w) / 2, y: (PH - h) / 2, w, h, gen: 0 }, lid: true, dark: 2, zoom: 2, colour: true, fx: Object.assign({}, S.fx), toner: M.toner, seed: (Math.random() * 1e9) | 0, print: true };
         if (M.made > 2 && Math.random() < 0.07) { o.crumple = true; S.jam = { c: copy(o), name: 'print of ' + name, gen: 0 }; M.paper--; keep(); sfx('copyJam'); }
         else { S.out.unshift({ c: copy(o), name: 'print of ' + name, gen: 0 }); S.out = S.out.slice(0, 30); M.paper--; M.toner = Math.max(0, M.toner - 2 - Math.random() * 2); M.made++; keep(); stack(true); }
         S.busy = false; S.msg = ''; if ($('cp-root')) { $('cp-root').classList.remove('printing'); lcd(); }
@@ -252,6 +259,7 @@ window.os = window.os || {};
                         <div class="cp-row"><label>枚数</label><button type="button" data-a="n-">−</button><output class="cp-n">1</output><button type="button" data-a="n+">+</button></div>
                         <div class="cp-row"><label>濃度</label><button type="button" data-a="d-">◀</button><div class="cp-leds">${'<i></i>'.repeat(5)}</div><button type="button" data-a="d+">▶</button></div>
                         <div class="cp-row"><button type="button" data-a="z" class="cp-key">100%</button><button type="button" data-a="col" class="cp-key cp-col">カラー</button></div>
+                        <div class="cp-row cp-fx">${FX.map(f => `<button type="button" data-a="fx" data-fx="${f[0]}" class="cp-key" title="${f[1]} // ${f[3]}">${f[1]}</button>`).join('')}</div>
                         <div class="cp-row cp-big"><button type="button" data-a="stop" class="cp-stop" aria-label="stop">C</button><button type="button" data-a="go" class="cp-go"><small>スタート</small>START</button></div>
                     </div>
                 </div>
@@ -285,6 +293,7 @@ window.os = window.os || {};
             else if (k === 'd-' || k === 'd+') { S.dark = Math.max(0, Math.min(4, S.dark + (k === 'd+' ? 1 : -1))); sfx('copyBeep'); S.msg = ''; lcd(); }
             else if (k === 'z') { S.zoom = (S.zoom + 1) % ZOOMS.length; sfx('copyBeep'); S.msg = ''; lcd(); }
             else if (k === 'col') { S.colour = !S.colour; sfx('copyBeep'); S.msg = ''; lcd(); }
+            else if (k === 'fx') { let f = a.dataset.fx; S.fx[f] = !S.fx[f]; sfx('copyBeep'); S.msg = ''; lcd(); }
             else if (k === 'tray') { if (S.out.length) view(0); }
             else if (k === 'door') door();
             else if (k === 'drawer') drawer();
@@ -511,6 +520,13 @@ window.os = window.os || {};
         ${E} .kill-btn.out { background: radial-gradient(circle at 50% 5px, #ff3355 1.6px, transparent 2.6px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 4px), linear-gradient(#2c2b31, #18171c) !important; }
         ${E} .kill-btn::before { left: 5px; top: 12px; width: 16px !important; height: 18px !important; border-radius: 3px; background: linear-gradient(90deg, #111, #2c2b31 50%, #111) !important; box-shadow: 0 0 0 1px #000, inset 0 0 0 1px color-mix(in srgb, var(--neon-primary) 70%, transparent), 0 0 6px color-mix(in srgb, var(--neon-primary) 50%, transparent); }
         ${E} .kill-btn::after { top: 9px; background: radial-gradient(circle, #000 1.4px, transparent 1.8px) 0 0 / 5px 100% no-repeat, radial-gradient(circle, #000 1.4px, transparent 1.8px) 5px 0 / 5px 100% no-repeat; }
+        ${E} .kill-btn { right: -90px !important; top: 310px !important; width: 34px !important; height: 52px !important; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 2L8 8M8 2L2 8' stroke='%23ff3355' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") 50% 39px / 10px 10px no-repeat, radial-gradient(circle at 50% 6px, #3dff7a 1.8px, transparent 2.8px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 4px), linear-gradient(#2c2b31, #18171c) !important; }
+        ${E} .kill-btn.out { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 2L8 8M8 2L2 8' stroke='%23ff3355' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") 50% 39px / 10px 10px no-repeat, radial-gradient(circle at 50% 6px, #ff3355 1.8px, transparent 2.8px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 4px), linear-gradient(#2c2b31, #18171c) !important; }
+        ${E} .kill-btn:hover { filter: drop-shadow(0 0 4px rgba(255,51,85,0.7)); }
+        ${E} .kill-btn::before { left: 9px; top: 18px; }
+        ${E} .kill-btn::after { left: 11px; top: 15px; }
+        .cp-fx { gap: 2px; } .cp-fx button { flex: 1; min-width: 0; padding: 0 1px; font-size: 8px; letter-spacing: 0; }
+        .cp-fx button.on { color: #fff; background: linear-gradient(color-mix(in srgb, var(--neon-primary) 70%, #fff), var(--neon-primary)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 0 6px var(--neon-primary); }
         html.reduce-motion .cp-shake, html.reduce-motion #cp-root * { animation: none !important; }
     `;
     document.head.appendChild(css);

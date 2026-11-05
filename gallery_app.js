@@ -218,6 +218,7 @@ window.os = window.os || {};
             let existed = $('win-' + id), r = base.apply(os, arguments);
             if (id === 'gallery.exe' && !existed) {
                 let w = $('win-gallery.exe'); if (w && !os.isPhone()) w.style.maxWidth = Math.min(1000, innerWidth - 20) + 'px';
+                if (w) { let hd = w.querySelector('.window-header'); if (hd) hd.ondblclick = null; }
                 let tt = $('win-title-gallery.exe'); if (tt) { tt.innerHTML = '<span class="gl-wt">gallery.exe <small lang="ja">絵</small></span><span class="gl-vcr" aria-hidden="true"><i class="gl-vcr-rec"></i><b id="gl-vcr">--:--</b><em id="gl-vch">CH --</em></span>'; vcr(); }
                 render();
                 if (os.galleryWant) { let k = os.galleryWant; os.galleryWant = null; setTimeout(() => os.galleryOpen(k), 50); }
@@ -243,7 +244,13 @@ window.os = window.os || {};
         .gl-vcr { display: flex; align-items: center; gap: 10px; padding: 2px 10px; font: 14px/1 'DotGothic16', monospace; color: #7dffb0; background: #04110a; border-radius: 3px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.9), 0 1px 0 rgba(255,255,255,0.08); text-shadow: 0 0 6px rgba(80,255,150,0.7); }
         .gl-vcr em { font-style: normal; font-size: 11px; opacity: 0.85; }
         .gl-vcr-rec { width: 6px; height: 6px; border-radius: 50%; background: #ff3044; box-shadow: 0 0 6px #ff3044; animation: glLed 2s steps(1) infinite; }
-        #desktop > #win-gallery\\.exe .win-btn, #desktop > #win-gallery\\.exe .kill-btn { font-size: 11px !important; padding: 2px 7px !important; color: #a9a2b2 !important; background: linear-gradient(#2c2a31, #18171c) !important; border: 1px solid #000 !important; border-radius: 3px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12) !important; text-shadow: none !important; }
+        #desktop > #win-gallery\\.exe .window-header .max-btn { display: none !important; }
+        #desktop > #win-gallery\\.exe .win-btn, #desktop > #win-gallery\\.exe .kill-btn { width: 30px !important; height: 20px !important; margin: 0 0 0 5px !important; padding: 0 !important; display: inline-grid !important; place-items: center; font-size: 0 !important; color: #8f889a !important; background: linear-gradient(#37343d, #1d1b21 55%, #141217) !important; border: 1px solid #000 !important; border-radius: 4px !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), inset 0 -2px 0 rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) !important; text-shadow: none !important; }
+        #desktop > #win-gallery\\.exe .win-btn::before, #desktop > #win-gallery\\.exe .kill-btn::before { --gw: 10px; color: inherit !important; opacity: 1 !important; }
+        #desktop > #win-gallery\\.exe .min-btn { --gl: var(--gl-px-min); } #desktop > #win-gallery\\.exe .kill-btn { --gl: var(--gl-px-x); color: #ff5468 !important; }
+        #desktop > #win-gallery\\.exe .win-btn:hover { color: #7dffb0 !important; background: linear-gradient(#2a3a31, #101a14) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 8px rgba(80,255,150,0.35) !important; }
+        #desktop > #win-gallery\\.exe .kill-btn:hover { color: #fff !important; background: linear-gradient(#d43a52, #7d1022) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 10px rgba(255,48,68,0.5) !important; }
+        #desktop > #win-gallery\\.exe .win-btn:active, #desktop > #win-gallery\\.exe .kill-btn:active { transform: translateY(1px); box-shadow: inset 0 2px 3px rgba(0,0,0,0.7) !important; }
         #gl-root { --snow: url(${snow}); position: relative; height: min(640px, calc(100vh - 210px)); min-height: 380px; overflow: hidden; font: 12px/1.45 'M PLUS 1 Code', monospace; color: #e6e1ec;
             background: repeating-linear-gradient(90deg, rgba(255,255,255,0.018) 0 2px, transparent 2px 46px), radial-gradient(80% 60% at 50% 30%, color-mix(in srgb, var(--neon-primary) 8%, #141018), #07060a 80%); }
         #gl-root::after { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 5; background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,0.55)); }
