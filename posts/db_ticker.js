@@ -1,0 +1,3 @@
+// "// TEXT: Text"
+database.ticker = [
+];
