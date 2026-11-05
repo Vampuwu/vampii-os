@@ -328,6 +328,12 @@ window.os = window.os || {};
             setTimeout(() => { delete k.dataset.going; if (k.onclick) k.onclick(); }, close ? 650 : 800);
         }, true);
     }
+    function roomy(w) {
+        let k = parseFloat(getComputedStyle(w).scale) || 1; if (k === 1 || os.isPhone()) return;
+        let ww = w.offsetWidth * k, ics = [...document.querySelectorAll('.desktop-icons .icon-wrap')].filter(i => i.offsetParent !== null), edge = ics.length ? Math.max(...ics.map(i => i.getBoundingClientRect().right)) + 12 : 0;
+        let x = Math.max(innerWidth / 2 - ww / 2, edge);
+        w.style.left = Math.round(Math.max(10, Math.min(x, innerWidth - ww - 10))) + 'px';
+    }
     function inject() {
         let tpl = document.createElement('template'); tpl.id = 'copier.exe';
         tpl.innerHTML = '<div id="cp-root" class="readable-ui"></div>';
@@ -335,7 +341,7 @@ window.os = window.os || {};
         let base = os.summon.bind(os);
         os.summon = function (id) {
             let existed = $('win-' + id), r = base.apply(os, arguments);
-            if (id === 'copier.exe' && !existed) { let w = $('win-copier.exe'); if (w) { w.style.maxWidth = '640px'; w.querySelector('.window-header').ondblclick = null; hijack(w); } wire(); }
+            if (id === 'copier.exe' && !existed) { let w = $('win-copier.exe'); if (w) { w.style.maxWidth = '640px'; w.querySelector('.window-header').ondblclick = null; hijack(w); roomy(w); } wire(); }
             else if (id === 'copier.exe') { let rt = $('cp-root'); if (rt && rt.classList.contains('hung')) { rt.classList.remove('hung'); say(T('copyFixed', '直った // fixed. apparently')); } }
             return r;
         };
@@ -528,6 +534,8 @@ window.os = window.os || {};
         .cp-fx { gap: 2px; } .cp-fx button { flex: 1; min-width: 0; padding: 0 1px; font-size: 8px; letter-spacing: 0; }
         .cp-fx button.on { color: #fff; background: linear-gradient(color-mix(in srgb, var(--neon-primary) 70%, #fff), var(--neon-primary)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 0 6px var(--neon-primary); }
         html.reduce-motion .cp-shake, html.reduce-motion #cp-root * { animation: none !important; }
+        @media (min-width: 1180px) and (min-height: 700px) { ${E} { scale: 1.25; transform-origin: 0 0; } }
+        @media (min-width: 1500px) and (min-height: 860px) { ${E} { scale: 1.4; } }
     `;
     document.head.appendChild(css);
     inject();
