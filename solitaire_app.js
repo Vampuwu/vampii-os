@@ -799,7 +799,7 @@ window.os = window.os || {};
         if (S.state !== 'menu') words(); else logoDraw();
     }
 
-    // cards are basically just filtered noise lol
+    // card sounds are filtered noise. paper is mostly noise anyway
     let FX = null;
     function fxKit(A) {
         if (FX && FX.A === A) return FX;
@@ -1100,7 +1100,7 @@ window.os = window.os || {};
             delete os.sol; delete os.gg.hooks.solitaire;
         }
     };
-    // testing, dont touch
+    // os.sol for testing
     os.sol = {
         snd,
         raw: () => S, data: () => D, lay: () => LY, ff: n => { for (let i = 0; i < n; i++) { tick(1 / 60); drawScene(0); } }, go, show, hide, draw, undo, hint, moves, move, freeze: () => stopAll(), step: (n, dt) => { for (let i = 0; i < (n || 1); i++) tick(dt || 1 / 30); readTheme(1e12); paint(performance.now()); }, tick: n => { for (let i = 0; i < (n || 1); i++) tick(1 / 60); },

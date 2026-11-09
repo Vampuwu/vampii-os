@@ -18,21 +18,26 @@ window.os = window.os || {};
     const LH = 8;
     const COLS = ['#19e3c4', '#ff3fa4', '#8a5cff', '#2fc4ff', '#ff4d4d', '#43ff74', '#ffd23f', '#ff2bd6'];
     const SHOUT = {
-        perfect: ['HARDCORE ALIGNMENT', 'ZERO OVERHANG', 'FLUSH. HARDCORE.', 'LOAD BEARING', 'SLAB SLAMMED', 'BRUTALLY LEVEL', 'EDGES OBLITERATED', '100% FLUSH'],
-        beat: ['STACKED ON THE KICK', 'RHYTHMIC MASONRY', 'SLAB DROPPED ON THE BEAT'],
-        chain: ['{n} SLABS DEEP', '{n}X FLUSH', 'ILLEGAL LEVELS OF STACKING', 'STACKING WILL NEVER DIE', 'TOO STACKED 4 U', 'COUNCIL HAS BEEN NOTIFIED', 'BUILDING CODE VIOLATED'],
-        clean: ['STACKED. I GUESS.', 'PASSABLE MASONRY', 'IT IS A FLOOR'],
-        close: ['SHAVED. BARELY.', 'A LITTLE OFF THE EDGE'],
-        cut: ['OVERHANG DETECTED', 'SOFT STACKING', 'BITS FELL OFF', 'NOT FLUSH. WEAK.', 'CASUAL STACKER DETECTED', 'SLAB TRIMMED. MILD.'],
-        lean: ['TOWER LEANING', 'TOO HARDCORE TO STAND UP'],
-        wipe: ['TOWER DESTROYED', 'GRAVITY WINS', 'YOU WERE NOT STACKED ENOUGH'],
-        fever: ['HARDCORE STACKING MODE'], feverEnd: ['STACKING MODE DEPLETED. HYDRATE.'],
-        trialWin: ['INSPECTION PASSED. BRUTALLY.'], trialLose: ['FAILED INSPECTION. SOFT.'], hot: ['HOT SLAB INCOMING'], hotWin: ['HOT SLAB STACKED'],
-        sector: ['FLOOR {n} BRUTALLY CONSTRUCTED'], pb: ['NEW PERSONAL BEST', 'PERSONAL BEST OBLITERATED', 'PB. HARDCORE.']
+        perfect: ['ZERO OVERHANG', 'FLUSH. HARDCORE.', 'LOAD BEARING'],
+        beat: ['STACKED ON THE KICK'],
+        chain: ['{n} SLABS DEEP', '{n}X FLUSH', 'COUNCIL HAS BEEN NOTIFIED'],
+        clean: ['IT IS A FLOOR'],
+        close: ['SHAVED. BARELY.'],
+        cut: ['OVERHANG DETECTED', 'BITS FELL OFF'],
+        lean: ['TOWER LEANING'],
+        wipe: ['TOWER DESTROYED'],
+        fever: ['HARDCORE STACKING MODE'],
+        feverEnd: ['STACKING MODE DEPLETED. HYDRATE.'],
+        trialWin: ['INSPECTION PASSED'],
+        trialLose: ['FAILED INSPECTION'],
+        hot: ['HOT SLAB INCOMING'],
+        hotWin: ['HOT SLAB STACKED'],
+        sector: ['FLOOR {n}'],
+        pb: ['NEW PERSONAL BEST']
     };
-    const NAMES = { L: 'L-BEAM OF DOOM', T: 'T-BEAM OF TERROR', plus: 'CROSS SLAB OF FURY', U: 'U-CHANNEL OF PAIN', ring: 'RING SLAB OF SUFFERING', S: 'S-BLOCK. GOOD LUCK.', dumb: 'DUMBBELL SLAB OF DEATH', stairs: 'STAIRWAY TO HARDCORE', dots: 'LOOSE BRICKS OF DESPAIR', hook: 'THE HOOK BEAM', comb: 'COMB SLAB OF CHAOS', big: 'OVERSIZED SLAB', plank: 'THE PLANK' };
-    const ACH = { first: 'PLACED A SLAB', three: 'THREE (3) SLABS', perfect: 'ALIGNED SOMETHING', cut: 'LOST A BIT', ten: 'TALLER THAN A SHED', twenty: 'BUILDING PERMIT REQUIRED', chain5: 'CONSISTENT. ALARMINGLY.', slow: 'NEEDED A MOMENT', fever: 'HYDRATION PENDING', thirty: 'VISIBLE FROM SPACE (NOT REALLY)', fifty: 'CERTIFIED STRUCTURE', hot: 'TOUCHED THE HOT ONE', trial: 'PASSED AN INSPECTION. SOMEHOW.', corner: 'THE SKULL HIT THE CORNER' };
-    const RANKS = ['HARDCORE INTERN', 'HARDCORE TRAINEE', 'HARDCORE ENJOYER', 'HARDCORE PROFESSIONAL', 'HARDCORE MANAGER', 'HARDCORE EXECUTIVE', 'HARDCORE EMERITUS', 'HARDCORE DEITY (PROVISIONAL)'];
+    const NAMES = { L: 'L BEAM', T: 'T BEAM', plus: 'CROSS', U: 'U CHANNEL', ring: 'RING', S: 'S BLOCK. GOOD LUCK.', dumb: 'DUMBBELL', stairs: 'STAIRS', dots: 'LOOSE BRICKS', hook: 'HOOK', comb: 'COMB', big: 'BIG ONE', plank: 'PLANK' };
+    const ACH = { first: 'FIRST SLAB', three: 'THREE (3) SLABS', perfect: 'FIRST PERFECT', cut: 'LOST A BIT', ten: '10 FLOORS', twenty: '20 FLOORS', chain5: '5 PERFECT IN A ROW', slow: 'USED SLOW-MO', fever: 'HARDCORE STACKING MODE', thirty: '30 FLOORS', fifty: '50 FLOORS', hot: 'TOUCHED THE HOT ONE', trial: 'PASSED AN INSPECTION', corner: 'THE SKULL HIT THE CORNER' };
+    const RANKS = ['WORK EXPERIENCE KID', 'LABOURER', 'BRICKIE', 'CHIPPY', 'LEADING HAND', 'FOREMAN', 'SITE MANAGER', 'HARDCORE DEITY (PROVISIONAL)'];
     const TRIALS = { perfect: 'ALL FLUSH', beat: 'ALL ON THE BEAT', noslow: 'NO SLOW-MO' };
 
     const blank = () => ({ top: [], played: 0, bestH: 0, bestChain: 0 });
@@ -218,12 +223,7 @@ window.os = window.os || {};
         d.top.push({ s: S.score, h: hh }); d.top.sort((a, b) => b.s - a.s); d.top = d.top.slice(0, 10); saveD();
     }
     // me, drawing on the screen with a marker
-    const SCRAWL = {
-        slab: ['drop it. go on', 'you got this (you dont)', 'this ones cursed', 'trust the process', 'why is it that shape', 'ok now'],
-        note: ['TODO make it harder', 'TODO fix the banana drone', 'dont tell anyone the slow-mo is cheating', 'its 3am', 'who approved this tower'],
-        wipe: ['lmaooo', 'ok that one was on you', 'skill issue', 'rip bozo', 'the tower is fine. you are not'],
-        rank: ['i made these up', 'not a real job'], hard: ['this number means nothing', 'goes up. thats it'], news: ['none of this is news'], pa: ['lol', 'mum look'], chain: ['proud of u', 'ok show off']
-    };
+    const SCRAWL = { slab: ['drop it. go on', 'why is it that shape'], note: ['TODO make it harder', 'its 3am'], wipe: ['lmaooo', 'skill issue'], rank: ['not a real job'], hard: ['this number means nothing'], news: ['none of this is news'], pa: ['mum look'], chain: ['ok show off'] };
     function doodleTick(dt) {
         let d = S.dd; if (!d || S.demo) return;
         d.on.forEach(q => q.t += dt); d.on = d.on.filter(q => q.t < q.life && !S.shown);
@@ -390,7 +390,7 @@ window.os = window.os || {};
     function circle(cx, cy, r, c) { bx.fillStyle = c; for (let y = -r; y <= r; y++) { let w = Math.floor(Math.sqrt(r * r - y * y)); bx.fillRect(Math.round(cx - w), Math.round(cy + y), w * 2 + 1, 1); } }
     const sy = (z, f) => H * 0.62 - (z - S.cam) * f;
     const SIGNS = ['薬', '古本', '営業中', 'カラオケ', '餃子', '占い', '歯科', '中古', '麻雀', '整体', '宿', '自販機', '眼鏡', '湯'];
-    const ADS = ['腰痛に効く|good for your back', 'ぬるい水 新発売|lukewarm water. new', '月で歌おう|sing on the moon', '落とし物 預かってます|we have your lost thing', '本物の雨 使用|made with real rain', '鬼積み協会|stacking association', '牛乳|milk'];
+    const ADS = ['腰痛に効く|good for your back', 'ぬるい水 新発売|lukewarm water. new', '落とし物 預かってます|we have your lost thing', '牛乳|milk'];
     let city = null, starC = null;
     function makeCity() {
         let r = rng(4444), far = [], mid = [];
@@ -444,7 +444,7 @@ window.os = window.os || {};
         street(now);
         rain(now);
     }
-    const NEWS = ['板が一枚積まれる|one slab placed', '専門家「高すぎる」|experts: its too high', 'カラスが避難|crows evacuated', '自販機 今日も無言|vending machine still silent', '猫は見ている|the cat is watching', '月のカラオケ 予約殺到|moon karaoke fully booked', 'ぬるい水 もうない|lukewarm water all gone', '傾きに注意|watch the lean'];
+    const NEWS = ['板が一枚積まれる|one slab placed', '専門家「高すぎる」|experts: its too high', 'カラスが避難|crows evacuated', '傾きに注意|watch the lean'];
     const KANA = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン0123456789';
     function kana(now) {
         let y0 = sy(-24, 0.25), top = y0 - 330; if (top > H) return;
@@ -729,7 +729,7 @@ window.os = window.os || {};
         let a = sk.t / 1.4, x = sk.dir > 0 ? -30 + a * (W + 60) : W + 30 - a * (W + 60), y = ty - 20 - Math.sin(a * Math.PI) * 30, fl = sk.dir < 0, air = a > 0.3 && a < 0.7, ph = air ? Math.floor((a - 0.3) / 0.4 * 8) % 4 : 0;
         spr(air ? 'sk_air' : 'sk_ride', x, y - 4, fl); spr(['board_top', 'board_edge', 'board_under', 'board_edge'][ph], x, y, fl);
     }
-    // the crowd. they came for this
+    // crowd along the bottom
     function crowd(now) {
         if (calm() || S.demo || S.state === 'over' || (MU.tier < 2 && S.chain < 4)) return;
         let k = S.kick, beat = Math.max(0, S.beatN || 0), base = H + 2;

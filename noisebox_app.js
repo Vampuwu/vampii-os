@@ -622,7 +622,7 @@
         if (cv.width !== Math.round(w * d) || cv.height !== Math.round(h * d)) { cv.width = Math.round(w * d); cv.height = Math.round(h * d); cv.style.width = w + 'px'; cv.style.height = h + 'px'; V.cache = null; }
         V.aw = w; V.ah = h; V.dpr = d; V.dirty = true;
     }
-    // reading scrollLeft every frame = the whole layout every frame. pain
+    // Reading scrollLeft every frame = a full layout every frame. Pain.
     const bx = b => HEADW + b * V.ppb - V.sl;
     const xb = x => (x - HEADW + V.sl) / V.ppb;
     const ry = r => RULER + r.y - V.st;
@@ -971,7 +971,7 @@
         if (V.dirty || !V.cache || V.scx !== V.sl || V.scy !== V.st) { V.scx = V.sl; V.scy = V.st; V.ovDirty = 1; drawArr(); }
         drawOv();
         let x = cv.getContext('2d'), d = V.dpr;
-        // closing it mid frame crashed it. now it just skips that frame
+        // Closing it mid frame crashed it, now it just skips that frame.
         if (!V.cache || !V.cache.width || !V.cache.height || !cv.width || !cv.height) return;
         x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(V.cache, 0, 0); x.setTransform(d, 0, 0, d, 0, 0);
         let cx = bx(V.cursor); if (cx >= HEADW) { x.fillStyle = 'rgba(127,127,127,0.6)'; x.fillRect(cx, 0, 1, V.ah); }
@@ -1863,7 +1863,7 @@
             if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { if (X.playing()) stop(); else play(); } return; }
             if (ctrl && k === 'z') { e.preventDefault(); if (e.shiftKey) X.redo(); else X.undo(); return; }
             if (ctrl && k === 'y') { e.preventDefault(); X.redo(); return; }
-            // keyboard shortcuts. muscle memory from ableton
+            // Keyboard shortcuts. Mostly Ableton's because my hands do them anyway
             if (e.key === 'Tab' && !ctrl && !e.altKey) { e.preventDefault(); setTab(tab === 'roll' ? 'sound' : 'roll'); return; }
             if (ctrl && k === 'b') { e.preventDefault(); if (X.browseToggle) X.browseToggle(); place(); size(); return; }
             if (ctrl && e.altKey && k === 'l') { e.preventDefault(); foldDock(!look.dockOff); return; }

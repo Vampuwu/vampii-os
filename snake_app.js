@@ -11,7 +11,6 @@ window.os = window.os || {};
     const ip = () => [0, 0, 0, 0].map(() => Math.floor(Math.random() * 255)).join('.');
     const has = id => !id || (typeof os.hasUnlock === 'function' ? os.hasUnlock(id) : (() => { try { return (JSON.parse(localStorage.getItem(os.unlocksKey ? os.unlocksKey() : 'vmp_unlocks') || '[]') || []).indexOf(id) >= 0; } catch (e) { return false; } })());
 
-    // all the modes. all unlocked
     const MODES = [
         { id: 'run', jp: '走', en: 'RUN', mult: 1, sub: 'the classic. eat the packets, dont hit the walls or yourself. see how long you last' },
         { id: 'zen', jp: '凪', en: 'ZEN', part: 'sx_zen', mult: 0.3, sub: 'no walls, you come out the other side, and biting yourself only costs you the tail. slow and calm, and it scores a third of what RUN does' },
@@ -82,7 +81,7 @@ window.os = window.os || {};
         else if (kind === 3) { let cxm = 11.5, cym = 11.5; for (let a = 0; a < 6.28; a += 0.05) { let x = Math.round(cxm + Math.cos(a) * 8), y = Math.round(cym + Math.sin(a) * 8); if (Math.abs(Math.sin(a * 2)) > 0.25) put(x, y); } for (let a = 0; a < 6.28; a += 0.08) { let x = Math.round(cxm + Math.cos(a) * 4), y = Math.round(cym + Math.sin(a) * 4); if (Math.cos(a) > -0.5) put(x, y); } }
         else if (kind === 4) { for (let y = 3; y < G - 3; y += 4) for (let x = 0; x < G; x++) if (((x + y) % 10) < 6 && x > 1 && x < G - 2) put(x, y); }
         else { for (let i = 0; i < 18 + lv; i++) { let x = 2 + Math.floor(r() * (G - 4)), y = 2 + Math.floor(r() * (G - 4)), h = r() < 0.5; for (let k = 0; k < 3 + Math.floor(r() * 4); k++) put(h ? x + k : x, h ? y : y + k); } }
-        // stops food spawning somewhere you physically cant get to. that was happening a lot
+        // Stops food spawning somewhere you physically can't get to. That was happening a LOT.
         for (let x = 0; x < 12; x++) W[12 * G + x] = 0;
         let seen = new Uint8Array(G * G), q = [12 * G + 6]; seen[q[0]] = 1;
         while (q.length) { let c = q.pop(), x = c % G, y = (c / G) | 0; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => { let nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= G || ny >= G) return; let n = ny * G + nx; if (!seen[n] && !W[n]) { seen[n] = 1; q.push(n); } }); }
@@ -393,7 +392,7 @@ window.os = window.os || {};
         if (near && Math.floor(t / 220) % 3 === 0) { let tx = h.x + dir[0] * r, ty = h.y + dir[1] * r, L = c * 0.45, px = -dir[1], py = dir[0];
             x.strokeStyle = '#ff2a6d'; x.lineWidth = Math.max(1.5, c * 0.07); x.beginPath(); x.moveTo(tx, ty); x.lineTo(tx + dir[0] * L, ty + dir[1] * L);
             x.lineTo(tx + dir[0] * L * 1.35 + px * L * 0.25, ty + dir[1] * L * 1.35 + py * L * 0.25); x.moveTo(tx + dir[0] * L, ty + dir[1] * L); x.lineTo(tx + dir[0] * L * 1.35 - px * L * 0.25, ty + dir[1] * L * 1.35 - py * L * 0.25); x.stroke(); }
-        // it blinks!!! and gets scared eyes when its about to crash
+        // it blinks, and goes wide eyed right before it crashes
         let blink = (t % 3400) < 120, wide = !!S.danger, px = -dir[1], py = dir[0];
         [1, -1].forEach(sd => { let ex = h.x + dir[0] * r * 0.25 + px * r * 0.42 * sd, ey = h.y + dir[1] * r * 0.25 + py * r * 0.42 * sd;
             if (blink && !wide) { x.strokeStyle = '#000'; x.lineWidth = 2; x.beginPath(); x.moveTo(ex - px * r * 0.2, ey - py * r * 0.2); x.lineTo(ex + px * r * 0.2, ey + py * r * 0.2); x.stroke(); return; }
@@ -648,7 +647,7 @@ window.os = window.os || {};
         loadD();
         newRun(D.mode); fit(); hud(); btnText(); showOverlay('menu');
         filler();
-        // the card was sitting on the d-pad on ipad so nothing started. lol
+        // the card was sitting on top of the d-pad on ipad so nothing would start
         let board = root.querySelector('.snake-board'), sw = null;
         board.addEventListener('pointerdown', e => {
             if (e.pointerType !== 'mouse') beTouchy();
@@ -714,7 +713,6 @@ window.os = window.os || {};
             delete os.snake; delete os.snakeAudio; delete os.gg.hooks.snake;
         }
     };
-    // testing, dont touch
     os.snake = { raw: () => S, state: () => S && { mode: S.mode.id, state: S.state, score: S.score, len: S.snake.length, food: S.food.map(f => f.type), perks: S.perks, level: S.level, hunter: !!S.hunter, walls: S.walls.reduce((a, b) => a + b, 0) }, modes: () => ownedModes().map(m => m.id), perks: () => ownedPerks().map(p => p.id), arenas: () => ownedArenas().map(a => a.id), play: m => { D.mode = m; newRun(m); hideOverlay(); start(); }, dir: setDir, die: w => die(w || 'wall'), data: () => D, step: () => step(), set: fn => fn(S, D) };
 
     function styles() {

@@ -339,7 +339,7 @@ window.os = window.os || {};
             if (em.textContent !== title) em.textContent = title;
         };
         document.addEventListener('vmp-deck', mini);
-        // off has to play before its off lol
+        // play the off sound BEFORE turning sound off, otherwise you never hear it
         snd.onclick = () => { let was = !os.prefs || os.prefs.sound !== false; if (was && os.sfx) os.sfx('off', { el: snd }); if (typeof os.togglePref === 'function') os.togglePref('sound'); paintSnd(); if (!was && os.sfx) os.sfx('on', { el: snd }); };
         const paintSnd = () => { let on = !os.prefs || os.prefs.sound !== false; snd.innerHTML = px(on ? TB.sndOn : TB.sndOff); snd.classList.toggle('off', !on); };
         paintSnd();

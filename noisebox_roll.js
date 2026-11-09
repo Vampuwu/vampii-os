@@ -29,7 +29,7 @@
 
     const MOODS = [['DARK', [0, 3, 0, 4]], ['ENTRANCED', [0, 5, 2, 6]], ['EUPHORIC', [5, 6, 0, 0]], ['EPIC', [0, 6, 5, 6]], ['VAMPIRE', [0, 3, 4, 0], 'harmonic'], ['ACID', [0, 0, 1, 0], 'phrygian'], ['HARDBITE', [0, 5, 6, 0]],
         ['LO-FANG', [1, 4, 0, 0], null, 1], ['CHURCH', [3, 0, 3, 0]], ['SAD', [5, 3, 0, 4]], ['FALLING', [0, 6, 5, 4]], ['HAUNTED', [0, 1, 6, 0], 'phrygian'],
-        // japanese scales!! in sen is my favourite
+        // Japanese scales. In sen is my favourite
         { h: '日本 // JAPANESE' },
         ['王道 ROYAL ROAD', 'M', [[5, 'M7'], [7, '7'], [4, 'm7'], [9, 'm']]],
         ['王道・泣き ROYAL ROAD, CRYING', 'M', [[5, 'M7'], [7, '7'], [4, '7'], [9, 'm7']]],

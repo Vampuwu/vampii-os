@@ -1,4 +1,4 @@
-// the actual real moon from where you are. yes really
+// Real moon phase + which way it tilts, for roughly where you are. The short Meeus formulas, good enough for a moon this size.
 // no internet + no asking for your location, it guesses roughly where you are off your timezone
 window.os = window.os || {};
 

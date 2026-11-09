@@ -10,7 +10,7 @@
     const db = v => 20 * Math.log10(Math.max(1e-9, v));
     const pw = l => Math.pow(10, (l + 0.691) / 10), lu = p => -0.691 + 10 * Math.log10(Math.max(1e-12, p));
 
-    // loudness meter. LUFS is confusing but I tried
+    // Loudness meter. LUFS confuses me but I tried
     const HB = 800, hbin = l => Math.max(0, Math.min(HB - 1, Math.floor((l + 70) * 10)));
     const mkH = () => ({ c: new Float64Array(HB), p: new Float64Array(HB), n: 0, s: 0 });
     const hAdd = (H, l) => { if (!(l > -70)) return; let b = hbin(l), q = pw(l); H.c[b]++; H.p[b] += q; H.n++; H.s += q; };

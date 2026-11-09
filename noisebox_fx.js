@@ -3016,7 +3016,7 @@ const WT = (function () {
     function setter(ctx, now, skip) {
         return (key, prm, v) => { if (!prm || (skip && skip[key]) || !isFinite(v)) return; if (AT != null) { prm.setTargetAtTime(v, AT, 0.008); touched.add(prm); } else if (now) prm.value = v; else prm.setTargetAtTime(v, ctx.currentTime, 0.025); };
     }
-    // feedback loops were rendering differently every time. this fixes it somehow
+    // Feedback loops were rendering differently every single time. This fixes it. Somehow. I don't know why.
     function oneOut(ctx, outs, to) {
         let n = outs.length, mg = ctx.createChannelMerger(n * 2), sp2 = ctx.createChannelSplitter(n * 2), L = ctx.createGain(), R = ctx.createGain(), fin = ctx.createChannelMerger(2), parts = [mg, sp2, L, R, fin];
         outs.forEach((o, i) => { let up = ctx.createGain(), sp = ctx.createChannelSplitter(2); up.channelCount = 2; up.channelCountMode = 'explicit'; up.channelInterpretation = 'speakers'; o.connect(up); up.connect(sp); sp.connect(mg, 0, i * 2); sp.connect(mg, 1, i * 2 + 1); parts.push(up, sp); });
@@ -3240,7 +3240,7 @@ const WT = (function () {
                         if (ch === 3) { att = 0.02 + p.att * 0.02; rel = 0.04 + p.rel * 0.1; knee = 3; ratio = 4 + p.ratio * 6; extra = 0.06; }
                         if (ch === 4) { att = 0.00005; rel = 0.04 + p.rel * 0.08; knee = 0; ratio = 20; extra = 0.3; }
                         let thr = -60 + p.thr * 60, col = Math.min(1, (p.sat || 0) + extra + (m === 3 ? 0.25 : m === 1 ? 0.05 : 0));
-                        // so old songs dont suddenly get louder
+                        // So old songs don't suddenly come out louder
                         let auto = idx(p.autog || 0, 2) === 0 && m !== 5 ? -0.6 * Math.min(0, (thr + knee / 2) * (1 - 1 / ratio)) : 0;
                         if (w) { S2('thr', Wp('thr'), thr + (m === 5 ? 0 : knee / 2)); S2('ratio', Wp('ratio'), ratio); S2('att', Wp('att'), att); S2('rel', Wp('rel'), rel); Wp('knee').value = knee; Wp('style').value = m;
                             Wp('ctype').value = idx(p.ctype || 0, 4); Wp('cdrive').value = col; Wp('cpost').value = idx(p.cpos || 0, 2) === 0 ? 1 : 0; Wp('sc').value = (p.sc || 0) < 0.02 ? 0 : expo(30, 600, p.sc);
@@ -3622,7 +3622,7 @@ const WT = (function () {
                     },
                     kill() { if (w) bury([w]); stopAll(b)(); } };
             } },
-        // trance gate. 16 steps, go nuts
+        // Trance gate, 16 steps
         { id: 'cage', jp: '檻', en: 'CAGE', sub: 'trance gate. click steps on / off, drag them up / down for how far each opens. STEPS = pattern length. SOFT, DECAY, SUSTAIN, LENGTH + RELEASE shape each step. CHOPS the VOLUME or a FILTER. STEREO = same, PING PONG or offset', face: 'iron', part: 'nb_fx_cage', gate: true,
             p: [['rate', 'RATE', 0.33, F.pick(['1/32', '1/16', '1/8', '1/4'])], ['steps', 'STEPS', 0, F.pick(CGST.map(String))], ['depth', 'DEPTH', 1, F.pct], ['len', 'LENGTH', 0.6, F.pct], ['att', 'SOFT', 0.15, F.pct], ['dec', 'DECAY', 0.3, F.pct], ['sus', 'SUSTAIN', 1, F.pct], ['rel', 'RELEASE', 0.15, F.pct],
                 ['swing', 'SWING', 0, v => Math.round(v * 66) + '%'], ['st', 'STEREO', 0, F.pick(CGLR)], ['what', 'CHOPS', 0, F.pick(['VOLUME', 'FILTER'])], ['cut', 'FILTER OPEN', 0.85, F.hz(200, 20000)], ['res', 'FILTER RES', 0.2, F.pct]],
@@ -3814,7 +3814,7 @@ const WT = (function () {
                     },
                     kill() { stopAll(b)(); } };
             } },
-        // guitar amp sim. it's not neural dsp but its mine
+        // Guitar amp sim. It's not Neural DSP but it's mine
         { id: 'stack', jp: '轟', en: 'STACK', sub: 'amp + cab. MODEL: CLEAN, CRUNCH, HIGH GAIN, FUZZ, BASS. GAIN, TIGHT (cuts lows before the amp), BASS / MID / TREBLE / PRESENCE, SAG, CAB + mic position', face: 'iron', part: 'nb_fx_stack',
             p: [['model', 'MODEL', 0.3, F.pick(['CLEAN', 'CRUNCH', 'HIGH GAIN', 'FUZZ', 'BASS'])], ['gain', 'GAIN', 0.4, F.pct], ['tight', 'TIGHT', 0.3, F.hz(20, 600)], ['bass', 'BASS', 0.5, F.db(-10, 10)], ['mid', 'MID', 0.5, F.db(-10, 10)], ['treble', 'TREBLE', 0.5, F.db(-10, 10)], ['pres', 'PRESENCE', 0.5, F.db(-6, 6)],
                 ['sag', 'SAG', 0.4, F.pct], ['cab', 'CAB', 0, F.pick(['4x12', '1x12', '2x10', '8x10 BASS', 'NO CAB'])], ['mic', 'MIC', 0.4, v => v < 0.2 ? 'centre' : v > 0.8 ? 'edge' : Math.round(v * 100) + '% out'], ['level', 'LEVEL', 0.67, F.db(-24, 12)], ['mix', 'MIX', 1, F.pct]],
@@ -4335,7 +4335,7 @@ const WT = (function () {
                         if (P0) S.txt(x, ['CLOSE', 'UP FRONT', 'FAR', 'RADIO'][idx(P0.char, 4)] + '  ·  holding ' + (-r).toFixed(1) + 'dB' + (fo ? '' : '  · TAME needs the worklet'), 4, 11, D.A, 10); },
                     kill: () => { bury([fo]); stopAll(b)(); } };
             } },
-        // channel strip. eq, comp, the works
+        // Channel strip
         { id: 'strip', jp: '帯', en: 'STRIP', sub: 'channel strip. TRIM, LOW + HIGH CUT, 4 band eq, SQUEEZE (compressor), GATE, HEAT (desk saturation). ORDER puts the compressor before or after the eq', face: 'steel',
             p: [['trim', 'TRIM', 0.5, F.db(-12, 12)], ['hpf', 'LOW CUT', 0, F.hz(20, 500)], ['lpf', 'HIGH CUT', 1, F.hz(2000, 22000)], ['lg', 'LOW', 0.5, F.db(-12, 12)], ['lmg', 'LOW MID', 0.5, F.db(-12, 12)], ['lmf', 'LOW MID AT', 0.35, F.hz(150, 2000)],
                 ['lmq', 'LOW MID WIDTH', 0.4, v => (0.3 + (1 - v) * 3.7).toFixed(1)], ['hmg', 'HIGH MID', 0.5, F.db(-12, 12)], ['hmf', 'HIGH MID AT', 0.5, F.hz(800, 8000)], ['hmq', 'HIGH MID WIDTH', 0.4, v => (0.3 + (1 - v) * 3.7).toFixed(1)], ['hg', 'HIGH', 0.5, F.db(-12, 12)],
@@ -4604,7 +4604,7 @@ const WT = (function () {
                     },
                     kill: stopAll(b) };
             } },
-        // granular! chops your sound into tiny bits and sprays them around
+        // Granular. Chops the sound into tiny bits and sprays them about
         { id: 'dust', jp: '塵', en: 'DUST', sub: 'granular. sprays tiny grains of the input. WHERE = how far back (up to 3s), DETUNE, SHAPE, WIDTH. FREEZE holds the cloud. turns a stab into a pad', face: 'mist', part: 'nb_fx_dust',
             p: [['size', 'GRAIN', 0.3, F.ms(0.005, 0.5, 1.6)], ['dens', 'DENSITY', 0.4, v => Math.round(0.5 + Math.pow(v, 1.5) * 79.5) + '/s'], ['pitch', 'PITCH', 0.5, v => { let s = Math.round(v * 48) - 24; return (s > 0 ? '+' : '') + s + 'st'; }], ['det', 'DETUNE', 0, v => '±' + Math.round(v * 100) + 'c'], ['spray', 'SCATTER', 0.3, F.pct], ['pos', 'WHERE', 0, v => v < 0.01 ? 'just now' : (v * 2.5).toFixed(1) + 's back'], ['rev', 'BACKWARDS', 0, F.pct],
                 ['shape', 'SHAPE', 0, F.pick(['SMOOTH', 'FLAT', 'SHARP', 'SWELL'])], ['width', 'WIDTH', 0.5, F.pct], ['freeze', 'FREEZE', 0, F.pick(['off', 'HOLD'])], ['tone', 'TONE', 0.75, F.hz(400, 18000)], ['mix', 'MIX', 0.5, F.pct]],
@@ -4948,7 +4948,7 @@ const WT = (function () {
                     },
                     kill: stopAll(b) };
             } },
-        // the build up before the drop. brrrrrrrrr
+        // Riser. the build up before the drop, brrrrrr
         { id: 'rip', jp: '裂', en: 'RIP', sub: 'drum roll. every few bars it repeats the beat faster + faster (1/4 to 1/64). RISE pitches it up, SWELL fades it in. instant build ups', face: 'char', part: 'nb_fx_rip',
             p: [['every', 'EVERY', 0.4, F.pick(['1 bar', '2 bars', '4 bars', '8 bars'])], ['len', 'HOW LONG', 0.4, F.pick(['1/4 bar', '1/2 bar', '1 bar', '2 bars'])], ['from', 'FROM', 0.3, F.pick(['1/2', '1/4', '1/8', '1/16'])], ['to', 'DOWN TO', 0.6, F.pick(['1/16', '1/32', '1/64', '1/128'])], ['rise', 'RISE', 0, v => '+' + Math.round(v * 24) + 'st'], ['sweep', 'THIN OUT', 0, F.pct], ['smooth', 'STEPS', 0, F.pick(['stepped', 'smooth'])], ['chance', 'CHANCE', 1, F.pct], ['swell', 'SWELL', 0, F.pct], ['mix', 'MIX', 1, F.pct]],
             make(ctx) {

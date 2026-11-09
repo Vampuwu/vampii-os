@@ -326,7 +326,7 @@ window.os = window.os || {};
         let k = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1)), c = document.createElement('canvas'); c.width = Math.round((w + dx) * k); c.height = Math.round((h + dy) * k);
         let x = c.getContext('2d'), R = rng(seed); x.scale(k, k); x.translate(0, dy);
         let C = COLS[col] || COLS.black, H0 = h - 3;
-        // side + top. vent slots bc why not
+        // side + top + the vent slots
         x.beginPath(); x.moveTo(w - 3, 2); x.lineTo(w - 3 + dx, 2 - dy); x.lineTo(w - 3 + dx, H0 - 4 - dy); x.lineTo(w - 3, H0 - 1); x.closePath();
         let sg = x.createLinearGradient(0, 0, 0, H0); sg.addColorStop(0, C[1]); sg.addColorStop(1, C[2]); x.fillStyle = sg; x.fill(); x.fillStyle = 'rgba(0,0,0,0.42)'; x.fill();
         for (let i = 0; i < 5; i++) { let vy = H0 * 0.3 + i * 5; x.strokeStyle = 'rgba(0,0,0,0.5)'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(w - 1 + dx * 0.2, vy - dy * 0.2); x.lineTo(w - 3 + dx * 0.85, vy - dy * 0.85); x.stroke(); }

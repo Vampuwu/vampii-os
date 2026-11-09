@@ -185,7 +185,7 @@ os.summon = function(id) {
             let ytPlayer = document.getElementById('yt-player');
             if (ytContainer) ytContainer.style.display = 'none';
             if (ytPlayer) ytPlayer.src = '';
-            // local files kept going after close lol
+            // local audio kept playing after close
             let la = document.getElementById('local-audio-player'); if (la) { la.pause(); la.removeAttribute('src'); }
             window.isMusicPlaying = false;
         }
@@ -238,7 +238,7 @@ function setupDrag(e) {
     let target = e.target;
     let isHeader = target.closest(".window-header");
     if (!isHeader) return;
-    // ipad couldnt hit max lol
+    // the drag was eating the tap so ipad couldnt hit max
     if (target.closest("button")) return;
 
     let dragElement = target.closest("div[id^='win-']");

@@ -1,5 +1,5 @@
 
-// GAME GIRL AVERAGE. the tablet all the games live in. lol at the name, I stand by it
+// GAME GIRL AVERAGE. all the games live in here. yes I'm keeping the name
 window.os = window.os || {};
 
 (function () {
@@ -350,7 +350,7 @@ window.os = window.os || {};
         setTimeout(() => home(true), 120);
     }
 
-    // the actual buttons work lol
+    // power key + the volume rocker
     function hardware(win) {
         let pwr = win.querySelector('.gg-pwr'), rk = win.querySelector('.gg-vol'), scr = $('gg-scr');
         // swipe in from the left edge = back home, same as the ipad

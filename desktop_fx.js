@@ -731,7 +731,7 @@ void main(){
             use, prep,
             colours() { setCols([rgb('--neon-primary', '#ff0099'), rgb('--neon-secondary', '#ff66b3'), rgb('--bg-base', '#12000a'), rgb('--bg-gradient-center', '#260015')]); },
             size(w, h) {
-                // it used to draw 4 million pixels on a big screen. oops
+                // it used to draw 4 million pixels on a big screen and my laptop sounded like it was about to take off, so now it picks its own res off how long the gpu actually takes
                 if (!w) {
                     let k = Math.min(1.5, window.devicePixelRatio || 1), cap = 1.15e6 * E.q * ((KINDS[cur] && KINDS[cur].px) || 1), px = innerWidth * innerHeight * k * k;
                     k *= Math.min(1, Math.sqrt(cap / px));
@@ -771,7 +771,7 @@ void main(){
     }
 
     let cv = null, W = null, raf = 0, last = 0, t0 = performance.now(), gaps = [], ms = [], warned = false, slowFor = 0, lastGpu = null;
-    // it was way too fast before. chill vibes only
+    // 0.6x. it was way too fast
     const SLOW = 0.6;
     const lite = () => root.classList.contains('low-spec');
     const still = () => root.classList.contains('reduce-motion');

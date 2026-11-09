@@ -408,7 +408,7 @@ window.os = window.os || {};
         window.addEventListener('resize', onResize);
     }
     function onResize() { if (B && $('sw-cv')) { sizeCanvas(); render(); } }
-    // sizing it while its hidden = 0px lol
+    // sizing it while its hidden = 0px. every time
     function view(play) {
         let h = $('sw-home'), p = $('sw-play'); if (!h || !p) return;
         h.hidden = play; p.hidden = !play;

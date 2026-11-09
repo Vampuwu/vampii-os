@@ -28,7 +28,7 @@ window.os = window.os || {};
         echoIn.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(echoOut); echoOut.connect(comp);
         bus = { c, inp, room: roomIn, echo: echoIn };
     }
-    // fake reverb lol
+    // reverb from a noise burst that fades out. no impulse files
     function impulse(c, len, decay) {
         let L = Math.floor(c.sampleRate * len), b = c.createBuffer(2, L, c.sampleRate);
         for (let ch = 0; ch < 2; ch++) {
@@ -154,7 +154,7 @@ window.os = window.os || {};
         dock: o => fm(1240, 0.07, Object.assign({ to: 1560, ratio: 2, idx: 1, vol: 0.013 }, o)),
         drop: o => { osc(150, 0.09, Object.assign({ type: 'sine', to: 70, vol: 0.035 }, o)); noise(0.015, Object.assign({ ft: 'highpass', from: 3000, vol: 0.02 }, o)); },
         theme: o => { [0, 0.045, 0.09, 0.135].forEach((at, i) => fm(PENTA[i + Math.floor(Math.random() * 3)], 0.16, Object.assign({ ratio: 3.01, idx: 1.6, idxTo: 0.05, vol: 0.012, at, echo: 0.18 }, o))); noise(0.3, Object.assign({ ft: 'highpass', from: 6000, vol: 0.006, a: 0.05 }, o)); },
-        // THE CORNER. it deserves a fanfare
+        // dvd corner hit
         corner: o => { [784, 988, 1175, 1568].forEach((f, i) => fm(f, 0.18, Object.assign({ ratio: 2, idx: 1.6, vol: 0.022, at: i * 0.08, echo: 0.25, fix: true }, o))); [784, 988, 1175, 1568].forEach(f => fm(f, 1.4, Object.assign({ ratio: 3.5, idx: 1.2, idxTo: 0.02, vol: 0.014, at: 0.34, echo: 0.3, verb: 0.45, fix: true }, o))); },
         powerBtn: o => {
             noise(0.012, Object.assign({ ft: 'highpass', from: 1800, vol: 0.045, a: 0.0008 }, o));

@@ -663,7 +663,7 @@ os.clearPaintCanvas = function() {
         const curve = () => { ctx.beginPath(); ctx.moveTo(state.lastMidX, state.lastMidY); ctx.quadraticCurveTo(state.lastX, state.lastY, midX, midY); };
 
         if (state.tool === 'pen' || state.tool === 'eraser') {
-            // the eraser used to just paint the background colour over stuff lol. it actually erases now
+            // the eraser used to just paint the bg colour over stuff. it actually erases now
             let er = state.tool === 'eraser', k = er ? 2 : 1;
             let w0 = k * state.size * (0.35 + (state.lastPressure == null ? curPressure : state.lastPressure) * 1.3), w1 = k * curSize;
             let faded = state.opacity < 0.995;
@@ -1002,7 +1002,7 @@ os.renderPaintCanvas = function() {
     const t = performance.now() / 1000, still = document.documentElement.classList.contains('reduce-motion');
     if (state.isDrawing) os.paintCompose(ctx, true);
     else {
-        // it was flattening all 24 layers every time the mouse moved. kill me
+        // it was flattening all 24 layers every time the mouse moved
         let ac = os._ptArt;
         if (!ac || ac.width !== W || ac.height !== H) { ac = os._ptArt = document.createElement('canvas'); ac.width = W; ac.height = H; state.artDirty = true; }
         if (state.artDirty) {
@@ -1548,7 +1548,7 @@ document.addEventListener('keydown', (e) => {
     e.stopImmediatePropagation(); e.preventDefault();
     st.sel = null; if (os.paintUI) os.paintUI.side(); os.requestPaintRender();
 }, true);
-// ctrl+z!!! only when paint is on top tho or it'd undo while you type in notes
+// ctrl+z, only when paint is on top or it'd undo while you type in notes
 document.addEventListener('keydown', (e) => {
     const win = document.getElementById('win-paint.exe');
     if (!win || !win.classList.contains('is-active') || win.classList.contains('is-min')) return;

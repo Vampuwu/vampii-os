@@ -108,7 +108,7 @@ const bootLines = [
         let box = $('nw-list');
         if (!box) return;
         let items = os.newItems();
-        // new.log is an answering machine lol
+        // new.log, the answering machine
         let am = box.parentNode.querySelector('.nw-am');
         if (!am) {
             am = document.createElement('div');
@@ -168,7 +168,7 @@ const bootLines = [
         }
         return s;
     }
-    // popups come in on a little pager. beep beep
+    // popups come in on a little pager
     let paged = 0;
     os.notify = function (text, onclick, ms) {
         let n = document.createElement('div');

@@ -1,4 +1,4 @@
-// duck.exe. rubber duck debugging lol
+// Rubber duck debugging. You explain your bug to the duck and work it out yourself halfway through the sentence. It genuinely works, I do it all the time
 // nothing you type gets kept anywhere. its a duck
 window.os = window.os || {};
 
@@ -42,7 +42,6 @@ window.os = window.os || {};
             else if (inEll(px, py, body.cx, body.cy, body.rx, body.ry) || inEll(px, py, chest.cx, chest.cy, chest.rx, chest.ry)) {
                 let inC = inEll(px, py, chest.cx, chest.cy, chest.rx, chest.ry) && px > body.cx + 3, e = inC ? chest : body;
                 l = shadeE((px - e.cx) / e.rx, (py - e.cy) / e.ry);
-                // wing. it flaps
                 let [wu, wv] = rot(px - (wing.cx + wing.rx * 0.7), py - wing.cy, -wing.a); wu += wing.rx * 0.7;
                 let tip = inEll(wu, wv, -7.4, 1.6, 2.8, 1.15) || inEll(wu, wv, -6.2, 3.3, 2.4, 1);
                 if ((inEll(wu, wv, 0, 0, wing.rx, wing.ry) && wv > -3.2) || tip) { m = 'wing'; l = 0.74 - 0.36 * (wv / wing.ry) - 0.14 * (wu / wing.rx); }
@@ -110,7 +109,6 @@ window.os = window.os || {};
         let bl = s.blush ? hx('#ff6f7a') : hx('#ff9a4a'), [cx, cy] = hp(4.6, 2.4);
         put(cx, cy, bl, s.blush ? 0.9 : 0.5); put(cx + head.back, cy, bl, s.blush ? 0.9 : 0.5);
         if (s.open) for (let k = 6; k < 14; k++) { let [x, y] = hp(k, 3.4); put(x, y, hx('#4a0c08')); }
-        // shiny bits
         let [sx, sy] = hp(-3.6, -5.2);
         glyph(put, ['0110', '1110', '0100'], sx - 1, sy - 1, Y[6]);
         glyph(put, ['111100', '011111'], 13, Math.round(by - 8), Y[5]); put(15, Math.round(by - 8), Y[6]); put(16, Math.round(by - 8), Y[6]);
@@ -161,7 +159,7 @@ window.os = window.os || {};
     const IDLE = [
         () => seq([[0, () => { D.lx = -1; D.ly = 0; }], [700, () => { D.lx = 1; }], [1400, () => { D.lx = 0; }]]),
         () => seq([0, 110, 220, 330, 440, 550, 660].map((ms, i) => [ms, () => { D.tw = i === 6 ? 0 : i % 2 ? 1 : -1; }])),
-        // preening lol
+        // preen
         () => seq([[0, () => { D.back = 1; D.lean = -3; }], [180, () => { D.ha = 0.32; D.nod = 2; D.wf = 0.18; }], [420, () => { D.ha = 0.42; }], [600, () => { D.ha = 0.3; }], [780, () => { D.ha = 0.42; }], [1000, () => { D.ha = 0; D.nod = 0; D.wf = 0; }], [1150, () => { D.back = 0; D.lean = 0; }]]),
         () => seq([[0, () => { D.sq = 0.6; }], [120, () => { D.sq = 0; D.hop = 2; D.wf = 0.45; }], [220, () => { D.hop = 4; D.wf = 0.1; }], [320, () => { D.hop = 3; D.wf = 0.45; }], [420, () => { D.hop = 1; D.wf = 0.1; }], [500, () => { D.hop = 0; D.sq = 0.5; D.wf = 0; splash(8); ripT = performance.now(); }], [620, () => { D.sq = 0; }]]),
         // shakes off like it just got out the bath
@@ -248,7 +246,6 @@ window.os = window.os || {};
         ta.addEventListener('keydown', e => {
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); let t = ta.value.trim(); if (t) tell(root, t); }
         });
-        // nods along while you type
         ta.addEventListener('input', () => { poke(); if (busy) return; D.nod = 1; D.ly = 1; D.lx = 0; lookT = performance.now() + 1500; setTimeout(() => { D.nod = 0; }, 110); });
         cv.addEventListener('pointerenter', () => { poke(); if (!busy) D.happy = 1; });
         cv.addEventListener('pointerleave', () => { D.happy = 0; D.wf = 0; });

@@ -48,7 +48,7 @@
         let many = list.filter(b => !b.shorts).length + list.filter(b => b.shorts).reduce((n, b) => n + b.chapters.length, 0) > 8;
         shell((many ? '<div class="bk-find"><input type="search" spellcheck="false"><span></span></div>' : '') + (hasNovels && hasShorts ? '<h3 class="bk-sec">本 // NOVELS</h3>' : '') + '<div class="bk-shelf"></div>' + (hasShorts ? '<h3 class="bk-sec">短編 // SHORT STORIES</h3><div class="bk-shorts"></div>' : '') + '<p class="bk-none" hidden></p>');
         let box = $('bk-body').querySelector('.bk-shelf');
-        // short stories dont need a contents page, they're short lol
+        // Short stories don't get a contents page.
         let sbox = $('bk-body').querySelector('.bk-shorts');
         if (sbox) list.forEach((bk, i) => {
             if (!bk.shorts) return;
@@ -132,7 +132,6 @@
         if (here && bk.chapters.length > 12) setTimeout(() => { let sb = scrollBox(); if (sb) sb.scrollTop += here.getBoundingClientRect().top - sb.getBoundingClientRect().top - sb.clientHeight / 2; }, 30);
     }
 
-    // the actual reading bit
     async function chapter(i, n) {
         let bk = books()[i], c = bk && bk.chapters[n];
         if (!c) return;

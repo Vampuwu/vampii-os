@@ -59,7 +59,7 @@
     const srcsOf = pr => { let s = new Set(); ((pr && pr.tracks) || []).forEach(t => { (t.clips || []).forEach(c => { if (c.src) s.add(c.src); (c.takes || []).forEach(id => s.add(id)); }); if (t.snd && t.snd.smp && t.snd.smp.id) s.add(t.snd.smp.id); if (t.snd && t.snd.zones) Object.values(t.snd.zones).forEach(L => (L || []).forEach(z => { if (z && z.id) s.add(z.id); })); (t.fx || []).forEach(P => { if (P && P.p && P.p.ir && P.p.ir.id) s.add(P.p.ir.id); }); }); return s; };
     function need(pr) {
         srcsOf(pr).forEach(id => load(id));
-        // clean up old bounces nobody uses anymore. yours are safe
+        // Clean up old bounces nobody uses anymore. Yours are safe.
         if (!gcDone) { gcDone = true; setTimeout(gc, 4000); }
     }
     function gc() {
@@ -92,7 +92,7 @@
     }
     const beatsFor = (pr, at, dur) => NB.steady(pr) ? dur / (60 / pr.bpm) : NB.beatAt(pr, NB.secAt(pr, at) + dur) - at;
     const paceAt = (pr, at) => NB.steady(pr) ? pr.bpm : Math.round(NB.tempoAt(pr, at) * 1000) / 1000;
-    // warping. this was HARD. dont touch it
+    // Warping. This was HARD. Don't touch it.
     function warpMap(pr, tr, c, e) {
         if (!c.warp || c.rev || !Array.isArray(c.wm) || !c.wm.length) return null;
         let sp0 = 60 / pr.bpm * rateOf(pr, tr, c), M = [[0, 0]].concat(c.wm.filter(q => q[0] > 0 && q[0] < e.dur)), n = M.length;

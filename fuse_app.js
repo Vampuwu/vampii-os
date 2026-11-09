@@ -46,7 +46,7 @@ window.os = window.os || {};
         let fuse = [], cons = [], grid = new Map();
         const can = (a, b) => a.t === b.t && a.t < 12 && w.t - a.born > 0.06 && w.t - b.born > 0.06;
         const im = b => 1 / (b.r * b.r);
-        // positions first, velocities after. the old impulse one went to mush in a big pile
+        // Positions first, velocities after. The old impulse version turned to mush once the pile got big.
         function collect() {
             let big = 1; for (let b of w.b) if (b.r > big) big = b.r;
             let cs = big * 2; grid.clear();
@@ -1451,7 +1451,7 @@ window.os = window.os || {};
             delete os.fuse; delete os.gg.hooks.fuse;
         }
     };
-    // testing, dont touch
+    // test hooks
     os.fuse = { world, DEF, NAMES, MU, muTick, musicOn,
         hear: async (plan, sr, id) => {
             await os.need(['noisebox_fx.js', 'noisebox_sound.js']);

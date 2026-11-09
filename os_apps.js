@@ -187,7 +187,7 @@ os.toggleSetupModal = function() {
     // so plugin names with weird symbols dont break it
     const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const split = line => { let i = String(line).indexOf(' - '); return i < 0 ? [String(line), []] : [line.slice(0, i), line.slice(i + 3).split(/,\s*(?![^()]*\))/)]; };
-    // dot matrix printer lol
+    // dot matrix printer
     let n = 0;
     const row = (name, what, num) => `<div class="pr-v" style="--i: ${Math.min(n++, 70)}"><b>${name}</b><span>${what}</span><em>${num}</em></div>`;
     const line = (t, cls) => `<div class="pr-line ${cls || ''}" style="--i: ${Math.min(n++, 70)}">${t}</div>`;
@@ -390,7 +390,7 @@ document.addEventListener('click', () => {
 
 const trailGlyphs = ['0x', '//', 'ERR', '†', '‡', '░', '▒', '█', 'Δ', 'SYS', '::', 'x'];
 let lastX = 0, lastY = 0;
-// it was asking the browser for the colours every single mouse move lol
+// it was asking the browser for the colours on every single mouse move. cached now, cleared when the theme changes
 let sparks = [], sparkRaf = 0, sparkCols = null;
 new MutationObserver(() => { sparkCols = null; }).observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
 function sparkStep() {

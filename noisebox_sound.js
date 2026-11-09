@@ -155,7 +155,7 @@
             p: [['mode', 'KIND', 0, F.pick(['TWINS', 'FM', 'WOBBLE'])], ['det', 'RUB', 0.4, F.pct], ['fm', 'METAL', 0.2, F.pct], ['cut', 'CUT', 0.35, F.hz(60, 8000)], ['res', 'RES', 0.3, F.pct], ['move', 'MOVE', 0.3, v => v < 0.02 ? 'still' : v.toFixed(2)], ['rate', 'WOBBLE AT', 0.4, F.pick(['1/2', '1/4', '1/8', '1/8T', '1/16'])], ['drive', 'DIRT', 0.35, F.pct], ['sub', 'SUB', 0.5, F.pct], ['glide', 'GLIDE', 0.1, F.ms(0, 0.3)], ['oct', 'OCTAVE', 0.5, F.oct]],
             groups: [['源 · OSC', null, ['mode', 'det', 'fm', 'sub', 'glide', 'oct']], ['濾 · FILTER', null, ['cut', 'res', 'move', 'rate']], ['汚 · DIRT', null, ['drive']]], selects: ['mode', 'rate'],
             draw(x, w, h, s, D) { picDraw(this, x, w, h, s, D, D && D.semi, D && D.o); } },
-        // synths. SERPENT got out of hand lol
+        // Synths. SERPENT got out of hand
         { id: 'chrome', jp: '鍍', en: 'CHROME', sub: 'FM. 4 operators, 8 algorithms', kind: 'poly', part: 'nb_chrome', face: 'chrome',
             p: [['q1', '1 RATIO', 0.1, v => '×' + CHR.RAT[Math.min(CHR.RAT.length - 1, Math.floor(v * CHR.RAT.length))]],
                 ['dt1', '1 DETUNE', 0.5, v => { let c = Math.round((v - 0.5) * 50); return (c > 0 ? '+' : '') + c + 'c'; }],
@@ -846,7 +846,7 @@
                 ['地下の脈 // DUB UNDERNEATH', { pick: 0.1, pos: 0.9, sus: 0.8, mute: 0.1, comp: 0.6, grit: 0.1, lows: 0.85, mids: 0.3, midf: 0.4, clank: 0.05, top: 0.2, chor: 0, crate: 0.3, oct: 0.25, vol: 0.75 }],
                 ['輪ゴム // RUBBER BAND', { pick: 0.35, pos: 0.95, sus: 0.05, mute: 0.65, comp: 0.7, grit: 0, lows: 0.4, mids: 0.7, midf: 0.3, clank: 0.2, top: 0.4, chor: 0, crate: 0.3, oct: 0.5, vol: 1 }]],
             draw(x, w, h, s, D) { picDraw(this, x, w, h, s, D, 0, 0); } },
-        // church organ. sounds sick with heaps of reverb
+        // Organ. Sounds sick with heaps of reverb
         { id: 'vesper', jp: '晩祷', en: 'VESPER', sub: 'pipe organ. pull the stops', kind: 'poly', part: 'nb_vesper', face: 'grave',
             p: [['b16', "BOURDON 16'", 0.5, F.pct], ['p8', "PRINCIPAL 8'", 0.8, F.pct], ['f8', "FLUTE 8'", 0.4, F.pct], ['o4', "OCTAVE 4'", 0.5, F.pct], ['f2', "FIFTEENTH 2'", 0.3, F.pct], ['mix', 'MIXTURE', 0.2, F.pct], ['tr8', "TRUMPET 8'", 0, F.pct],
                 ['chiff', 'CHIFF', 0.4, F.pct], ['wind', 'WIND', 0.25, F.pct], ['trem', 'TREMULANT', 0, F.pct], ['swell', 'SWELL', 1, v => v > 0.97 ? 'open' : v < 0.03 ? 'shut' : Math.round(v * 100) + '%'], ['att', 'SPEECH', 0.3, F.ms(0.01, 0.4)], ['rel', 'RELEASE', 0.25, F.ms(0.02, 2, 2)], ['oct', 'OCTAVE', 0.5, F.oct]],
@@ -1184,7 +1184,7 @@
             let m = t.mix, o = m.out; if (o) { m.out = ''; if (canFeed(pr, t.uid, o)) m.out = o; }
             Object.keys(m.to).forEach(u => { let a = m.to[u]; delete m.to[u]; if (canFeed(pr, t.uid, u)) m.to[u] = a; else delete m.pre[u]; });
         });
-        // two plugins ended up sharing a brain. this stops that
+        // Two plugins ended up sharing a brain. This stops that
         let seenF = new Set(); pr.tracks.concat([pr.master]).forEach(o => (o.fx || []).forEach(P => { if (P.uid && seenF.has(P.uid)) P.uid = uid('f'); if (P.uid) seenF.add(P.uid); }));
         pr.master.fx.forEach(P => { P.uid = P.uid || uid('f'); P.p = Object.assign({}, NBFX.BY[P.type].def, NBFX.BY[P.type].extra ? NBFX.BY[P.type].extra() : {}, NBFX.BY[P.type].fix ? NBFX.BY[P.type].fix(Object.assign({ _v: 1 }, P.p || {})) : P.p || {}); });
         return pr;
@@ -2700,7 +2700,7 @@
             ns.forEach((nt, i) => { ply.push([nt, i, 1]); if (lo > 0.01) ply.push([nt - 12, i, lo]); });
             ply.forEach(([nt, i, gk]) => {
                 let tt = t + i * sp, f = hz(nt + octOf(V('oct', 0.5)) * 12), br = Math.min(1, V('pick', 0.6) * 0.75 + vel * 0.3), vib = V('vib', 0.2), src = null, v = c.createGain();
-                // pinch harmonics!!! squeeeee
+                // Pinch harmonics
                 if (ns.length === 1 && gk === 1 && mute < 0.5 && V('pinch', 0) > 0.01 && R() < V('pinch', 0) * (0.3 + vel * 0.7)) { f *= [3, 4, 5, 6][Math.floor(R() * 4)]; br = 1; vib = Math.max(vib, 0.6); }
                 if (c._nbwk) { try { src = new AudioWorkletNode(c, 'nb-razor', { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2], processorOptions: { start: tt, dur: X.hold ? -1 : Math.max(0.02, d - i * sp), f, vel, mute, sus, br, hard: V('pick', 0.6), pos: 0.08 + V('pos', 0.2) * 0.42, dbl: V('dbl', 0.8), vib, scrape: V('scrape', 0.3), seed: Math.floor(R() * 4294967295) || 5, life: X.hold ? 60 : d + sus * 0.6 + 1 } }); } catch (e) { src = null; } }
                 if (!src) { let o = c.createOscillator(), lp = c.createBiquadFilter(), eg = c.createGain(), L = mute > 0.5 ? 0.12 : Math.min(d, sus); o.type = 'sawtooth'; o.frequency.value = f; lp.frequency.value = 1500 + br * 3000; eg.gain.setValueAtTime(0.5 * vel, tt); eg.gain.setTargetAtTime(0, tt + (X.hold ? 30 : L), 0.05); o.connect(lp); lp.connect(eg); src = eg; o.start(tt); o.stop(tt + (X.hold ? 60 : L + 0.5)); }
@@ -2771,7 +2771,7 @@
             const off = typeof OfflineAudioContext !== 'undefined' && c instanceof OfflineAudioContext;
             notes.slice(0, vm ? 1 : notes.length).forEach(nt => {
                 let m = nt + octOf(s.oct) * 12, pc = (((m - (X.root || 0)) % 12) + 12) % 12, f = hz(m) * (cents ? Math.pow(2, (cents[pc] - pc * 100) / 1200) : 1);
-                // drift. old synths are never in tune and thats why they sound good
+                // Drift. Old synths are never quite in tune and that's half of why they sound good
                 if ((s.drf || 0) > 0.001) f *= Math.pow(2, (R() * 2 - 1) * s.drf * 18 / 1200);
                 let v = c.createGain(), src = null, life = (X.hold ? 30 : d), from = f;
                 if (mono) { let overlap = mono.end > t + 0.001; if (mono.f && (vm === 1 || overlap)) from = mono.f; if (mono.v && overlap) { try { mono.v.gain.setTargetAtTime(0, t, 0.008); } catch (e) {} } mono.f = f; mono.end = t + life; mono.v = v; }
@@ -3048,7 +3048,7 @@
             H(X, m.vca.gain, 0.05);
         }
     };
-    // supersaw. these numbers are from someone who measured the real one, not me lol
+    // Supersaw detune. These numbers are from someone who actually measured a JP-8000, not me
     const SSO = [-0.11002313, -0.06288439, -0.01952356, 0, 0.01991221, 0.06216538, 0.10745242];
     const ssDet = x => Math.max(0, 0.0030115596 + 0.6717417634 * x - 24.1878824391 * x ** 2 + 404.2703938388 * x ** 3 - 3425.0836591318 * x ** 4 + 17019.9518580080 * x ** 5 - 53046.9642751875 * x ** 6 + 106649.6679158292 * x ** 7 - 138150.6761080548 * x ** 8 + 111363.4808729368 * x ** 9 - 50818.8652045924 * x ** 10 + 10028.7312891634 * x ** 11);
     function superSaw(X, t, d, s, vel, notes) {
@@ -3383,7 +3383,7 @@
         let now = this.ctx.currentTime;
         if (run.done) { if (now > run.t + 0.05) { this.stop(); if (this.onend) this.onend(); } return; }
         let to = now + 0.25, guard = 0;
-        // if the tab freezes it waits instead of blasting every note at once. that happened once and it was horrible
+        // If the tab freezes it waits instead of firing every note at once. That happened once and it was horrible.
         if (run.t < now + 0.02) { run.t = now + 0.04; this.anchors.push(this.anchor(run.t, run.b)); if (this.anchors.length > 16) this.anchors.splice(0, this.anchors.length - 16); }
         while (run.t < to && guard++ < 32) {
             let pr = this.pr, spb = 60 / pr.bpm, L = pr.loop, looping = L.on && run.b < L.b - 1e-6 && L.b > L.a + 0.01, still = steady(pr);
@@ -3476,7 +3476,7 @@
         }
         return new Blob([ab], { type: 'audio/wav' });
     }
-    // zip files for stems. didnt want to add a whole library for this
+    // Zip for the stems. Didn't want a whole library just for this
     let crcT = null;
     function crc32(u8) { if (!crcT) { crcT = new Uint32Array(256); for (let i = 0; i < 256; i++) { let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; crcT[i] = c >>> 0; } } let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = crcT[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
     async function zip(files) {

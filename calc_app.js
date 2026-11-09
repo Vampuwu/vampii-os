@@ -147,7 +147,7 @@ window.os = window.os || {};
     }
     function keepTape() { let txt = C.tape.slice().reverse().map(r => r.e + ' = ' + r.v).join('\n'); let a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt + '\n'], { type: 'text/plain' })); a.download = 'calc_tape.txt'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
 
-    // real phone dial tones!! type your number in and it dials (it doesnt actually call anyone calm down)
+    // dtmf, the real two tone frequencies. type a phone number in and listen to it. no it doesnt call anyone
     const DTMF = { '1': [697, 1209], '2': [697, 1336], '3': [697, 1477], '4': [770, 1209], '5': [770, 1336], '6': [770, 1477], '7': [852, 1209], '8': [852, 1336], '9': [852, 1477], '0': [941, 1336], '.': [941, 1209], '=': [941, 1477] };
     function ctxA() { try { window.AudioContext = window.AudioContext || window.webkitAudioContext; if (!window.audioCtx) window.audioCtx = new AudioContext(); let A = window.audioCtx; if (A.state === 'suspended') A.resume(); return A; } catch (e) { return null; } }
     function click(k) {
@@ -166,7 +166,6 @@ window.os = window.os || {};
     }
 
     // converter. add more units here if u want, the format is easy
-    // TODO more units one day maybe
     const UNITS = {
         length: [['m', 1], ['cm', 0.01], ['mm', 0.001], ['km', 1000], ['in', 0.0254], ['ft', 0.3048], ['yd', 0.9144], ['mi', 1609.344]],
         mass: [['kg', 1], ['g', 0.001], ['lb', 0.45359237], ['oz', 0.028349523], ['st', 6.35029318]],
@@ -174,7 +173,7 @@ window.os = window.os || {};
         time: [['s', 1], ['min', 60], ['h', 3600], ['day', 86400]],
         data: [['B', 1], ['KB', 1024], ['MB', 1048576], ['GB', 1073741824], ['TB', 1099511627776]],
         temp: [['°C'], ['°F'], ['K']],
-        // car stuff. vroom
+        // car stuff. fuel economy is the odd one, mpg + L/100km are upside down from each other so it has its own maths like temp
         power: [['kW', 1], ['hp', 0.745699872], ['PS', 0.73549875], ['W', 0.001]],
         torque: [['N·m', 1], ['lb·ft', 1.3558179483], ['kgf·m', 9.80665]],
         speed: [['km/h', 1], ['mph', 1.609344], ['m/s', 3.6], ['knot', 1.852]],

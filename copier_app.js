@@ -5,7 +5,7 @@ window.os = window.os || {};
     const T = (k, d) => (typeof window.T === 'function' ? window.T(k, d) : d);
     const $ = id => document.getElementById(id);
     const KEY = 'vmp_copier';
-    // a4 lying sideways on the glass, like you actually put it
+    // A4 landscape on the glass
     const PW = 594, PH = 420;
     const ZOOMS = [50, 71, 100, 141, 200];
     const FX = [['neg', 'ネガ', 'NEG', 'negative'], ['flip', '鏡像', 'FLIP', 'mirror'], ['dots', '網点', 'DOTS', 'halftone dots'], ['tile', '4面', '4UP', 'four on one sheet']];
@@ -85,7 +85,6 @@ window.os = window.os || {};
                 v = 1 - (1 - v) * tf * mot;
                 for (let ch = 0; ch < 3; ch++) d[i + ch] = INK[ch] + (PAP[ch] - INK[ch]) * v;
             } else {
-                // cheap colour copier vibes
                 let L = (src[i] * 0.3 + src[i + 1] * 0.59 + src[i + 2] * 0.11) / 255;
                 for (let ch = 0; ch < 3; ch++) {
                     let sx = Math.min(PW - 1, Math.max(0, xx + off[ch][0])), sy = Math.min(PH - 1, Math.max(0, y + off[ch][1]));
@@ -304,7 +303,6 @@ window.os = window.os || {};
         gl.addEventListener('pointerdown', e => { if (!S.lid || !S.item || S.busy || !e.target.classList.contains('cp-item')) return; e.preventDefault(); gl.setPointerCapture(e.pointerId); drag = { x: e.clientX, y: e.clientY, ix: S.item.x, iy: S.item.y, k: PW / gl.getBoundingClientRect().width }; });
         gl.addEventListener('pointermove', e => { if (!drag) return; S.item.x = Math.max(-S.item.w * 0.8, Math.min(PW * 0.95, drag.ix + (e.clientX - drag.x) * drag.k)); S.item.y = Math.max(-S.item.h * 0.8, Math.min(PH * 0.95, drag.iy + (e.clientY - drag.y) * drag.k)); paintGlass(); });
         ['pointerup', 'pointercancel'].forEach(ev => gl.addEventListener(ev, () => { drag = null; }));
-        // drop a pic anywhere on it
         root.addEventListener('dragover', e => e.preventDefault());
         root.addEventListener('drop', e => { e.preventDefault(); let f = e.dataTransfer && e.dataTransfer.files[0]; if (f) fromFile(f); });
         stack(); paintGlass(); lcd();

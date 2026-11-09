@@ -108,7 +108,7 @@ window.os = window.os || {};
             b.onclick = () => show(+b.dataset.i);
             let im = b.querySelector('img'); const on = () => { b.classList.add('on'); tint(b, im); }; if (im.complete && im.naturalWidth) on(); else { im.onload = on; im.onerror = () => b.classList.add('on', 'nosig'); }
         });
-        // cables everywhere. TODO tidy them lol
+        // TODO tidy the cables (these AND the ones under my actual desk)
         let fl = $('gl-floor'), svg = '<svg viewBox="0 0 400 60" preserveAspectRatio="none">';
         for (let i = 0; i < 6; i++) { let x0 = R() * 400, y0 = 4 + R() * 10, x1 = x0 + (R() - 0.5) * 260, y1 = 20 + R() * 36; svg += `<path d="M${x0.toFixed(0)} ${y0.toFixed(0)} C ${(x0 + 40 * (R() - 0.5)).toFixed(0)} ${(y1 + 10).toFixed(0)}, ${(x1 - 30).toFixed(0)} ${(y0 + 20).toFixed(0)}, ${x1.toFixed(0)} ${y1.toFixed(0)}"/>`; }
         requestAnimationFrame(() => { room.scrollTop = room.scrollHeight; });

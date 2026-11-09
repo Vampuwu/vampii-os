@@ -1,4 +1,4 @@
-// flipbook. like the ds one but on my tablet
+// Flipbook. Basically Flipnote Studio from the DSi, I was obsessed with that thing
 // TODO undo for adding + deleting frames
 window.os = window.os || {};
 

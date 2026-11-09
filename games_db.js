@@ -260,62 +260,62 @@ const stackLines = {
 };
 // the big chrome yelling. english only. split options with " / "
 const stackShouts = {
-    perfect: 'HARDCORE ALIGNMENT / ZERO OVERHANG / FLUSH. HARDCORE. / LOAD BEARING / SLAB SLAMMED / BRUTALLY LEVEL / EDGES OBLITERATED / 100% FLUSH',
-    beat: 'STACKED ON THE KICK / RHYTHMIC MASONRY / SLAB DROPPED ON THE BEAT',
-    chain: '{n} SLABS DEEP / {n}X FLUSH / ILLEGAL LEVELS OF STACKING / STACKING WILL NEVER DIE / TOO STACKED 4 U / COUNCIL HAS BEEN NOTIFIED / BUILDING CODE VIOLATED',
-    clean: 'STACKED. I GUESS. / PASSABLE MASONRY / IT IS A FLOOR',
-    close: 'SHAVED. BARELY. / A LITTLE OFF THE EDGE',
-    cut: 'OVERHANG DETECTED / SOFT STACKING / BITS FELL OFF / NOT FLUSH. WEAK. / CASUAL STACKER DETECTED / SLAB TRIMMED. MILD.',
-    lean: 'TOWER LEANING / TOO HARDCORE TO STAND UP',
-    wipe: 'TOWER DESTROYED / GRAVITY WINS / YOU WERE NOT STACKED ENOUGH',
+    perfect: 'ZERO OVERHANG / FLUSH. HARDCORE. / LOAD BEARING',
+    beat: 'STACKED ON THE KICK',
+    chain: '{n} SLABS DEEP / {n}X FLUSH / COUNCIL HAS BEEN NOTIFIED',
+    clean: 'IT IS A FLOOR',
+    close: 'SHAVED. BARELY.',
+    cut: 'OVERHANG DETECTED / BITS FELL OFF',
+    lean: 'TOWER LEANING',
+    wipe: 'TOWER DESTROYED',
     fever: 'HARDCORE STACKING MODE',
     feverEnd: 'STACKING MODE DEPLETED. HYDRATE.',
-    trialWin: 'INSPECTION PASSED. BRUTALLY.',
-    trialLose: 'FAILED INSPECTION. SOFT.',
+    trialWin: 'INSPECTION PASSED',
+    trialLose: 'FAILED INSPECTION',
     hot: 'HOT SLAB INCOMING',
     hotWin: 'HOT SLAB STACKED',
-    sector: 'FLOOR {n} BRUTALLY CONSTRUCTED',
-    pb: 'NEW PERSONAL BEST / PERSONAL BEST OBLITERATED / PB. HARDCORE.'
+    sector: 'FLOOR {n}',
+    pb: 'NEW PERSONAL BEST'
 };
 const stackNames = {
-    L: 'L-BEAM OF DOOM',
-    T: 'T-BEAM OF TERROR',
-    plus: 'CROSS SLAB OF FURY',
-    U: 'U-CHANNEL OF PAIN',
-    ring: 'RING SLAB OF SUFFERING',
-    S: 'S-BLOCK. GOOD LUCK.',
-    dumb: 'DUMBBELL SLAB OF DEATH',
-    stairs: 'STAIRWAY TO HARDCORE',
-    dots: 'LOOSE BRICKS OF DESPAIR',
-    hook: 'THE HOOK BEAM',
-    comb: 'COMB SLAB OF CHAOS',
-    big: 'OVERSIZED SLAB',
-    plank: 'THE PLANK'
+    L: 'L BEAM',
+    T: 'T BEAM',
+    plus: 'CROSS',
+    U: 'U CHANNEL',
+    ring: 'RING',
+    S: 'S BLOCK. GOOD LUCK.',
+    dumb: 'DUMBBELL',
+    stairs: 'STAIRS',
+    dots: 'LOOSE BRICKS',
+    hook: 'HOOK',
+    comb: 'COMB',
+    big: 'BIG ONE',
+    plank: 'PLANK'
 };
 const stackAch = {
-    first: 'PLACED A SLAB',
+    first: 'FIRST SLAB',
     three: 'THREE (3) SLABS',
-    perfect: 'ALIGNED SOMETHING',
+    perfect: 'FIRST PERFECT',
     cut: 'LOST A BIT',
-    ten: 'TALLER THAN A SHED',
-    twenty: 'BUILDING PERMIT REQUIRED',
-    chain5: 'CONSISTENT. ALARMINGLY.',
-    slow: 'NEEDED A MOMENT',
-    fever: 'HYDRATION PENDING',
-    thirty: 'VISIBLE FROM SPACE (NOT REALLY)',
-    fifty: 'CERTIFIED STRUCTURE',
+    ten: '10 FLOORS',
+    twenty: '20 FLOORS',
+    chain5: '5 PERFECT IN A ROW',
+    slow: 'USED SLOW-MO',
+    fever: 'HARDCORE STACKING MODE',
+    thirty: '30 FLOORS',
+    fifty: '50 FLOORS',
     hot: 'TOUCHED THE HOT ONE',
-    trial: 'PASSED AN INSPECTION. SOMEHOW.',
+    trial: 'PASSED AN INSPECTION',
     corner: 'THE SKULL HIT THE CORNER'
 };
 const stackRanks = [
-    'HARDCORE INTERN',
-    'HARDCORE TRAINEE',
-    'HARDCORE ENJOYER',
-    'HARDCORE PROFESSIONAL',
-    'HARDCORE MANAGER',
-    'HARDCORE EXECUTIVE',
-    'HARDCORE EMERITUS',
+    'WORK EXPERIENCE KID',
+    'LABOURER',
+    'BRICKIE',
+    'CHIPPY',
+    'LEADING HAND',
+    'FOREMAN',
+    'SITE MANAGER',
     'HARDCORE DEITY (PROVISIONAL)'
 ];
 const stackTrials = {
@@ -325,32 +325,25 @@ const stackTrials = {
 };
 // my marker scribbles. " / " between options
 const stackScrawl = {
-    slab: 'drop it. go on / you got this (you dont) / this ones cursed / trust the process / why is it that shape / ok now',
-    note: 'TODO make it harder / TODO fix the banana drone / dont tell anyone the slow-mo is cheating / its 3am / who approved this tower',
-    wipe: 'lmaooo / ok that one was on you / skill issue / rip bozo / the tower is fine. you are not',
-    rank: 'i made these up / not a real job',
-    hard: 'this number means nothing / goes up. thats it',
+    slab: 'drop it. go on / why is it that shape',
+    note: 'TODO make it harder / its 3am',
+    wipe: 'lmaooo / skill issue',
+    rank: 'not a real job',
+    hard: 'this number means nothing',
     news: 'none of this is news',
-    pa: 'lol / mum look',
-    chain: 'proud of u / ok show off'
+    pa: 'mum look',
+    chain: 'ok show off'
 };
 const stackNews = [
     '板が一枚積まれる|one slab placed',
     '専門家「高すぎる」|experts: its too high',
     'カラスが避難|crows evacuated',
-    '自販機 今日も無言|vending machine still silent',
-    '猫は見ている|the cat is watching',
-    '月のカラオケ 予約殺到|moon karaoke fully booked',
-    'ぬるい水 もうない|lukewarm water all gone',
     '傾きに注意|watch the lean'
 ];
 const stackAds = [
     '腰痛に効く|good for your back',
     'ぬるい水 新発売|lukewarm water. new',
-    '月で歌おう|sing on the moon',
     '落とし物 預かってます|we have your lost thing',
-    '本物の雨 使用|made with real rain',
-    '鬼積み協会|stacking association',
     '牛乳|milk'
 ];
 window.gamesDB.stack = { lines: stackLines, shouts: stackShouts, names: stackNames, ach: stackAch, ranks: stackRanks, trials: stackTrials, scrawl: stackScrawl, news: stackNews, ads: stackAds };

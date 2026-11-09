@@ -1090,7 +1090,7 @@
         if (hd) { let X0 = PX(hd[1]), Y = PY(hd[0]), rr = 3 + Math.min(1.3, hd[2]) * 3.5, hot = hd[3] > 0.05; x.shadowColor = hot ? '#ff3a4a' : D.B; x.shadowBlur = 12 + hd[3] * 14; x.fillStyle = hot ? '#ff6a72' : '#fff'; x.beginPath(); x.arc(X0, Y, rr, 0, 7); x.fill(); x.shadowBlur = 0;
             x.font = '9px Courier New'; x.fillStyle = 'rgba(255,255,255,0.7)'; x.textAlign = 'right'; x.fillText('F1 ' + Math.round(hd[0]) + '  F2 ' + Math.round(hd[1]), w - 4, h - 6); x.textAlign = 'left'; }
     }
-    // stops redrawing when nothing's happening, my laptop fan thanks me
+    // Stops redrawing when nothing's changing
     let actAt = 0, fN = 0; ['pointerdown', 'pointermove', 'wheel', 'keydown', 'input', 'change'].forEach(ev => document.addEventListener(ev, () => { actAt = performance.now(); }, { passive: true, capture: true }));
     X.rackFrame = function () {
         let V = X.V(), L = X.live(); if (!V) return;
