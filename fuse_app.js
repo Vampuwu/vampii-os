@@ -4,12 +4,12 @@ window.os = window.os || {};
 (function () {
     const KEY = 'vmp_fuse';
     const DEF = {
-        gravity: 2200, bounce: 0.12, friction: 0.12, damp: 0.997, cooldown: 0.45,
-        laserPct: 15, overMs: 2000, chainMs: 600, chainStep: 0.5, closeCall: 25, holoBonus: 500, tubeW: 360, tubeH: 480,
-        shakeEvery: 8, shakeMax: 2, shakeKick: 520, bombEvery: 14, bombR: 22, bombBlast: 170, bombForce: 900, bombKill: 3,
-        litEvery: 6, litSecs: 12, litBonus: 15, litShove: 230, litForce: 750, magnetRange: 2.4, magnetPull: 1400,
+        gravity: 2200, bounce: 0.12, friction: 0.12, damp: 0.997, roll: 0.02, cooldown: 0.45,
+        laserPct: 15, overMs: 2000, chainMs: 600, chainStep: 0.5, closeCall: 25, holoBonus: 500, tubeW: 270, tubeH: 460,
+        shakeEvery: 8, shakeMax: 2, shakeKick: 520, bombEvery: 14, bombR: 22, bombBlast: 130, bombForce: 900, bombKill: 3,
+        litEvery: 6, litSecs: 12, litBonus: 15, litShove: 175, litForce: 750, magnetRange: 2.4, magnetPull: 1400,
         shinyChance: 0.03, shinyPay: 2, musicVol: 0.6, rankAt: [0, 40, 120, 300, 600, 1000, 1600, 2500, 4000, 6500, 10000],
-        radii: [12, 17, 22, 27, 33, 40, 47, 56, 65, 76, 88], points: [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66], odds: [30, 27, 22, 14, 7]
+        radii: [12, 17, 22, 27, 33, 40, 47, 56, 65, 76, 88], points: [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66], odds: [24, 26, 24, 16, 10]
     };
     const NAMES = ['pixel', 'button', 'cherry', 'dice', 'gem', 'heart', 'bell', 'disco', 'moon', 'planet', 'holoheart'];
     const U = 2.5;
@@ -25,12 +25,13 @@ window.os = window.os || {};
     const calm = () => document.documentElement.classList.contains('reduce-motion');
     const clamp = (x, a, b) => x < a ? a : x > b ? b : x;
 
-    const fresh = () => ({ top: {}, bestTier: {}, holo: 0, runs: 0, fused: 0, shiny: 0, seen: [], mode: 'classic', muted: false });
+    const fresh = () => ({ top: {}, bestTier: {}, holo: 0, runs: 0, fused: 0, shiny: 0, seen: [], mode: 'classic', muted: false, noMusic: false, noSfx: false });
     let D = fresh();
     function loadD() {
         try { let d = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d) D = Object.assign(fresh(), d); } catch (e) {}
         if (MODES.indexOf(D.mode) < 0) D.mode = 'classic';
         if (!Array.isArray(D.seen)) D.seen = [];
+        if (D.muted) { D.noMusic = D.noSfx = true; D.muted = false; }
     }
     function saveD() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
 
@@ -46,6 +47,7 @@ window.os = window.os || {};
         let fuse = [], cons = [], grid = new Map();
         const can = (a, b) => a.t === b.t && a.t < 12 && w.t - a.born > 0.06 && w.t - b.born > 0.06;
         const im = b => 1 / (b.r * b.r);
+        const MU = () => o.friction, MUW = () => o.friction * 0.15, MUF = () => o.friction * 1.5, SEP = 260;
         // Positions first, velocities after. The old impulse version turned to mush once the pile got big.
         function collect() {
             let big = 1; for (let b of w.b) if (b.r > big) big = b.r;
@@ -72,38 +74,45 @@ window.os = window.os || {};
         function solve(c) {
             let a = c.a, b = c.b, dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) || 0.001, ov = a.r + b.r - d;
             if (ov <= 0) return;
-            let wa = im(a), wb = im(b), k = ov / (wa + wb), nx = dx / d, ny = dy / d;
-            a.x -= nx * k * wa; a.y -= ny * k * wa; b.x += nx * k * wb; b.y += ny * k * wb; c.lam += k;
+            let wa = im(a) * (a.wl || a.fl ? 0.25 : 1), wb = im(b) * (b.wl || b.fl ? 0.25 : 1), nx = dx / d, ny = dy / d;
+            if (wa > wb * 4) wb = wa / 4; else if (wb > wa * 4) wa = wb / 4;
+            let k = ov / (wa + wb);
+            a.x -= nx * k * wa; a.y -= ny * k * wa; b.x += nx * k * wb; b.y += ny * k * wb; c.lam += ov / (im(a) + im(b));
         }
         function walls(b) {
-            if (b.x - b.r < 0) { b.x = b.r; b.touch = true; b.wl = 1; }
-            if (b.x + b.r > w.W) { b.x = w.W - b.r; b.touch = true; b.wl = 1; }
-            if (b.y + b.r > w.H) { b.y = w.H - b.r; b.touch = true; b.fl = 1; if (b.t === 12) b.hit = 1; }
+            if (b.x - b.r < 0) { b.lw += (b.r - b.x) / im(b); b.x = b.r; b.touch = true; b.wl = -1; }
+            if (b.x + b.r > w.W) { b.lw += (b.x + b.r - w.W) / im(b); b.x = w.W - b.r; b.touch = true; b.wl = 1; }
+            if (b.y + b.r > w.H) { b.lf += (b.y + b.r - w.H) / im(b); b.y = w.H - b.r; b.touch = true; b.fl = 1; if (b.t === 12) b.hit = 1; }
+        }
+        function rub(b, nx, ny, lam, mu, h) {
+            let tx = -ny, ty = nx, vt = b.vx * tx + b.vy * ty + b.w * b.r, s = 3 * im(b), lim = mu * lam / h, j = clamp(-vt / s, -lim, lim);
+            b.vx += tx * j * im(b); b.vy += ty * j * im(b); b.w += 2 * j * im(b) / b.r;
         }
         function sub(h) {
             for (let b of w.b) {
-                if (b.r < b.R) b.r = Math.min(b.R, b.r + b.R * 0.4 * h / 0.12);
+                if (b.r < b.R) { b.r += (b.R - b.r) * Math.min(1, h * 24); if (b.R - b.r < 0.05) b.r = b.R; }
                 b.vy += o.gravity * h;
                 let sp = b.vx * b.vx + b.vy * b.vy; if (sp > 6.25e6) { let k = 2500 / Math.sqrt(sp); b.vx *= k; b.vy *= k; }
-                b.ox = b.x; b.oy = b.y; b.x += b.vx * h; b.y += b.vy * h; b.a += b.w * h; b.wl = b.fl = 0; b.pvx = b.vx; b.pvy = b.vy;
+                b.ox = b.x; b.oy = b.y; b.x += b.vx * h; b.y += b.vy * h; b.a += b.w * h; b.wl = b.fl = 0; b.lw = b.lf = 0; b.pvx = b.vx; b.pvy = b.vy;
             }
             collect();
             if (fuse.length) doFuse();
-            for (let it = 0; it < 6; it++) { for (let c of cons) solve(c); for (let b of w.b) walls(b); }
+            for (let it = 0; it < 12; it++) { if (it % 2) for (let i = cons.length - 1; i >= 0; i--) solve(cons[i]); else for (let c of cons) solve(c); for (let b of w.b) walls(b); }
             for (let b of w.b) { b.vx = (b.x - b.ox) / h; b.vy = (b.y - b.oy) / h; }
             // Only bounces on proper hits. friction is how hard they shoved
             for (let c of cons) {
                 let a = c.a, b = c.b, dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) || 0.001, nx = dx / d, ny = dy / d, wa = im(a), wb = im(b), s = wa + wb;
-                let rvx = b.vx - a.vx, rvy = b.vy - a.vy, vn = rvx * nx + rvy * ny;
+                let vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny, cap = Math.max(SEP, c.vn);
+                if (vn > cap) { let j = (vn - cap) / s; a.vx += nx * j * wa; a.vy += ny * j * wa; b.vx -= nx * j * wb; b.vy -= ny * j * wb; vn = cap; }
                 if (c.vn < -80) { let dv = -o.bounce * c.vn - vn; if (dv > 0) { let j = dv / s; a.vx -= nx * j * wa; a.vy -= ny * j * wa; b.vx += nx * j * wb; b.vy += ny * j * wb; } }
                 if (c.vn < -260) { a.land = Math.max(a.land, Math.min(1, -c.vn / 900)); b.land = Math.max(b.land, Math.min(1, -c.vn / 900)); }
-                let tx = -ny, ty = nx, vt = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty, lim = o.friction * c.lam / h, jt = clamp(vt / s, -lim, lim);
-                a.vx += tx * jt * wa; a.vy += ty * jt * wa; b.vx -= tx * jt * wb; b.vy -= ty * jt * wb;
-                a.w += ((vt) / a.r - a.w) * 0.2; b.w += ((-vt) / b.r - b.w) * 0.2;
+                let tx = -ny, ty = nx, vt = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty - b.w * b.r - a.w * a.r, st = 3 * s, lim = MU() * c.lam / h, jt = clamp(-vt / st, -lim, lim);
+                a.vx -= tx * jt * wa; a.vy -= ty * jt * wa; b.vx += tx * jt * wb; b.vy += ty * jt * wb;
+                a.w -= 2 * jt * wa / a.r; b.w -= 2 * jt * wb / b.r;
             }
             for (let b of w.b) {
-                if (b.fl) { let jn = b.pvy; if (jn > 260) b.land = Math.max(b.land, Math.min(1, jn / 900)); if (jn > 80) b.vy = -jn * o.bounce; b.vx *= 1 - Math.min(1, o.friction * 0.25); b.w += (b.vx / b.r - b.w) * 0.25; }
-                if (b.wl) { let jn = Math.abs(b.pvx); if (jn > 80) b.vx = (b.x < w.W / 2 ? 1 : -1) * jn * o.bounce; b.vy *= 1 - Math.min(1, o.friction * 0.12); }
+                if (b.fl) { let jn = b.pvy; if (jn > 260) b.land = Math.max(b.land, Math.min(1, jn / 900)); if (jn > 80) b.vy = -jn * o.bounce; else if (b.vy < -SEP) b.vy = -SEP; rub(b, 0, 1, b.lf, MUF(), h); }
+                if (b.wl) { let jn = Math.abs(b.pvx); if (jn > 80) b.vx = -b.wl * jn * o.bounce; else if (b.vx * b.wl < -SEP) b.vx = -b.wl * SEP; rub(b, b.wl, 0, b.lw, MUW(), h); }
             }
             for (let b of w.b) if (b.t === 12 && b.hit && !b.gone) { b.gone = true; w.ev.push({ k: 'boom', x: b.x, y: b.y }); }
             if (w.b.some(b => b.gone)) w.b = w.b.filter(b => !b.gone);
@@ -116,7 +125,7 @@ window.os = window.os || {};
                 let ma = a.r * a.r, mb = b.r * b.r, x = (a.x * ma + b.x * mb) / (ma + mb), y = (a.y * ma + b.y * mb) / (ma + mb), vx = (a.vx + b.vx) / 2, vy = (a.vy + b.vy) / 2, t = a.t + 1;
                 if (t > 11) { w.ev.push({ k: 'burst', x, y }); continue; }
                 let nb = w.add(t, x, y, vx * 0.5, vy * 0.5, true);
-                nb.pop = 1; nb.shiny = a.shiny || b.shiny;
+                nb.pop = 1; nb.shiny = a.shiny || b.shiny; nb.w = (a.w * ma + b.w * mb) / (ma + mb) * 0.5;
                 w.ev.push({ k: 'fuse', t, x, y, lit: a.lit > 0 || b.lit > 0, shiny: nb.shiny });
                 let reach = nb.R * 1.5;
                 for (let c of w.b) {
@@ -131,11 +140,14 @@ window.os = window.os || {};
             for (let b of w.b) b.touch = false;
             if (o.magnet) pull(dt);
             let n = 4, h = dt / n;
+            for (let b of w.b) { b.sx = b.x; b.sy = b.y; }
             for (let i = 0; i < n; i++) { w.t += h; sub(h); }
             for (let b of w.b) {
-                let k = Math.pow(o.damp, dt * 120); b.vx *= k; b.vy *= k; b.w *= b.touch ? 0.96 : 0.995;
+                let k = Math.pow(o.damp, dt * 120); b.vx *= k; b.vy *= k;
+                if (b.touch) b.w *= Math.pow(1 - o.roll, dt * 120); else b.w *= 0.999;
                 // ugh
-                if (b.touch && b.vx * b.vx + b.vy * b.vy < 9) { b.vx *= 0.5; b.vy *= 0.5; }
+                if (b.touch && b.vx * b.vx + b.vy * b.vy < 9) { b.vx *= 0.5; b.vy *= 0.5; b.w *= 0.5; }
+                if (b.touch && Math.abs(b.w) < 0.6 && Math.abs(b.x - b.sx) + Math.abs(b.y - b.sy) < 0.06) b.w = 0;
             }
         };
         function pull(dt) {
@@ -901,7 +913,7 @@ window.os = window.os || {};
     }
 
     function snd(k, a, b) {
-        if (D.muted || (os.prefs && os.prefs.sound === false) || (S && S.demo && k !== 'tick')) return;
+        if (D.noSfx || (os.prefs && os.prefs.sound === false) || (S && S.demo && k !== 'tick')) return;
         try {
             let A = window.audioCtx || (window.audioCtx = new (window.AudioContext || window.webkitAudioContext)()); if (A.state === 'suspended') A.resume();
             let out = os.gg && os.gg.out ? os.gg.out(A) : A.destination, now = A.currentTime;
@@ -1141,7 +1153,7 @@ window.os = window.os || {};
         }
     }
     function musicOn() {
-        if (MU.on || D.muted || (os.prefs && os.prefs.sound === false)) return;
+        if (MU.on || D.noMusic || (os.prefs && os.prefs.sound === false)) return;
         if (!MU.ready || (MU.want && MU.sg !== MU.want)) { muLoad(MU.want); return; }
         try {
             let A = MU.A; if (A.state === 'suspended') A.resume();
@@ -1282,13 +1294,15 @@ window.os = window.os || {};
         else if (!on && S.state === 'pause') { S.state = 'play'; hide(); last = 0; musicOn(); }
         btns();
     }
-    function mute() { D.muted = !D.muted; saveD(); btns(); if (D.muted) musicOff(0.1); else if (S && S.state === 'play') musicOn(); }
+    function mute() { D.noMusic = !D.noMusic; saveD(); btns(); if (D.noMusic) musicOff(0.1); else if (S && S.state === 'play') musicOn(); }
+    function quiet() { D.noSfx = !D.noSfx; saveD(); btns(); snd('tick'); }
     function btns() {
-        let p = root && root.querySelector('[data-b="pause"]'), m = root && root.querySelector('[data-b="mute"]');
+        let p = root && root.querySelector('[data-b="pause"]'), m = root && root.querySelector('[data-b="mute"]'), q = root && root.querySelector('[data-b="sfx"]');
         if (p) { p.textContent = S && S.state === 'pause' ? '▶' : 'Ⅱ'; p.hidden = !S || (S.state !== 'play' && S.state !== 'pause'); }
         let sh = root && root.querySelector('[data-b="shake"]');
         if (sh) { sh.hidden = !S || S.state !== 'play'; sh.disabled = !S || S.shakes < 1; sh.title = LE('shake', 0, 'ゆらす | SHAKE'); sh.textContent = LJ('shake', 0, 'ゆらす | SHAKE'); }
-        if (m) { m.textContent = D.muted ? '×' : '♪'; m.title = D.muted ? LE('unmute', 0, 'ミュート解除 | sound on') : LE('mute', 0, 'ミュート | mute'); }
+        if (m) { m.classList.toggle('off', !!D.noMusic); m.title = D.noMusic ? L('musicOn', 0, 'BGMオン | music on') : L('musicOff', 0, 'BGMオフ | music off'); }
+        if (q) { q.classList.toggle('off', !!D.noSfx); q.title = D.noSfx ? L('sfxOn', 0, '効果音オン | sound effects on') : L('sfxOff', 0, '効果音オフ | sound effects off'); }
     }
     const touchy = () => matchMedia('(any-pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches;
 
@@ -1314,6 +1328,7 @@ window.os = window.os || {};
         else if ((k === 'c' || k === 'C' || k === 'Shift') && S.state === 'play') swap();
         else if (k === 'p' || k === 'P') pause(S.state === 'play');
         else if (k === 'm' || k === 'M') mute();
+        else if (k === 'n' || k === 'N') quiet();
         else if ((k === 'r' || k === 'R') && S.state === 'done') go(S.mode);
         else if (k === 'Enter' && S.state === 'menu') { e.preventDefault(); go(D.mode || 'classic'); }
         else if ((k === 'ArrowUp' || k === 'ArrowDown' || k === 'w' || k === 'W') && S.state === 'menu') { e.preventDefault(); let i = MODES.indexOf(D.mode); D.mode = MODES[(i + (k === 'ArrowUp' ? -1 : 1) + MODES.length) % MODES.length]; saveD(); snd('tick'); show('menu'); preview(); }
@@ -1385,6 +1400,8 @@ window.os = window.os || {};
             .fz-keys button:disabled { opacity: 0.4; }
             .fz-keys button[hidden] { display: none; }
             .fz-keys [data-b="shake"] { color: var(--neon-secondary); }
+            .fz-keys button.off { position: relative; color: #8f899f; }
+            .fz-keys button.off::after { content: ''; position: absolute; left: -2px; right: -2px; top: 50%; height: 2px; margin-top: -2px; background: rgba(255, 90, 106, 0.85); transform: rotate(-35deg); }
             .fz-stage[data-k="menu"] .fz-keys, .fz-stage[data-k="done"] .fz-keys { display: none; }
             .short .fz-logo { height: 52px; } .short .fz-sub { display: none; } .short .fz-what { min-height: 0; margin: 6px 0 4px; } .short .fz-holo { margin-bottom: 4px; } .short .fz-hint { margin-top: 3px; }
             @media (pointer: coarse) { .fz-keys { gap: 6px; } .fz-keys button { min-width: 38px; height: 38px; font-size: 16px; } .fz-mode b { height: 22px; } .fz-modes { gap: 6px; } .fz-btn { padding: 4px 10px 6px; } }
@@ -1420,6 +1437,7 @@ window.os = window.os || {};
         cv.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
         root.querySelector('[data-b="pause"]').onclick = () => pause(S && S.state === 'play');
         root.querySelector('[data-b="mute"]').onclick = mute;
+        root.querySelector('[data-b="sfx"]').onclick = quiet;
         root.querySelector('[data-b="shake"]').onclick = shake;
         document.addEventListener('keydown', onKey); document.addEventListener('keyup', onKey);
         last = 0; raf = requestAnimationFrame(frame);
@@ -1431,7 +1449,7 @@ window.os = window.os || {};
         start(el) {
             root = el; asleep = false; keys = {};
             style = styles();
-            el.innerHTML = '<div class="fz"><div class="fz-stage" data-k="menu"><div class="fz-box"><canvas class="fz-cv"></canvas><div class="fz-keys"><button data-b="shake" aria-label="shake">揺</button><button data-b="pause" aria-label="pause">Ⅱ</button><button data-b="mute" aria-label="sound">♪</button></div></div><div class="fz-ov" hidden></div></div></div>';
+            el.innerHTML = '<div class="fz"><div class="fz-stage" data-k="menu"><div class="fz-box"><canvas class="fz-cv"></canvas><div class="fz-keys"><button data-b="shake" aria-label="shake">揺</button><button data-b="pause" aria-label="pause">Ⅱ</button><button data-b="mute" aria-label="music">♪</button><button data-b="sfx" aria-label="sound effects">SE</button></div></div><div class="fz-ov" hidden></div></div></div>';
             init();
         },
         pause() { asleep = true; keys = {}; if (S && S.state === 'play') pause(true); musicOff(0.1); stopAll(); },

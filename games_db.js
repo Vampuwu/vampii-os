@@ -117,8 +117,10 @@ const fuseLines = {
     paused: '一時停止 | PAUSED',
     resume: '再開 | RESUME',
     end: 'やめる | END RUN',
-    mute: 'ミュート | mute',
-    unmute: 'ミュート解除 | sound on',
+    musicOff: 'BGMオフ | music off',
+    musicOn: 'BGMオン | music on',
+    sfxOff: '効果音オフ | sound effects off',
+    sfxOn: '効果音オン | sound effects on',
     hint: 'マウスで狙って、クリックで落とす。右クリックで入れ替え。←→とスペースでもいける、↑でゆらす、Cで入れ替え、Pで一時停止 | mouse aims, click drops, right click swaps. or ←→ and space, ↑ shakes, C swaps, P pauses',
     hintTouch: 'ドラッグで狙って、指を離すと落とす。「次」をタップで入れ替え、ゆらすボタンで揺らせる、Ⅱで一時停止 | drag to aim and let go to drop. tap NEXT to swap, ゆらす shakes it, Ⅱ pauses'
 };

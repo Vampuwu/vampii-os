@@ -292,7 +292,7 @@ window.os = window.os || {};
     const E = '#desktop > #win-duck\\.exe';
     css.textContent = `
         /* no window. a duck + a sticky note */
-        ${E} { background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+        ${E} { background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; }
         ${E}::before, ${E}::after, ${E} .wglow, ${E} .wbloom { display: none !important; }
         ${E} .window-header { position: absolute !important; z-index: 4; left: 70px; right: 70px; top: 0; height: 22px; padding: 0 !important; overflow: visible !important; background: none !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
         ${E} .window-header::before, ${E} .window-header::after, ${E} .win-ic, ${E} .window-header > span:first-child, ${E} .max-btn { display: none !important; }

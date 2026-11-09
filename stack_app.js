@@ -254,7 +254,7 @@ window.os = window.os || {};
             else if (q.k === 'news') { arrow([70, H - 24], [40, H - 9], q, col); word(q.s, 62, H - 30, 6, col, -0.06, q); }
             else if (q.k === 'pa') { ring(W - 32, H - 43, 28, 14, q, col); word(q.s, W - 76, H - 64, 8, col, -0.2, q); }
             else if (q.k === 'chain') { let hx = W - 52, hy = 30, pts = []; for (let i = 0; i <= 24; i++) { let u = i / 24 * Math.PI * 2; pts.push([hx + 16 * Math.pow(Math.sin(u), 3) * 0.5, hy - (13 * Math.cos(u) - 5 * Math.cos(2 * u) - 2 * Math.cos(3 * u)) * 0.5]); } line(pts, q, '#ff5fa2', 1.4); word(q.s, hx - 30, hy + 12, 7, '#ff5fa2', -0.12, q); }
-            else if (q.k === 'wipe') { word(q.s, W * 0.18, H * 0.3, 18, col, -0.14, q); line([[W * 0.18, H * 0.38], [W * 0.5, H * 0.36], [W * 0.78, H * 0.39]], q, col, 2); }
+            else if (q.k === 'wipe') { word(q.s, W * 0.3, H * 0.52, 18, col, -0.14, q); line([[W * 0.28, H * 0.6], [W * 0.52, H * 0.585], [W * 0.74, H * 0.61]], q, col, 2); }
         });
         c.restore();
     }
@@ -833,7 +833,7 @@ window.os = window.os || {};
         let lx = W / 2 - 40, ly = H - 18;
         t(two('lean', '傾き | lean'), W / 2, ly - 9, 6, '#9f9ab0', 'center');
         for (let i = 0; i < 20; i++) { let on = i / 20 < lean, warn = i / 20 > S.n.leanWarn / S.n.leanMax; c.fillStyle = on ? (warn ? (Math.floor(now * 8) % 2 ? '#ff2a4a' : '#ffffff') : theme.s) : warn ? 'rgba(255,40,70,0.18)' : 'rgba(255,255,255,0.08)'; c.fillRect((lx + i * 4) * sc, ly * sc, 3 * sc, 6 * sc); }
-        { let mx = 10, my = H - 70, cs = 2, top = last(S.floors).cells; c.fillStyle = 'rgba(6,3,10,0.7)'; c.fillRect((mx - 2) * sc, (my - 2) * sc, (G * cs + 4) * sc, (G * cs + 4) * sc);
+        { let mx = 46, my = 96, cs = 2, top = last(S.floors).cells; c.fillStyle = 'rgba(6,3,10,0.7)'; c.fillRect((mx - 2) * sc, (my - 2) * sc, (G * cs + 4) * sc, (G * cs + 4) * sc);
           for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) if (top[ix(i, j)]) { c.fillStyle = rgba(theme.s, 0.55); c.fillRect((mx + i * cs) * sc, (my + j * cs) * sc, (cs - 0.4) * sc, (cs - 0.4) * sc); }
           let m = S.mov; if (m && S.state === 'play') { let oi = (m.x + HALF) / CS, oj = (m.y + HALF) / CS; for (let b = 0; b < m.sh.h; b++) for (let a = 0; a < m.sh.w; a++) if (m.sh.c[b * m.sh.w + a]) { c.fillStyle = rgba(theme.p, 0.6); c.fillRect((mx + (oi + a) * cs) * sc, (my + (oj + b) * cs) * sc, (cs - 0.4) * sc, (cs - 0.4) * sc); } }
           let ra = now * 2.4; c.strokeStyle = rgba('#ffffff', 0.5); c.lineWidth = sc * 0.5; c.beginPath(); c.moveTo((mx + G) * sc, (my + G) * sc); c.lineTo((mx + G + Math.cos(ra) * G * 1.4) * sc, (my + G + Math.sin(ra) * G * 1.4) * sc); c.stroke();
@@ -925,7 +925,7 @@ window.os = window.os || {};
             c.fillStyle = theme.p; c.fillRect(20 * sc, 116 * sc, (W - 40) * clamp(a / 1.1, 0, 1) * sc, 3 * sc);
         }
         if (S.dmg > 0 && !calm()) { c.strokeStyle = 'rgba(255,30,60,' + clamp(S.dmg, 0, 1) * 0.8 + ')'; c.lineWidth = 6 * sc; c.strokeRect(0, 0, cv.width, cv.height); }
-        if (S.state === 'over' && S.wipe && S.wipe.t > 0.4 && !calm()) { c.globalAlpha = clamp((S.wipe.t - 0.4) * 2, 0, 0.6); for (let i = 0; i < 300; i++) { c.fillStyle = Math.random() < 0.5 ? '#ffffff' : '#555a66'; c.fillRect(Math.random() * cv.width, Math.random() * cv.height, (1 + Math.random() * 6) * sc, sc); } c.globalAlpha = 1; split(two('lost', '信号ロスト | signal lost'), W / 2, H * 0.6, 9, '#ffffff'); }
+        if (S.state === 'over' && S.wipe && S.wipe.t > 0.4 && !calm()) { c.globalAlpha = clamp((S.wipe.t - 0.4) * 2, 0, 0.6); for (let i = 0; i < 300; i++) { c.fillStyle = Math.random() < 0.5 ? '#ffffff' : '#555a66'; c.fillRect(Math.random() * cv.width, Math.random() * cv.height, (1 + Math.random() * 6) * sc, sc); } c.globalAlpha = 1; split(two('lost', '信号ロスト | signal lost'), W / 2, H * 0.7, 9, '#ffffff'); }
         c.restore();
     }
 
