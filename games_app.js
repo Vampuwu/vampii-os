@@ -141,7 +141,6 @@ window.os = window.os || {};
         });
     }
 
-    // every letter type has its own little noise
     function logoSfx() {
         let A, bus, t0;
         try { A = window.audioCtx || (window.audioCtx = new (window.AudioContext || window.webkitAudioContext)()); if (A.state === 'suspended' && A.resume) A.resume().catch(() => {}); bus = A.createGain(); bus.gain.value = 0.5; bus.connect(os.gg.out(A)); t0 = A.currentTime + 0.02; } catch (e) { return null; }
@@ -384,7 +383,6 @@ window.os = window.os || {};
         o.innerHTML = '<b>' + (v ? '♪' : '×') + '</b>' + Array.from({ length: 10 }, (_, i) => '<i class="' + (i < v ? 'on' : '') + '"></i>').join('');
         o.classList.add('on'); clearTimeout(osdT); osdT = setTimeout(() => o.classList.remove('on'), 1300);
     }
-    // so the rocker actually does something
     let out = null;
     const gain = () => { let v = set().vol; v = v == null ? 8 : v; return Math.pow(v / 8, 1.6); };
     os.gg = os.gg || {};

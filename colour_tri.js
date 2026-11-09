@@ -1,5 +1,4 @@
 
-// Ring = hue, triangle = the rest. I like these way more than the square ones
 // it takes over every <input type="color"> on the site so they all match
 window.os = window.os || {};
 

@@ -1,4 +1,3 @@
-// timelapse + the reference pic thing
 window.os = window.os || {};
 
 (function () {

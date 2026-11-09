@@ -43,7 +43,6 @@ window.os = window.os || {};
             return base(id);
         };
     }
-    // paint gets a right click option too
     function stubs() {
         let cm = document.getElementById('custom-context-menu');
         if (cm && !document.getElementById('ctx-paint')) {

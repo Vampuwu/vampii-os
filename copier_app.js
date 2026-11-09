@@ -1,4 +1,3 @@
-// copier.exe. makes everything worse, thats the point
 window.os = window.os || {};
 
 (function () {
@@ -109,7 +108,7 @@ window.os = window.os || {};
             g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.48, 'rgba(0,0,0,0.22)'); g.addColorStop(0.52, 'rgba(255,255,255,0.5)'); g.addColorStop(1, 'rgba(255,255,255,0)');
             x.fillStyle = g; x.beginPath(); x.moveTo(cx - dx + nx * -10, cy - dy + ny * -10); x.lineTo(cx + dx + nx * -10, cy + dy + ny * -10); x.lineTo(cx + dx + nx * 10, cy + dy + ny * 10); x.lineTo(cx - dx + nx * 10, cy - dy + ny * 10); x.fill();
         }
-        // toner that never got melted on smears off
+        // toner that never got fused smears off. thats how real ones fail too apparently
         x.save(); x.globalAlpha = 0.5; x.filter = 'blur(3px)'; x.drawImage(x.canvas, 0, PH * 0.55, PW, PH * 0.45, 6, PH * 0.55 + 10, PW, PH * 0.45); x.restore();
     }
     const nameOf = it => !it ? T('copyBlank', 'なにもない // nothing') : it.gen === 0 ? 'copy of ' + it.name : it.gen === 1 ? 'copy of a copy of ' + it.name : 'copy (x' + (it.gen + 1) + ') of ' + it.name;

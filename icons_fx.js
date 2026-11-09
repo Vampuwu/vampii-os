@@ -139,7 +139,7 @@ window.os = window.os || {};
             if (Math.hypot(mx - drag.sx, my - drag.sy) < 10) return;
             drag.on = true;
             // DONT remove this, the whole column jumps up when you pick one up otherwise. it looked so bad
-            // measure first, pinning the rest shuffles the grid under them
+            // measure first
             drag.rs = drag.group.map(g => g.getBoundingClientRect());
             pinAll(drag.group);
             let d = desk().getBoundingClientRect();

@@ -1,4 +1,3 @@
-// the tellys for gallery.exe. drawn by hand on a canvas so i could beat them up properly
 window.os = window.os || {};
 
 (function () {

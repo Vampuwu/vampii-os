@@ -663,7 +663,6 @@ os.clearPaintCanvas = function() {
         const curve = () => { ctx.beginPath(); ctx.moveTo(state.lastMidX, state.lastMidY); ctx.quadraticCurveTo(state.lastX, state.lastY, midX, midY); };
 
         if (state.tool === 'pen' || state.tool === 'eraser') {
-            // the eraser used to just paint the bg colour over stuff. it actually erases now
             let er = state.tool === 'eraser', k = er ? 2 : 1;
             let w0 = k * state.size * (0.35 + (state.lastPressure == null ? curPressure : state.lastPressure) * 1.3), w1 = k * curSize;
             let faded = state.opacity < 0.995;
@@ -1002,7 +1001,7 @@ os.renderPaintCanvas = function() {
     const t = performance.now() / 1000, still = document.documentElement.classList.contains('reduce-motion');
     if (state.isDrawing) os.paintCompose(ctx, true);
     else {
-        // it was flattening all 24 layers every time the mouse moved
+        // dont reflatten on every mousemove!!
         let ac = os._ptArt;
         if (!ac || ac.width !== W || ac.height !== H) { ac = os._ptArt = document.createElement('canvas'); ac.width = W; ac.height = H; state.artDirty = true; }
         if (state.artDirty) {
@@ -1181,7 +1180,7 @@ os.renderPaintCanvas = function() {
         ex.putImageData(img, 0, 0);
         st.sel = { x: x0, y: y0, w, h, mask: m, path: path || null, edge: e };
     }
-    // the magic wand bit
+    // the magic wand bit. TODO lasso
     function wand(px, py, mode) {
         px = Math.floor(px); py = Math.floor(py);
         let W = st.W, Hh = st.H; if (px < 0 || py < 0 || px >= W || py >= Hh) return;
@@ -1917,7 +1916,6 @@ document.addEventListener('keyup', (e) => { if (e.key === ' ') os.paintState.spa
         m.querySelectorAll('button').forEach(b => b.onclick = () => { click(); m.hidden = true; let k = b.dataset.fx; if (k === 'adjust' || k === 'motion' || k === 'persp') { os.paintPro.filter(k); return; } if (k === 'gblur') { os.paintPro.gblur(); return; } if (k === 'poster') { os.paintPro.poster(); status('FX: ' + b.textContent); return; } os.paintTools.fxRun(k); status('FX: ' + b.textContent); });
     }
 
-    // filters in the side panel too. two taps was one too many
     const FXS = [['adjust', '調整', 'adjust'], ['gblur', 'ぼかし', 'blur'], ['motion', '移動', 'motion'], ['persp', '放射', 'persp'], ['bloom', '発光', 'bloom'], ['chroma', '色ずれ', 'chroma'], ['poster', '階調', 'poster'], ['invert', '反転', 'invert']];
     function fxSide() {
         let sd = document.querySelector('#win-paint\\.exe .pt-side'); if (!sd || sd.querySelector('.pt-fxs')) return;

@@ -5,14 +5,14 @@ window.os = window.os || {};
     const root = document.documentElement;
     const calm = () => root.classList.contains('reduce-motion');
     const slow = () => root.classList.contains('low-spec');
-    // matrix letters. backwards like the movie
+    // Matrix letters. backwards like the movie
     const GL = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ01234567890123456789:=*+<>|'.split('');
     const LAYERS = [
         { size: 10, speed: [40, 70], len: [10, 22], fill: 0.8, alpha: 0.5, glow: 3, land: [0.0, 0.16], par: 5, push: 8, soft: 0.7 },
         { size: 15, speed: [75, 125], len: [12, 30], fill: 0.62, alpha: 0.85, glow: 6, land: [0.22, 0.6], par: 12, push: 20, soft: 0 },
         { size: 23, speed: [130, 200], len: [8, 20], fill: 0.2, alpha: 1, glow: 10, land: [0.68, 1.15], par: 26, push: 38, soft: 0 }
     ];
-    // floor sea lake. they all splash different
+    // Floor sea lake. they all splash different
     const ON = {
         city: { wob: 1.5, wsp: 0.004, refl: 0.16, ring: 1, spike: true, grow: 30, flat: 0.22, life: 0.7 },
         tide: { wob: 4, wsp: 0.007, refl: 0.12, ring: 1, spike: false, drops: true, grow: 44, flat: 0.17, life: 0.95, drift: 14 },
@@ -47,7 +47,7 @@ window.os = window.os || {};
                 x.save(); x.translate(i * cell + cell / 2, row * cell + cell / 2);
                 if (g.charCodeAt(0) > 255) x.scale(-1, 1);
                 x.fillText(g, 0, 0);
-                // twice so the white one actually glows
+                // Twice so the white one actually glows
                 if (row === 0) x.fillText(g, 0, 0);
                 x.restore();
             });
@@ -142,7 +142,7 @@ window.os = window.os || {};
                 if (gy < -st.step) break;
                 let a = i === 0 ? 1 : Math.pow(1 - i / st.n, 1.15), ink = i === 0 ? 0 : (i < st.n * 0.7 ? 1 : 2);
                 let gi = i === 0 ? pick() : st.g[((row0 - i) % st.g.length + st.g.length) % st.g.length], x = baseX;
-                // the rain moves out of the way of your mouse. my fav part
+                // The rain moves out of the way of your mouse. my fav part
                 let dx = x - mx, dy = gy - my, R = 70 + L.size * 3;
                 if (dx > -R && dx < R && dy > -R && dy < R) {
                     let d = Math.sqrt(dx * dx + dy * dy);

@@ -390,7 +390,7 @@ document.addEventListener('click', () => {
 
 const trailGlyphs = ['0x', '//', 'ERR', '†', '‡', '░', '▒', '█', 'Δ', 'SYS', '::', 'x'];
 let lastX = 0, lastY = 0;
-// it was asking the browser for the colours on every single mouse move. cached now, cleared when the theme changes
+// cache these. getComputedStyle every mousemove was stupid
 let sparks = [], sparkRaf = 0, sparkCols = null;
 new MutationObserver(() => { sparkCols = null; }).observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
 function sparkStep() {

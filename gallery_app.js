@@ -1,4 +1,3 @@
-// gallery.exe. my drawings on a wall of old tellys. the editor fills posts/db_gallery.js
 // no scanlines on my art unless crt is on
 window.os = window.os || {};
 
@@ -20,7 +19,6 @@ window.os = window.os || {};
             + `<span class="gl-scr" style="left:${(s[0] / C.W * 100).toFixed(2)}%; top:${(s[1] / C.H * 100).toFixed(2)}%; width:${(s[2] / C.W * 100).toFixed(2)}%; height:${(s[3] / C.H * 100).toFixed(2)}%; border-radius:${C.rad || 12}px;">${inner}<i class="gl-glass" style="background-image:url(${C.glass})"></i></span>`;
     }
     let tag = '', at = -1, list = [], dial = '', dialT = 0, osdT = 0, crt = false, page = 0;
-    // 24 a wall
     const PER = 24;
     try { crt = localStorage.getItem('vmp_gallery_crt') === '1'; } catch (e) {}
 

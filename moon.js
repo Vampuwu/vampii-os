@@ -1,4 +1,3 @@
-// Real moon phase + which way it tilts, for roughly where you are. The short Meeus formulas, good enough for a moon this size.
 // no internet + no asking for your location, it guesses roughly where you are off your timezone
 window.os = window.os || {};
 
@@ -31,7 +30,6 @@ window.os = window.os || {};
         'America/Santiago': [-33.45, -70.67], 'America/Argentina/Buenos_Aires': [-34.6, -58.38], 'America/Buenos_Aires': [-34.6, -58.38], 'America/Sao_Paulo': [-23.55, -46.63],
         'America/Montevideo': [-34.9, -56.16], 'America/Asuncion': [-25.26, -57.58], 'America/Havana': [23.11, -82.37], 'America/Puerto_Rico': [18.47, -66.11]
     };
-    // not in the list? guess off the clock + the name
     const SOUTH = /^(Australia|Antarctica)\/|^America\/Argentina|Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Efate|Port_Moresby|Tahiti|Rarotonga)|Africa\/(Johannesburg|Maputo|Harare|Lusaka|Windhoek|Gaborone|Maseru|Mbabane|Blantyre|Lubumbashi)|Indian\/|America\/(Sao_Paulo|Santiago|Montevideo|Asuncion|La_Paz|Lima|Bahia|Recife|Fortaleza|Belem|Manaus|Cuiaba|Campo_Grande|Porto_Velho|Rio_Branco|Maceio|Araguaina|Punta_Arenas)/;
     function where() {
         let tz = '';

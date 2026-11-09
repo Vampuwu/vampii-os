@@ -573,7 +573,7 @@ void main(){
   gl_FragColor = vec4(max(col, 0.0), 1.0);
 }`;
 
-    // bloom + grain + the colour grade. config.sys turns it off
+    // Bloom + grain + the colour grade. config.sys turns it off
     const FXS = {
         bright: `uniform sampler2D tex; uniform vec2 px; varying vec2 uv;
 void main(){
@@ -680,7 +680,7 @@ void main(){
             let m = os.moon && os.moon();
             if (!m) return [0.62, 0.22, 0.75, 1];
             let a = m.angle * Math.PI / 180, si = Math.sin(a);
-            // full moon lights the whole sea, a sliver barely glows
+            // Full moon lights the whole sea, a sliver barely glows
             return [m.dx * si, m.dy * si, Math.cos(a), 0.025 + 0.975 * Math.pow(m.lit, 1.5)];
         }
         let fx = null;
@@ -731,7 +731,7 @@ void main(){
             use, prep,
             colours() { setCols([rgb('--neon-primary', '#ff0099'), rgb('--neon-secondary', '#ff66b3'), rgb('--bg-base', '#12000a'), rgb('--bg-gradient-center', '#260015')]); },
             size(w, h) {
-                // it used to draw 4 million pixels on a big screen and my laptop sounded like it was about to take off, so now it picks its own res off how long the gpu actually takes
+                // It used to draw 4 million pixels on a big screen and my laptop sounded like it was about to take off, so now it picks its own res off how long the gpu actually takes
                 if (!w) {
                     let k = Math.min(1.5, window.devicePixelRatio || 1), cap = 1.15e6 * E.q * ((KINDS[cur] && KINDS[cur].px) || 1), px = innerWidth * innerHeight * k * k;
                     k *= Math.min(1, Math.sqrt(cap / px));
@@ -771,7 +771,8 @@ void main(){
     }
 
     let cv = null, W = null, raf = 0, last = 0, t0 = performance.now(), gaps = [], ms = [], warned = false, slowFor = 0, lastGpu = null;
-    // 0.6x. it was way too fast
+    // 0.6x
+    // const SLOW = 1;
     const SLOW = 0.6;
     const lite = () => root.classList.contains('low-spec');
     const still = () => root.classList.contains('reduce-motion');
@@ -790,7 +791,7 @@ void main(){
         document.head.appendChild(st);
         return true;
     }
-    // nothing to see = nothing to draw
+    // Nothing to see = nothing to draw
     const covered = () => document.hidden || !!document.getElementById('sys-saver') || root.classList.contains('pt-busy')
         || (!root.classList.contains('glass-on') && !!document.querySelector('#desktop > .is-max:not(.is-min)'));
     let drawn = 0, fast = false, goodFor = 0;
@@ -824,7 +825,7 @@ void main(){
             slow = avg > aim * 1.8;
         } else return;
         W.q = Math.max(0.3, Math.min(top, q));
-        // still crawling. tell them about low spec once
+        // Still crawling. tell them about low spec once
         slowFor = slow && W.q <= 0.31 ? slowFor + 1 : 0;
         if (slowFor >= 3 && !warned && !lite()) { warned = true; if (os.notify) os.notify(say('liteHint', 'ur pc is having a hard time lol. config.sys → 軽量モード // LOW SPEC helps'), null, 9000); }
     }
@@ -834,7 +835,7 @@ void main(){
         root.classList.toggle('shader-bg', on());
         cv.style.display = on() ? '' : 'none';
         W.colours();
-        // low spec keeps the grain + grade but skips the glow, thats the costly bit
+        // Low spec keeps the grain + grade but skips the glow, thats the costly bit
         W.fx = os.prefs && os.prefs.filmfx === false ? {} : { bloom: !lite(), grain: 1, grade: 1 };
         if (lite() && !W.wasLite) { W.qWas = W.q; W.q = Math.min(W.q, 0.42); }
         else if (!lite() && W.wasLite) { W.q = Math.max(W.q, W.qWas || 0.8); gaps = []; ms = []; }
@@ -886,7 +887,7 @@ void main(){
                 let url = ''; try { url = thumbs.cv.toDataURL('image/jpeg', 0.82); } catch (e) {}
                 if (url) {
                     thumbCache[key] = url;
-                    // only keep the newest few so it doesnt fill up storage
+                    // Only keep the newest few so it doesnt fill up storage
                     let ks = Object.keys(thumbCache); while (ks.length > 18) delete thumbCache[ks.shift()];
                     try { localStorage.setItem(TKEY, JSON.stringify(thumbCache)); } catch (e) {}
                 }
@@ -898,7 +899,7 @@ void main(){
 
     os.deskFx = {
         apply, thumb, kinds: KINDS,
-        // same sums as the shaders or the rain lands in the sky
+        // Same sums as the shaders or the rain lands in the sky
         horizon: () => { if (!on() || !W) return 0.42; let K = KINDS[W.kind]; return K.hz + W.par[1] * K.hp; },
         get kind() { return W ? W.kind : null; },
         stats: () => (W && on() ? { w: cv.width, h: cv.height, q: W.q, gpu: lastGpu, lite: lite(), fps: lite() ? 20 : fast ? 60 : 30 } : null),

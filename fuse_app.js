@@ -91,7 +91,7 @@ window.os = window.os || {};
             if (fuse.length) doFuse();
             for (let it = 0; it < 6; it++) { for (let c of cons) solve(c); for (let b of w.b) walls(b); }
             for (let b of w.b) { b.vx = (b.x - b.ox) / h; b.vy = (b.y - b.oy) / h; }
-            // only bounces on proper hits. friction is how hard they shoved
+            // Only bounces on proper hits. friction is how hard they shoved
             for (let c of cons) {
                 let a = c.a, b = c.b, dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) || 0.001, nx = dx / d, ny = dy / d, wa = im(a), wb = im(b), s = wa + wb;
                 let rvx = b.vx - a.vx, rvy = b.vy - a.vy, vn = rvx * nx + rvy * ny;
@@ -134,7 +134,7 @@ window.os = window.os || {};
             for (let i = 0; i < n; i++) { w.t += h; sub(h); }
             for (let b of w.b) {
                 let k = Math.pow(o.damp, dt * 120); b.vx *= k; b.vy *= k; b.w *= b.touch ? 0.96 : 0.995;
-                // tiny creep in a pile reads as jitter, kill it
+                // ugh
                 if (b.touch && b.vx * b.vx + b.vy * b.vy < 9) { b.vx *= 0.5; b.vy *= 0.5; }
             }
         };
@@ -164,7 +164,7 @@ window.os = window.os || {};
         return w;
     }
 
-    // plain rotate chewed the pixels up. scale2x 3 times then spin
+    // Plain rotate chewed the pixels up. scale2x 3 times then spin
     const rotC = {};
     function scale2x(src, w, h) {
         let out = new Uint32Array(w * h * 4), W2 = w * 2;
@@ -362,7 +362,7 @@ window.os = window.os || {};
     function tick(dt) {
         let n = S.n, w = S.w;
         if (S.state === 'play' || S.demo) {
-            // menu demo. drops on a matching charm if it can see one, otherwise wherever
+            // Menu demo. drops on a matching charm if it can see one, otherwise wherever
             if (S.demo && (S.demoT -= dt) <= 0) { let m = w.b.filter(b => b.t === S.cur && !b.gone).sort((a, b) => a.y - b.y)[0]; S.aim = m ? m.x + (Math.random() - 0.5) * 6 : Rt(S.cur) + Math.random() * (w.W - 2 * Rt(S.cur)); drop(); S.demoT = 0.8 + Math.random() * 0.9; }
             S.cool = Math.max(0, S.cool - dt);
             let dir = (keys.r ? 1 : 0) - (keys.l ? 1 : 0);
@@ -503,7 +503,7 @@ window.os = window.os || {};
         for (let i = -14; i <= 14; i++) { for (let y = base; y < BH; y++) { let t = (y - base) / (BH - base + 30); let x = Math.round(vx + i * 10 * (0.25 + t * 2.4)); if (x >= 0 && x < BW) bx.fillRect(x, y, 1, 1); } }
         for (let k = 0, y = base; y < BH; k++) { bx.fillRect(0, Math.round(y), BW, 1); y += 2 + k * 1.6; }
         cables();
-        // own layer so a shake only rattles the tube
+        // Own layer so a shake only rattles the tube
         let real = bx; bx = lx; bx.setTransform(1, 0, 0, 1, 0, 0); bx.clearRect(0, 0, BW, BH);
         let iw = tw, X0 = TX;
         bx.fillStyle = 'rgba(4,2,8,0.55)'; bx.fillRect(X0, TY, iw, th);
@@ -851,7 +851,7 @@ window.os = window.os || {};
         raf = requestAnimationFrame(frame);
     }
 
-    // same crt post as snake, didnt want to write it twice
+    // Same crt post as snake, didnt want to write it twice
     function glSetup() {
         try { gl = cv.getContext('webgl', { premultipliedAlpha: false, antialias: false }); } catch (e) { gl = null; }
         if (!gl) return false;
@@ -929,7 +929,7 @@ window.os = window.os || {};
         } catch (e) {}
     }
 
-    // heat is how high the pile is + chains + the countdown. it picks how busy the song gets
+    // Heat is how high the pile is + chains + the countdown. it picks how busy the song gets
     const MU = { on: false, A: null, L: null, T: {}, sg: null, busy: false, lp: null, out: null, step: 0, next: 0, heat: 0, kick: 0, fill: 0, run: [], tm: 0, tweak: 0, pn: 0, an: 0 };
     const kk = (i, n) => (i + 0.5) / n;
     const MAJ = [0, 2, 4, 5, 7, 9, 11], MIN = [0, 2, 3, 5, 7, 8, 10];
@@ -1085,7 +1085,7 @@ window.os = window.os || {};
         Object.keys(sg.v).forEach(k => add(k, sg.v[k]));
         add('crash', ['steel', '', {}, { vol: 0.2, room: 0.3 }]);
         add('zap', ['zap', '', {}, { vol: 0.14 }]);
-        // has to be the games ctx or the volume rocker does nothing
+        // Has to be the games ctx or the volume rocker does nothing
         let AC0 = window.AudioContext, W0 = window.webkitAudioContext, L;
         window.AudioContext = window.webkitAudioContext = function () { return A; };
         try { L = new NB.Live(pr); } finally { window.AudioContext = AC0; window.webkitAudioContext = W0; }
@@ -1451,7 +1451,7 @@ window.os = window.os || {};
             delete os.fuse; delete os.gg.hooks.fuse;
         }
     };
-    // test hooks
+    // Test hooks
     os.fuse = { world, DEF, NAMES, MU, muTick, musicOn,
         hear: async (plan, sr, id) => {
             await os.need(['noisebox_fx.js', 'noisebox_sound.js']);

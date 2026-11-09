@@ -35,7 +35,6 @@ window.os = window.os || {};
             cx.fillStyle = near > 0.05 ? 'rgba(255,226,170,' + (0.15 + near * 0.7 * fl) + ')' : 'rgba(120,112,130,0.25)';
             cx.fillRect(Math.round(d.x), Math.round(d.y), 1, 1);
         }
-        // the moth. keeps headbutting the lens
         let m = moth; m.t += dt;
         if (m.gone > 0) { m.gone -= dt; m.x += 30 * dt; m.y -= 22 * dt; if (m.gone <= 0) { m.x = -6; m.y = h * 0.3; } }
         else {

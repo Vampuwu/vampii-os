@@ -27,7 +27,7 @@
     }
     function letOut(g) { X.mark(); let n = inside(g); n.forEach(t => { t.mix.out = NB.outOf(pr(), g); }); after(); X.flash(n.length ? n.length + ' out of ' + g.name : g.name + ' was empty anyway'); }
     function fold(g) { g.fold = g.fold ? 0 : 1; X.save(); X.arrSize(); }
-    // deleting a bus sends everything to wherever it was going
+    // deleting a bus sends everything to wherever it was goign
     function gone(b) { let p = pr(), to = NB.outOf(p, b); p.tracks.forEach(t => { if (t === b) return; if (t.mix.out === b.uid) t.mix.out = to; if (t.mix.to) delete t.mix.to[b.uid]; if (t.mix.pre) delete t.mix.pre[b.uid]; }); }
 
     function menuItems(tr) {

@@ -4699,7 +4699,7 @@ const WT = (function () {
                             S2('follow', F2.fg.gain, (p.follow || 0) * 3 * 1200 * Math.log2(B[k] / Math.max(1, f / sc))); });
                         if (beats) lfo.frequency.value = info.bpm / 60 / beats;
                         let k = Math.round(p.drive * 30); if (k !== dk) { dk = k; sh.curve = k ? curveOf(x => Math.tanh(x * (1 + p.drive * 6)) / Math.tanh(1 + p.drive * 6)) : null; }
-                        // was way too loud before
+                        // too loud
                         sum.gain.value = (5 + p.res * 9) * 0.45; S2('mix', b.wet.gain, p.mix); S2('mix', b.dry.gain, 1 - p.mix);
                     },
                     ap: { mix: mixAp(b) },

@@ -185,7 +185,6 @@ os.summon = function(id) {
             let ytPlayer = document.getElementById('yt-player');
             if (ytContainer) ytContainer.style.display = 'none';
             if (ytPlayer) ytPlayer.src = '';
-            // local audio kept playing after close
             let la = document.getElementById('local-audio-player'); if (la) { la.pause(); la.removeAttribute('src'); }
             window.isMusicPlaying = false;
         }
@@ -238,7 +237,7 @@ function setupDrag(e) {
     let target = e.target;
     let isHeader = target.closest(".window-header");
     if (!isHeader) return;
-    // the drag was eating the tap so ipad couldnt hit max
+    // ipad
     if (target.closest("button")) return;
 
     let dragElement = target.closest("div[id^='win-']");
@@ -333,7 +332,6 @@ document.addEventListener('keydown', (e) => {
     if (x) x.click();
 });
 
-// big fat warning. the little strip was way too polite
 const WARN_SIGN = [
     '.......x.......',
     '......xxx......',
@@ -383,6 +381,7 @@ function phoneWarn() {
 window.onload = () => {
     if (os.mobileish()) {
         // used to be an alert() but that was evil even for me
+        // alert('this site does NOT work on phones. sorry not sorry');
         let seenPhone = false;
         try { seenPhone = sessionStorage.getItem('vmp_phone') === '1'; sessionStorage.setItem('vmp_phone', '1'); } catch (e) {}
         // ipads work now, so the big scary one is phones only. tablets just get a little note

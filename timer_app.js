@@ -1,4 +1,3 @@
-// timer.exe. the lil handheld
 // keeps going if you close it, reset stops it
 window.os = window.os || {};
 
@@ -111,7 +110,6 @@ window.os = window.os || {};
         x.fillStyle = inv ? rgba(mix(c, [255, 255, 255], 0.2), 1) : '#07060a'; x.fillRect(0, 0, SW, SH);
         if (!inv) { let g = x.createRadialGradient(SW / 2, SH / 2, 10, SW / 2, SH / 2, SW * 0.7); g.addColorStop(0, rgba(c, 0.1)); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, SW, SH); }
         if (now < stat) {
-            // changing channel = static
             let im = x.getImageData(0, 0, SW, SH), d = im.data;
             for (let i = 0; i < d.length; i += 4) { let v = Math.random() * 255 | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
             x.putImageData(im, 0, 0);
@@ -126,7 +124,6 @@ window.os = window.os || {};
             x.fillStyle = dim; txt(x, CH[m][2], 9, 19);
             let sc = 5, w = bigW(time, sc) + (sub ? bigW(sub, 3) + 3 : 0), X = Math.round((SW - w) / 2), Y = 38;
             both(() => { big(x, time, X, Y, sc); if (sub) big(x, sub, X + bigW(time, sc) + 3, Y + 7 * sc - 7 * 3, 3); });
-            // the bar, like the volume one
             let n = 24, on = Math.round(Math.max(0, Math.min(1, f)) * n), bx = Math.round((SW - n * 7 + 2) / 2);
             for (let i = 0; i < n; i++) { x.fillStyle = i < on ? ink : dim; if (i >= on && !inv) x.fillStyle = 'rgba(255,255,255,0.08)'; x.fillRect(bx + i * 7, 88, 5, 8); }
             x.font = '10px DotGothic16, monospace';
@@ -269,7 +266,6 @@ window.os = window.os || {};
     `;
     document.head.appendChild(css);
     inject(); arm();
-    // new theme = redraw
     if (os.paintTheme) { let pt = os.paintTheme; os.paintTheme = function () { let r = pt.apply(this, arguments); draw(); return r; }; }
     os.timer = { press, state: () => JSON.parse(JSON.stringify(st)), going };
 })();

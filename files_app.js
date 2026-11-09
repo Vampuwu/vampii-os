@@ -1,5 +1,3 @@
-// files/. everything you make on here in one place
-// it doesnt keep anything itself, it just goes through every apps drawer
 window.os = window.os || {};
 
 (function () {
@@ -332,7 +330,7 @@ window.os = window.os || {};
             r.querySelector('.fx-main').appendChild(e);
         }
     }
-    // redrawing the whole grid on click ate the double clicks. dont
+    // dont redraw here
     function pickOne(k) {
         ST.sel = k; ST.ren = null;
         let r = $('fx-root'); if (!r) return;

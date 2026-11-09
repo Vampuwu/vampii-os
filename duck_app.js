@@ -1,5 +1,4 @@
 // Rubber duck debugging. You explain your bug to the duck and work it out yourself halfway through the sentence. It genuinely works, I do it all the time
-// nothing you type gets kept anywhere. its a duck
 window.os = window.os || {};
 
 (function () {
@@ -162,7 +161,6 @@ window.os = window.os || {};
         // preen
         () => seq([[0, () => { D.back = 1; D.lean = -3; }], [180, () => { D.ha = 0.32; D.nod = 2; D.wf = 0.18; }], [420, () => { D.ha = 0.42; }], [600, () => { D.ha = 0.3; }], [780, () => { D.ha = 0.42; }], [1000, () => { D.ha = 0; D.nod = 0; D.wf = 0; }], [1150, () => { D.back = 0; D.lean = 0; }]]),
         () => seq([[0, () => { D.sq = 0.6; }], [120, () => { D.sq = 0; D.hop = 2; D.wf = 0.45; }], [220, () => { D.hop = 4; D.wf = 0.1; }], [320, () => { D.hop = 3; D.wf = 0.45; }], [420, () => { D.hop = 1; D.wf = 0.1; }], [500, () => { D.hop = 0; D.sq = 0.5; D.wf = 0; splash(8); ripT = performance.now(); }], [620, () => { D.sq = 0; }]]),
-        // shakes off like it just got out the bath
         () => seq([0, 70, 140, 210, 280, 350, 420].map((ms, i) => [ms, () => { D.sway = i === 6 ? 0 : i % 2 ? 1 : -1; D.ha = i === 6 ? 0 : i % 2 ? 0.1 : -0.1; D.wf = i === 6 ? 0 : 0.25; if (i === 3) splash(10); }])),
         // looks behind it at nothing. creepy
         () => seq([[0, () => { D.back = 1; D.lean = -2; }], [1300, () => { D.back = 0; D.lean = 0; }]]),
@@ -190,7 +188,6 @@ window.os = window.os || {};
                     if (p.y >= WL && p.vy > 0) { p.ring = 0; p.y = WL; }
                     return p.x > -2 && p.x < W + 2;
                 });
-                // nobodys about = nap time
                 if (!busy && !D.sleep && now - lastSeen > 45000) { D.sleep = 1; D.happy = 0; D.lx = D.ly = 0; }
                 if (!busy && !D.sleep && !D.happy && !lookT && now > nextIdle) { nextIdle = now + 4000 + Math.random() * 6000; IDLE[Math.random() * IDLE.length | 0](); }
                 if (lookT && now > lookT) { lookT = 0; D.ly = 0; }

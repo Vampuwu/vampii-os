@@ -60,7 +60,6 @@ window.os = window.os || {};
     }
 
 
-    // phones got warned. now they get the banner
     function phoneBanner() {
         if (!os.isPhone || !os.isPhone() || $('mob-ban')) return;
         let b = document.createElement('div'); b.id = 'mob-ban'; b.className = 'readable-ui'; b.setAttribute('role', 'note');
@@ -189,7 +188,7 @@ window.os = window.os || {};
             });
         }
     }
-    // barcode was boring
+    // why
     function wave() {
         let tag = document.querySelector('.serial-tag');
         if (!tag || tag.querySelector('.wv')) return;

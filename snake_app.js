@@ -183,6 +183,7 @@ window.os = window.os || {};
     }
     function extras() {
         let luck = S.perks.indexOf('luck') >= 0 ? 2 : 1, n = S.food.length;
+        // gold coin every 6th, sometimes
         if (S.score > 0 && S.eaten % 6 === 0 && !S.food.some(f => f.type === 'gold') && Math.random() < 0.6 * luck) food('gold', 5200);
         if (S.score >= 40 && !S.food.some(f => f.type === 'phase') && Math.random() < 0.12 && S.mode.id !== 'zen') food('phase', 6000);
         if (S.score >= 80 && !S.food.some(f => f.type === 'purge') && S.snake.length > 7 && Math.random() < 0.1) food('purge');
@@ -647,7 +648,7 @@ window.os = window.os || {};
         loadD();
         newRun(D.mode); fit(); hud(); btnText(); showOverlay('menu');
         filler();
-        // the card was sitting on top of the d-pad on ipad so nothing would start
+        // ipad fix
         let board = root.querySelector('.snake-board'), sw = null;
         board.addEventListener('pointerdown', e => {
             if (e.pointerType !== 'mouse') beTouchy();

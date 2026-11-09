@@ -29,7 +29,7 @@
     const LOOK0 = '{"mode":0,"trails":0.25,"glitch":0.08,"split":0.25,"kal":0,"glow":0.3,"grain":0.15,"hue":0,"flare":0.25,"punch":0.35,"scan":0,"grade":0,"cuts":0,"speed":0.5,"react":0.5,"cols":0,"colA":"#ff2a6d","colB":"#7b5cff","cycle":0,"height":1,"skin":"os"}';
     let look = { mode: 0, trails: 0.25, glitch: 0.08, split: 0.25, kal: 0, glow: 0.3, grain: 0.15, hue: 0, flare: 0.25, punch: 0.35, scan: 0, grade: 0, cuts: 0, speed: 0.5, react: 0.5, cols: 0, colA: '#ff2a6d', colB: '#7b5cff', cycle: 0, height: 1, skin: 'os' };
     try { Object.assign(look, JSON.parse(localStorage.getItem(LOOK)) || {}); } catch (e) {}
-    // the old default panel was lacquer, everyone on it gets moved to the one that matches the rest of the site
+    // move old lacquer people over
     if (!look.osSkin) { if (look.skin === 'lacquer') look.skin = 'os'; look.osSkin = 1; }
     if (!look.mv) { if (look.mode === 18) look.mode = 23; look.mv = 2; }
     const AFTK = ['trails', 'glitch', 'split', 'kal', 'glow', 'flare', 'punch', 'grain', 'scan', 'hue', 'speed', 'react', 'grade', 'cuts'];
@@ -971,7 +971,7 @@
         if (V.dirty || !V.cache || V.scx !== V.sl || V.scy !== V.st) { V.scx = V.sl; V.scy = V.st; V.ovDirty = 1; drawArr(); }
         drawOv();
         let x = cv.getContext('2d'), d = V.dpr;
-        // Closing it mid frame crashed it, now it just skips that frame.
+        // Crash fix
         if (!V.cache || !V.cache.width || !V.cache.height || !cv.width || !cv.height) return;
         x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(V.cache, 0, 0); x.setTransform(d, 0, 0, d, 0, 0);
         let cx = bx(V.cursor); if (cx >= HEADW) { x.fillStyle = 'rgba(127,127,127,0.6)'; x.fillRect(cx, 0, 1, V.ah); }

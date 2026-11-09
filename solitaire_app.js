@@ -50,7 +50,7 @@ window.os = window.os || {};
     function rng(seed) { let h = seed >>> 0; return () => { h = (h + 0x6D2B79F5) >>> 0; let t = Math.imul(h ^ h >>> 15, 1 | h); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
     const spr = (k, pal) => os.sprite ? os.sprite('cards/' + k, pal) : null;
 
-    // faces get drawn once. the J Q K letters + ace rings go on every frame or they cant glitch
+    // Faces get drawn once. the J Q K letters + ace rings go on every frame or they cant glitch
     function shape(x, y) {
         if (x < 0 || y < 0 || x >= CW || y >= CH) return false;
         if (x + y < 3 || (CW - 1 - x) + (CH - 1 - y) < 3) return false;
@@ -110,7 +110,7 @@ window.os = window.os || {};
         return cnv;
     }
     function faceOf(c) { return face[c.id] || (face[c.id] = drawFace(c)); }
-    // mirrored so the back looks the same upside down
+    // Mirrored so the back looks the same upside down
     let TR = null;
     function traces() {
         if (TR) return TR;
@@ -638,7 +638,7 @@ window.os = window.os || {};
         let M = S.menu || (S.menu = mkMenu()), { BW, BH, tall } = LY, now = S.now;
         M.pips.forEach(p => { let sp = spr('mini_' + SUITS[p.s], { c: '#241f2e', w: '#2e2838', o: '#241f2e' }); if (sp) bx.drawImage(sp, Math.round(p.x * BW), Math.round(p.y * BH)); });
         let cx_ = tall ? BW / 2 : BW * 0.7, cy_ = tall ? BH * 0.78 : BH * 0.5;
-        // every so often one jumps off the fan and bounces away like when you win
+        // Every so often one jumps off the fan and bounces away like when you win
         let dt = M.at ? Math.min(0.05, now - M.at) : 0; M.at = now;
         if (!calm()) {
             M.bT = (M.bT == null ? 3 : M.bT) - dt;
@@ -799,7 +799,7 @@ window.os = window.os || {};
         if (S.state !== 'menu') words(); else logoDraw();
     }
 
-    // card sounds are filtered noise. paper is mostly noise anyway
+    // Card sounds are filtered noise. paper is mostly noise anyway
     let FX = null;
     function fxKit(A) {
         if (FX && FX.A === A) return FX;
@@ -877,7 +877,7 @@ window.os = window.os || {};
             else if (k === 'clear') { [0, 7, 12, 16, 19].forEach((st, i) => glass(i * 0.05, 523 * Math.pow(2, st / 12), 0.04, 1.6)); for (let i = 0; i < 10; i++) glass(0.3 + i * 0.06, 2093 * Math.pow(2, SC[i % 8] / 12), 0.012, 0.4); }
         } catch (e) {}
     }
-    // same 9-slice kit as fuse
+    // Same 9-slice kit as fuse
     function pix(w, h, rows, pal) {
         let c = document.createElement('canvas'); c.width = w; c.height = h; let x = c.getContext('2d');
         rows.forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] !== '.') { x.fillStyle = pal[r[i]]; x.fillRect(i, j, 1, 1); } });

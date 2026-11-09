@@ -1419,7 +1419,7 @@
         chain.slice(1).forEach((n, i) => link(c, 'c' + (i + 1), chain[i], n));
         c._cutp = chain;
     };
-    // solo logic. headache
+    // solo logic. headache. dont ask me how this works i dont know anymore
     Rig.prototype.audible = function () {
         let pr = this.pr, by = {}, only = this.opt.only, T = pr.tracks;
         T.forEach(t => { by[t.uid] = t; });

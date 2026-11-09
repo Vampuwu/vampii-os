@@ -1,5 +1,4 @@
 
-// all the ui sounds. no audio files, its all made on the spot
 window.os = window.os || {};
 
 (function () {
@@ -101,7 +100,6 @@ window.os = window.os || {};
     const pick = a => a[Math.floor(Math.random() * a.length)];
 
     const SOUNDS = {
-        // the everywhere click
         click: o => { noise(0.01, Object.assign({ ft: 'highpass', from: 4500, vol: 0.04, a: 0.0008 }, o)); fm(1500, 0.035, Object.assign({ ratio: 3.5, idx: 1.1, vol: 0.011 }, o)); },
         tick: o => { noise(0.007, Object.assign({ ft: 'highpass', from: 5200, vol: 0.03, a: 0.0006 }, o)); osc(2200, 0.012, Object.assign({ type: 'square', vol: 0.005, cut: 5000 }, o)); },
         hover: o => fm(r(2500, 2800), 0.04, Object.assign({ ratio: 2, idx: 0.5, vol: 0.0035, a: 0.004 }, o)),
@@ -181,7 +179,6 @@ window.os = window.os || {};
             noise(0.85, Object.assign({ ft: 'lowpass', from: 200, to: 2600, q: 2, vol: 0.04, a: 0.78 }, o));
             osc(41, 0.85, Object.assign({ type: 'sawtooth', uni: 3, det: 24, to: 82, cut: 160, cutTo: 1600, vol: 0.03, a: 0.78 }, o));
         },
-        // very blade runner
         impact: o => {
             osc(48, 1.6, Object.assign({ type: 'sine', to: 24, vol: 0.13, a: 0.002 }, o));
             noise(0.5, Object.assign({ ft: 'lowpass', from: 2200, to: 120, q: 0.7, vol: 0.08, a: 0.001 }, o));
@@ -225,10 +222,8 @@ window.os = window.os || {};
         tvOn: o => { noise(0.05, Object.assign({ ft: 'lowpass', from: 300, vol: 0.05, a: 0.002 }, o)); osc(15600, 0.5, Object.assign({ type: 'sine', vol: 0.0035, a: 0.05, at: 0.04, fix: true }, o)); noise(0.18, Object.assign({ ft: 'highpass', from: 5000, vol: 0.008, at: 0.05 }, o)); },
         chan: o => { noise(0.12, Object.assign({ ft: 'bandpass', from: 2500, to: 1800, q: 0.5, vol: 0.03, a: 0.003 }, o)); osc(60, 0.05, Object.assign({ type: 'square', vol: 0.012, cut: 300, at: 0.1 }, o)); },
         degauss: o => { osc(55, 0.9, Object.assign({ type: 'sawtooth', to: 48, vol: 0.05, cut: 240, a: 0.004 }, o)); osc(110, 0.6, Object.assign({ type: 'sine', to: 90, vol: 0.03 }, o)); noise(0.06, Object.assign({ ft: 'lowpass', from: 400, vol: 0.06, a: 0.001 }, o)); },
-        // timer going off. pipipipi
         pipi: o => { for (let i = 0; i < 4; i++) osc(4000, 0.07, Object.assign({ type: 'square', vol: 0.016, a: 0.002, cut: 6000, at: i * 0.12 }, o)); },
         paperOpen: o => { noise(0.22, Object.assign({ from: 900, to: 3000, q: 0.7, vol: 0.026, a: 0.03 }, o)); noise(0.1, Object.assign({ from: 2400, to: 1200, q: 0.8, vol: 0.016, at: 0.15 }, o)); },
-        // copier. ker-chunk
         copyRun: o => {
             clack(o); osc(48, 1.5, Object.assign({ type: 'sawtooth', vol: 0.018, cut: 260, a: 0.08, sus: 0.85, rel: 0.2 }, o));
             noise(1.3, Object.assign({ from: 500, to: 1400, q: 1.6, vol: 0.016, a: 0.1, at: 0.08, sus: 0.8 }, o));

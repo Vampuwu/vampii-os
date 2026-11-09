@@ -900,7 +900,6 @@
         led.onclick = () => { X.mark(); P.on = P.on ? 0 : 1; X.touch(); X.showDock(); }; led.title = 'on / off';
         h.appendChild(led); h.appendChild(kj(d.jp));
         let nm = el('span', '', d.en); h.appendChild(nm);
-        // buttons get their own row now so the name never gets chopped
         let bar = el('div', 'nb-fxb');
         bar.appendChild(btn('◀', '', () => { if (!i) return; X.mark(); tr.fx.splice(i - 1, 0, tr.fx.splice(i, 1)[0]); X.touch(); X.showDock(); }, 'earlier in the chain'));
         bar.appendChild(btn('▶', '', () => { if (i >= tr.fx.length - 1) return; X.mark(); tr.fx.splice(i + 1, 0, tr.fx.splice(i, 1)[0]); X.touch(); X.showDock(); }, 'later in the chain'));

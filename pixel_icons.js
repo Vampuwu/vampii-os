@@ -31,7 +31,6 @@ window.os = window.os || {};
         let dock = el.classList.contains('dock-ic'), u = url(el.dataset.em || el.textContent, dock ? 1 : 2);
         if (!dock) el.style.setProperty('--d', -((el.dataset.em || el.textContent).codePointAt(0) % 97) / 9.3 + 's');
         if (!el.dataset.em) el.dataset.em = el.textContent;
-        // pixel art stays crunchy
         if (u) { el.classList.add('pix'); el.classList.toggle('pimg', !!u.pic); el.style.backgroundImage = 'url("' + String(u.pic || u).replace(/"/g, '') + '")'; el.style.setProperty('--ic-mask', el.style.backgroundImage); }
         else { el.classList.remove('pix', 'pimg'); el.style.backgroundImage = ''; }
     }

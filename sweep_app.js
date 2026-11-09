@@ -64,7 +64,7 @@ window.os = window.os || {};
         }
         return out;
     }
-    // your first click is always safe. I'm not a monster
+    // First click is always safe. im not a monster
     function seed(first) {
         let R = Math.random, safe = new Set([first].concat(nbrs(first)));
         let cells = [];
@@ -143,7 +143,7 @@ window.os = window.os || {};
         if (!B || B.state !== 'play' || B.used[id] || !has((TOOLS.find(t => t.id === id) || {}).part)) return false;
         if (id === 'sight') { B.armSight = !B.armSight; tone(B.armSight ? [[880, 0.04]] : [[440, 0.04]]); renderBar(); return true; }
         if (id === 'scan') {
-            // finds the biggest safe bit to open for you
+            // Finds the biggest safe bit to open for you
             let best = -1;
             for (let i = 0; i < B.w * B.h; i++) if (!B.open[i] && !B.mine[i] && !B.flag[i] && B.cnt[i] === 0) { best = i; break; }
             if (best < 0) for (let i = 0; i < B.w * B.h; i++) if (!B.open[i] && !B.mine[i] && !B.flag[i]) { best = i; break; }
@@ -221,7 +221,7 @@ window.os = window.os || {};
         let wrap = $('sw-wrap'), room = Math.max(160, (wrap ? wrap.clientWidth : 600) - 24), top = wrap ? wrap.getBoundingClientRect().top : 470;
         let tall = wrap && wrap.clientHeight > 40 ? wrap.clientHeight - 24 : os.isPhone() ? 9999 : Math.max(220, window.innerHeight - Math.max(120, top) - 100);
         let fitS = Math.min(room / (B.w * T), tall / (B.h * T), 3);
-        // whole pixel sizes or the pixel art goes blurry
+        // Whole pixel sizes or the pixel art goes blurry
         S = fitS >= 1 && Math.floor(fitS) / fitS > 0.78 ? Math.floor(fitS) : Math.max(0.6, fitS);
         K = Math.max(1, Math.ceil(S - 0.001));
         cv.width = B.w * T * K; cv.height = B.h * T * K;
@@ -295,7 +295,7 @@ window.os = window.os || {};
             ring.forEach(j => { if (B.open[j]) return; let jx = (j % B.w) * T, jy = Math.floor(j / B.w) * T; x.strokeRect(jx + 1.5, jy + 1.5, T - 3, T - 3); });
             x.globalAlpha = 0.22; x.fillStyle = col; x.fillRect((hx % B.w) * T, Math.floor(hx / B.w) * T, T, T); x.globalAlpha = 1;
         }
-        // you got seen. all the cameras turn to look at you. spooky
+        // You got seen. all the cameras turn to look at you. spooky
         if (B.state === 'lost') {
             for (let i = 0; i < B.w * B.h; i++) {
                 if (!B.mine[i] || B.flag[i]) continue;
@@ -408,7 +408,7 @@ window.os = window.os || {};
         window.addEventListener('resize', onResize);
     }
     function onResize() { if (B && $('sw-cv')) { sizeCanvas(); render(); } }
-    // sizing it while its hidden = 0px. every time
+    // Sizing it while its hidden = 0px. every time
     function view(play) {
         let h = $('sw-home'), p = $('sw-play'); if (!h || !p) return;
         h.hidden = play; p.hidden = !play;
@@ -416,9 +416,9 @@ window.os = window.os || {};
         else { renderPick(); renderBar(); }
         let v = play ? p : h; v.classList.remove('in'); void v.offsetWidth; v.classList.add('in');
     }
-    // cctv wall. one telly per district and theyre all live
+    // Cctv wall. one telly per district and theyre all live
     const FEED = {}, G5 = { R: '110101110101101', E: '111100110100111', C: '011100100100011', A: '010101111101101', M: '101111111101101', ' ': '000000000000000', X: '101101010101101', ':': '000010000010000', 0: '111101101101111', 1: '010110010010111', 2: '110001010100111', 3: '110001010001110', 4: '101101111001001', 5: '111100110001110', 6: '011100110101010', 7: '111001010010010', 8: '010101010101010', 9: '010101011001110' };
-    // every telly looks like its own map now, not four of the same street
+    // Every telly looks like its own map now, not four of the same street
     function feedOf(id, cw) {
         if (FEED[id] && (!cw || FEED[id].cw === cw)) return FEED[id];
         let big = id === 'district', C = (cw || 12) * (big ? 2 : 1), Rw = big ? 14 : 7, T = 16, seed = [...id].reduce((a, ch) => a * 31 + ch.charCodeAt(0), 7) % 2147483647 || 7, rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -434,7 +434,7 @@ window.os = window.os || {};
         let folk = [], cols = ['#3ad8ff', '#46f08a', '#ff4d8d', '#b46bff', '#ffa43a', '#3fe0c8', '#f4f4f4'], per = { alley: 1, street: 3, district: 3, mirror: 2 }[id] || 2;
         rowsOf.forEach(row => { for (let k = 0; k < per * C / (big ? 24 : 12); k++) folk.push({ row, x: rnd() * C * T, v: (rnd() < 0.5 ? -1 : 1) * (7 + rnd() * 12), col: cols[Math.floor(rnd() * cols.length)], seen: 0 }); });
         if (id === 'mirror') folk = folk.concat(folk.map(f => Object.assign({}, f, { x: C * T - f.x, v: -f.v, mir: true })));
-        // little map of the real board for the corner. dots are cams
+        // Little map of the real board for the corner. dots are cams
         let bd = BOARDS.find(b => b.id === id) || { w: 9, h: 9, n: 10 }, mini = [];
         for (let k = 0; k < bd.n; k++) mini.push([Math.floor(rnd() * bd.w), Math.floor(rnd() * bd.h)]);
         return (FEED[id] = { cw, C, Rw, T, map, cams, folk, t: rnd() * 10, noise: 0, z: big ? 2 : 1, bd, mini, lamp: rnd() * C * T });
@@ -459,11 +459,11 @@ window.os = window.os || {};
         if (id === 'mirror') {
             x.fillStyle = 'rgba(180,220,255,0.35)'; for (let y = 0; y < H; y += 4) x.fillRect(W / 2, y, 1, 2);
             x.fillStyle = 'rgba(120,200,255,0.07)'; x.fillRect(W / 2, 0, W / 2, H);
-            // the edges wrap, so arrows going off one side + coming in the other
+            // The edges wrap, so arrows going off one side + coming in the other
             if (Math.floor(F.t * 2) % 2 || still) { x.fillStyle = '#9fe6ff'; for (let row of [2, 5]) { let y = row * T + 8; for (let q = 0; q < 3; q++) { x.fillRect(2 + q, y - q, 1, q * 2 + 1); x.fillRect(W - 3 - q, y - q, 1, q * 2 + 1); } } }
         }
         if (id === 'alley') {
-            // tight walls + one lamp on its last legs
+            // Tight walls + one lamp on its last legs
             x.fillStyle = 'rgba(0,0,0,0.5)'; x.fillRect(0, 0, W, 2 * T); x.fillRect(0, 5 * T, W, 2 * T);
             x.fillStyle = 'rgba(0,0,0,0.25)'; x.fillRect(0, 2 * T, W, 4); x.fillRect(0, 5 * T - 4, W, 4);
             let fl = still ? 0.8 : (Math.sin(F.t * 13) > -0.6 ? 0.8 : 0.15) * (Math.random() < 0.03 ? 0.2 : 1), g = x.createRadialGradient(F.lamp, 3 * T, 2, F.lamp, 3 * T + 8, 46);
@@ -497,8 +497,8 @@ window.os = window.os || {};
         let h = $('sw-home'); if (!h || h.hidden) return;
         let dt = feedLast ? Math.min(0.1, (now - feedLast) / 1000) : 0; feedLast = now;
         h.querySelectorAll('canvas[data-feed]').forEach((c, i) => {
-            // whole feed in the telly, no cropping the rec dot off
-            // wide tellys get a wider street
+            // Whole feed in the telly, no cropping the rec dot off
+            // Wide tellys get a wider street
             let p = c.parentNode, cw = p.clientHeight ? Math.max(12, Math.min(28, Math.floor(7 * p.clientWidth / p.clientHeight))) : 12, F = feedOf(c.dataset.feed, cw), fw = F.C * 16, fh = F.Rw * 16, k = Math.min(p.clientWidth / fw, p.clientHeight / fh), w = Math.floor(fw * k) + 'px';
             if (k > 0 && c.style.width !== w) { c.style.width = w; c.style.height = Math.floor(fh * k) + 'px'; }
             feedDraw(c, c.dataset.feed, c.closest('.on') !== null, dt, i + 1, cw);
@@ -516,14 +516,14 @@ window.os = window.os || {};
         newBoard(D.board);
         renderPick(); renderBar(); cancelAnimationFrame(feedRaf); feedRaf = requestAnimationFrame(feeds);
     }
-    // lives in the games tablet now. it says go, I go
+    // Lives in the games tablet now. it says go, I go
     os.gg = os.gg || {}; os.gg.hooks = os.gg.hooks || {};
     os.gg.hooks.sweep = {
         start(el) { root = el; asleep = false; style = css(); el.innerHTML = markup(); init(); },
         pause() { asleep = true; if (B && B.state === 'play') B.pausedAt = performance.now(); clearInterval(timer); cancelAnimationFrame(raf); raf = 0; },
         resume() {
             if (!asleep || !root) return; asleep = false;
-            // dont count the time it was hidden
+            // Dont count the time it was hidden
             if (B && B.pausedAt) { B.t0 += performance.now() - B.pausedAt; B.pausedAt = 0; }
             clearInterval(timer); timer = setInterval(() => { if (B && B.state === 'play') { B.t = (performance.now() - B.t0) / 1000; renderBar(); } }, 200);
             tick(); render();

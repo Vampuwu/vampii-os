@@ -168,7 +168,6 @@ const bootLines = [
         }
         return s;
     }
-    // popups come in on a little pager
     let paged = 0;
     os.notify = function (text, onclick, ms) {
         let n = document.createElement('div');
@@ -468,7 +467,7 @@ const bootLines = [
         renderProcs();
     };
     hudFill();
-    setInterval(hudMoon, 5 * 60000); // the moon moves, slowly
+    setInterval(hudMoon, 5 * 60000);
     let procTimer = 0;
     const procsLater = () => { clearTimeout(procTimer); procTimer = setTimeout(renderProcs, 30); };
     let desk = $('desktop');

@@ -244,7 +244,7 @@ window.os = window.os || {};
                 let pen = false, lastY = 0;
                 for (let px = 0; px <= w; px++) {
                     let y = f(i, wx(px)), py = sy(y);
-                    // without this tan(x) draws giant walls everywhere
+                    // without this tan(x) draws giant walls everywhere becuase of the asymptotes
                     if (!isFinite(y) || Math.abs(py) > h * 8 || (pen && Math.abs(py - lastY) > h * 2)) { pen = false; continue; }
                     if (pen) x.lineTo(px, py); else x.moveTo(px, py);
                     pen = true; lastY = py;

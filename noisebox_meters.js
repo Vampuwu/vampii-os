@@ -376,7 +376,7 @@
         box.appendChild(el('div', 'nb-hint', 'they read the master after the lid, every sample, so what they show is what comes out. LEVELS: the pale bar is the peak, the solid one the rms, TP lights when a peak between the samples goes over -1 (keep it dark for streaming), click to clear. LOUDNESS is EBU R128: aim the green line (click to pick what youre aiming at), PLR + PSR under 8 = squashed, STREAMING WILL = what each service does to the level once the whole song has played. SPECTRUM: hover for the frequency + the note, the dashed line is the side. STEREO: BASS MONO wants to say TIGHT'));
         kick();
     };
-    // meters you popped out come back
+    // popped out meters come back on reload (i think?)
     X.metersOpen = () => { styles(); Object.keys(ST.pop).forEach(id => { if (ST.pop[id]) ST.pop[id].on = 0; }); kick(); };
     X.metersRead = () => { let t = read(performance.now()); return t && { M: t.M, S: t.S, I: t.I, peak: t.mn ? t.spMax : Math.max(t.spMax, t.tp), tp: t.tpMax, lra: t.lra, cor: t.cor, corB: t.corB, wk: !!t.mn, posts: t.posts.length, vu: t.vu.slice() }; };
 })();

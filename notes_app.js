@@ -129,7 +129,7 @@
     }
     const outside = e => { let m = $('nt-menu'); if (m && !m.contains(e.target)) closeMenu(); };
     function closeMenu() { let m = $('nt-menu'); if (m) m.remove(); document.removeEventListener('mousedown', outside); }
-    // esc shuts the menu, not the whole window. that was annoying
+    // esc = menu only
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('nt-menu')) { closeMenu(); e.stopImmediatePropagation(); } }, true);
 
     os.notes = { open(id) { cur = id; find = ''; os.summon('notes.txt'); render(); } };

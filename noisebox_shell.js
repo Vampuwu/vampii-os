@@ -1,4 +1,3 @@
-// just the box. doesnt touch the sound
 window.os = window.os || {};
 
 (function () {
@@ -23,7 +22,7 @@ window.os = window.os || {};
             head.insertBefore(f, head.querySelector('.win-btns') || null);
             vu(f);
             f.querySelector('.nbs-beat').onclick = e => { e.stopPropagation(); tempo(f.querySelector('.nbs-beat')); };
-            // the meters arent handles. grabbing them was dragging the whole window about
+            // meters arent handles
             f.querySelectorAll('.nbs-left, .nbs-lcd, .nbs-right, .nbs-fan').forEach(x => ['mousedown', 'pointerdown', 'touchstart', 'dblclick'].forEach(ev => x.addEventListener(ev, e => e.stopPropagation())));
         }
         if (head) {
@@ -98,7 +97,7 @@ window.os = window.os || {};
         function step(now) {
             if (!f.isConnected) return;
             requestAnimationFrame(step);
-            // minimised = nobody can see the needles. this was eating cpu the whole time
+            // skip when minimised
             if (document.hidden || root.classList.contains('reduce-motion') || (win && win.classList.contains('is-min'))) { last = now; return; }
             let out = window.NBX && NBX.playing && NBX.playing() && NBX.out ? NBX.out : null;
             if (!out && now - idleT < 66) return;

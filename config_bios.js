@@ -1,5 +1,4 @@
 
-// settings as an old BIOS screen. arrows + enter, the mouse works too
 window.os = window.os || {};
 
 (function () {
