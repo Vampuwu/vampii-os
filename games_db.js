@@ -173,6 +173,7 @@ const solLines = {
     hintB: 'ヒント | HINT',
     newDeal: '配り直す | NEW DEAL',
     stuck: '手詰まり | no moves left',
+    hintCost: 'ヒント -{n} | hint -{n}',
     auto: '自動で片付け中 | finishing it off',
     won: 'クリア | CLEARED',
     newBest: '新記録 | NEW BEST',

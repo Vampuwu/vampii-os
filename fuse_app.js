@@ -5,11 +5,11 @@ window.os = window.os || {};
     const KEY = 'vmp_fuse';
     const DEF = {
         gravity: 2200, bounce: 0.12, friction: 0.12, damp: 0.997, roll: 0.02, cooldown: 0.45,
-        laserPct: 15, overMs: 2000, chainMs: 600, chainStep: 0.5, closeCall: 25, holoBonus: 500, tubeW: 270, tubeH: 460,
-        shakeEvery: 8, shakeMax: 2, shakeKick: 520, bombEvery: 14, bombR: 22, bombBlast: 130, bombForce: 900, bombKill: 3,
-        litEvery: 6, litSecs: 12, litBonus: 15, litShove: 175, litForce: 750, magnetRange: 2.4, magnetPull: 1400,
+        laserPct: 20, overMs: 2000, chainMs: 600, chainStep: 0.5, closeCall: 25, holoBonus: 500, tubeW: 230, tubeH: 460,
+        shakeEvery: 8, shakeMax: 2, shakeKick: 520, bombEvery: 14, bombR: 21, bombBlast: 110, bombForce: 900, bombKill: 3,
+        litEvery: 6, litSecs: 12, litBonus: 15, litShove: 150, litForce: 750, magnetRange: 2.4, magnetPull: 1400,
         shinyChance: 0.03, shinyPay: 2, musicVol: 0.6, rankAt: [0, 40, 120, 300, 600, 1000, 1600, 2500, 4000, 6500, 10000],
-        radii: [12, 17, 22, 27, 33, 40, 47, 56, 65, 76, 88], points: [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66], odds: [24, 26, 24, 16, 10]
+        radii: [10, 14, 17, 22, 28, 34, 39, 51, 59, 61, 76], points: [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66], odds: [24, 26, 24, 16, 10]
     };
     const NAMES = ['pixel', 'button', 'cherry', 'dice', 'gem', 'heart', 'bell', 'disco', 'moon', 'planet', 'holoheart'];
     const U = 2.5;
@@ -492,10 +492,19 @@ window.os = window.os || {};
         } else bx.drawImage(f, dx, dy, w, h);
         bx.globalAlpha = 1;
     }
+    const midC = {};
+    function mid(key) {
+        if (midC[key]) return midC[key];
+        let c = os.sprite(key); if (!c) return [0, 0];
+        let w = c.width, h = c.height, d = c.getContext('2d').getImageData(0, 0, w, h).data, n = 0, sx = 0, sy = 0;
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 40) { n++; sx += x + 0.5; sy += y + 0.5; }
+        return (midC[key] = n ? [sx / n - w / 2, sy / n - h / 2] : [0, 0]);
+    }
     function drawCharm(b) {
         let [x, y] = P(b.x, b.y), g = b.r / b.R, sq = b.sq ? b.sq / 0.1 : 0;
         let sxl = g * (1 + 0.15 * sq), syl = g * (1 - 0.15 * sq);
         if (sq) y += b.R / U * 0.15 * sq * g;
+        { let [ox, oy] = mid(b.t === 12 ? 'fuse/bomb' : 'fuse/' + NAMES[b.t - 1]), q = Math.round(b.a / (Math.PI * 2) * STEPS) / STEPS * Math.PI * 2, ca = Math.cos(q), sa = Math.sin(q); x -= (ox * ca - oy * sa) * sxl; y -= (ox * sa + oy * ca) * syl; }
         if (b.t === 12) { sprite('fuse/bomb', x, y, b.a, sxl, syl); wick(x + Math.sin(b.a) * b.r / U, y - Math.cos(b.a) * b.r / U - 1, performance.now()); return; }
         let nm = 'fuse/' + NAMES[b.t - 1];
         let gold = b.shiny ? (b.id % 7) / 7 + 0.01 : 0;

@@ -3,7 +3,7 @@ window.os = window.os || {};
 (function () {
     const KEY = 'vmp_solitaire';
     const DEF = {
-        toFound: 10, wasteToTab: 5, flipUp: 5, foundBack: -15, recycleOne: -100, recycleThree: -20,
+        toFound: 10, wasteToTab: 5, flipUp: 5, foundBack: -15, recycleOne: -100, recycleThree: -20, hintCost: 20,
         timeEvery: 10, timeCost: 2, winBonus: 700000, dealGap: 0.045, autoGap: 0.08, glitchMin: 1.6, glitchMax: 6
     };
     const MODES = ['one', 'three'];
@@ -233,7 +233,7 @@ window.os = window.os || {};
         '0': '.###.|#...#|#..##|#.#.#|##..#|#...#|.###.', '1': '..#..|.##..|..#..|..#..|..#..|..#..|.###.', '2': '.###.|#...#|....#|...#.|..#..|.#...|#####',
         '3': '#####|...#.|..#..|...#.|....#|#...#|.###.', '4': '...#.|..##.|.#.#.|#..#.|#####|...#.|...#.', '5': '#####|#....|####.|....#|....#|#...#|.###.',
         '6': '..##.|.#...|#....|####.|#...#|#...#|.###.', '7': '#####|....#|...#.|..#..|.#...|.#...|.#...', '8': '.###.|#...#|#...#|.###.|#...#|#...#|.###.',
-        '9': '.###.|#...#|#...#|.####|....#|...#.|.##..', ':': '.....|..#..|..#..|.....|..#..|..#..|.....', '/': '....#|....#|...#.|..#..|.#...|#....|#....', ' ': '.....|.....|.....|.....|.....|.....|.....'
+        '9': '.###.|#...#|#...#|.####|....#|...#.|.##..', ':': '.....|..#..|..#..|.....|..#..|..#..|.....', '/': '....#|....#|...#.|..#..|.#...|#....|#....', ' ': '.....|.....|.....|.....|.....|.....|.....', '-': '.....|.....|.....|.###.|.....|.....|.....'
     };
     function digits(str, x, y, col, right, ghost) {
         str = String(str); let w = str.length * 6 - 1;
@@ -274,12 +274,12 @@ window.os = window.os || {};
     const P = (k, i) => S.piles.find(p => p.k === k && (i == null || p.i === i));
     const tabs = () => S.piles.filter(p => p.k === 'tab');
     const founds = () => S.piles.filter(p => p.k === 'found');
-    function snap() { return { p: S.piles.map(p => p.cards.map(c => [c.id, c.up])), score: S.score, passes: S.passes }; }
+    function snap() { return { p: S.piles.map(p => p.cards.map(c => [c.id, c.up])), score: S.score, passes: S.passes, hp: S.hintPaid || 0 }; }
     function undo() {
         if (!S || S.state !== 'play' || !S.undo.length || S.auto) return;
         let u = S.undo.pop(), all = {}; S.piles.forEach(p => p.cards.forEach(c => { all[c.id] = c; }));
         S.piles.forEach((p, i) => { p.cards = u.p[i].map(([id, up]) => { let c = all[id]; if (c.up !== up) c.fa = 0; c.up = up; return c; }); });
-        S.score = u.score; S.passes = u.passes; S.moves++; S.sel = null; S.hint = null;
+        S.score = u.score - ((S.hintPaid || 0) - (u.hp || 0)); S.passes = u.passes; S.moves++; S.sel = null; S.hint = null;
         snd('undo');
     }
     function startClock() { if (!S.started) { S.started = true; let d = D.m[S.mode]; d.played++; saveD(); } }
@@ -312,7 +312,7 @@ window.os = window.os || {};
         }
         else snd('place');
         if (from.k === 'waste' && to.k === 'tab') S.score += n.wasteToTab;
-        if (from.k === 'found' && to.k === 'tab') S.score = Math.max(0, S.score + n.foundBack);
+        if (from.k === 'found' && to.k === 'tab') S.score = Math.max(Math.min(0, S.score), S.score + n.foundBack);
         if (from.k === 'tab') { let t = last(from.cards); if (t && !t.up) { t.up = true; t.fa = 0; S.score += n.flipUp; if (!quiet) setTimeout(() => snd('flip'), 90); } }
         S.moves++; S.sel = null; S.hint = null;
         checkEnd();
@@ -324,7 +324,7 @@ window.os = window.os || {};
             if (!w.cards.length) return;
             S.undo.push(snap()); startClock();
             st.cards = w.cards.reverse().map(c => { c.up = false; c.fa = 0; return c; }); w.cards = [];
-            S.passes++; S.score = Math.max(0, S.score + (S.mode === 'one' ? S.n.recycleOne : S.passes > 3 ? S.n.recycleThree : 0));
+            S.passes++; S.score = Math.max(Math.min(0, S.score), S.score + (S.mode === 'one' ? S.n.recycleOne : S.passes > 3 ? S.n.recycleThree : 0));
             S.moves++; snd('recycle'); return;
         }
         S.undo.push(snap()); startClock();
@@ -359,11 +359,13 @@ window.os = window.os || {};
         return out.sort((a, b) => b.w - a.w);
     }
     function hint() {
-        if (!S || S.state !== 'play' || S.auto) return;
+        if (!S || S.state !== 'play' || S.auto || S.hint) return;
         let m = moves()[0];
-        if (m) S.hint = { a: m.from.cards[m.idx], to: m.to, t: 1.6 };
-        else if (P('stock').cards.length || P('waste').cards.length) S.hint = { stock: true, t: 1.6 };
-        else S.toast = { s: L('stuck', 0, '手詰まり | no moves left'), t: 2.2 };
+        if (!m && !P('stock').cards.length && !P('waste').cards.length) { S.toast = { s: L('stuck', 0, '手詰まり | no moves left'), t: 2.2 }; snd('hint'); return; }
+        S.hint = m ? { a: m.from.cards[m.idx], t: 1.4 } : { stock: true, t: 1.4 };
+        let n = S.n.hintCost || 0;
+        S.score -= n; S.hintPaid = (S.hintPaid || 0) + n;
+        if (n) S.toast = { s: L('hintCost', n, 'ヒント -{n} | hint -{n}'), t: 1.4 };
         snd('hint');
     }
     function checkEnd() {
@@ -483,7 +485,7 @@ window.os = window.os || {};
         let n = S.n;
         if (S.state === 'play' && S.started && !S.won) {
             S.t += dt;
-            let ticks = Math.floor(S.t / n.timeEvery); if (ticks > S.tTick) { S.score = Math.max(0, S.score - (ticks - S.tTick) * n.timeCost); S.tTick = ticks; }
+            let ticks = Math.floor(S.t / n.timeEvery); if (ticks > S.tTick) { S.score = Math.max(Math.min(0, S.score), S.score - (ticks - S.tTick) * n.timeCost); S.tTick = ticks; }
         }
         if (S.auto && S.state === 'play') { S.autoT -= dt; if (S.autoT <= 0) { S.autoT = n.autoGap; autoStep(); } }
         if (S.hint) { S.hint.t -= dt; if (S.hint.t <= 0) S.hint = null; }
@@ -722,17 +724,13 @@ window.os = window.os || {};
             bx.globalAlpha = lk; outline(X - 1, Y - 1, CW + 2, CH + 2, pal.c); bx.globalAlpha = 1;
             px(X + CW - 9, Y + 4, 5, 4, pal.c); px(X + CW - 8, Y + 2, 3, 1, pal.c); px(X + CW - 9, Y + 3, 1, 1, pal.c); px(X + CW - 5, Y + 3, 1, 1, pal.c); px(X + CW - 7, Y + 5, 1, 2, '#07040b');
         });
-        let cand = S.drag && S.drag.moved ? { p: S.drag.p, i: S.drag.i } : S.sel ? S.sel : null;
-        if (cand && !S.won) S.piles.forEach(p => {
-            if (!legal(cand.p, cand.i, p)) return;
-            let t = last(p.cards), [hx, hy] = t ? [t.x, t.y + (p.k === 'tab' ? 0 : 0)] : home(p, 0), a = 0.45 + 0.4 * Math.sin(S.now * 9);
-            bx.globalAlpha = a; outline(Math.round(hx) - 1, Math.round(hy) - 1, CW + 2, CH + 2, p.k === 'found' ? ink(cand.p.cards[cand.i]).c : theme.s); bx.globalAlpha = 1;
-        });
         if (st.cards.length) digits(String(st.cards.length).padStart(2, '0'), colX(0) + CW / 2 - 5, TY + CH + 1, rgba(theme.s, 0.55));
         if (S.drag && S.drag.moved) S.drag.cards.forEach((c, k) => drawCard(c, c.x, c.y, { lift: 3, rot: calm() ? 0 : S.drag.rot * (1 - k * 0.15) }));
-        if (S.hint && Math.floor(S.hint.t * 4) % 2 === 0) {
-            if (S.hint.stock) outline(colX(0) - 1, TY - 1, CW + 2, CH + 2, '#ffe27a');
-            else { let a = S.hint.a, t = last(S.hint.to.cards), [hx, hy] = t ? [t.x, t.y] : home(S.hint.to, 0); outline(Math.round(a.x) - 1, Math.round(a.y) - 1, CW + 2, CH + 2, '#ffe27a'); outline(Math.round(hx) - 1, Math.round(hy) - 1, CW + 2, CH + 2, rgba('#ffe27a', 0.6)); }
+        if (S.hint) {
+            bx.globalAlpha = Math.max(0, Math.min(1, S.hint.t / 0.4, (1.4 - S.hint.t) / 0.3)) * 0.6;
+            if (S.hint.stock) outline(colX(0) - 1, TY - 1, CW + 2, CH + 2, '#ffffff');
+            else outline(Math.round(S.hint.a.x) - 1, Math.round(S.hint.a.y) - 1, CW + 2, CH + 2, '#ffffff');
+            bx.globalAlpha = 1;
         }
         for (let f of S.fx) { bx.globalAlpha = Math.max(0, 1 - f.t / f.life); px(f.x, f.y, f.t < 0.1 ? 2 : 1, f.t < 0.1 ? 2 : 1, f.col); }
         bx.globalAlpha = 1;
@@ -967,9 +965,10 @@ window.os = window.os || {};
         ['undo', 'hint', 'new'].forEach(k => { let b = q(k); if (b) b.hidden = !playing; });
         let p = q('pause'); if (p) { p.hidden = !playing; p.textContent = S && S.state === 'pause' ? '▶' : 'Ⅱ'; }
         let m = q('mute'); if (m) m.textContent = D.muted ? '×' : '♪';
-        let u = q('undo'); if (u) { u.textContent = LJ('undo', 0, '戻す | UNDO'); u.title = LE('undo', 0, '戻す | UNDO'); }
-        let h = q('hint'); if (h) { h.textContent = LJ('hintB', 0, 'ヒント | HINT'); h.title = LE('hintB', 0, 'ヒント | HINT'); }
-        let n = q('new'); if (n) { n.textContent = LJ('newDeal', 0, '配り直す | NEW DEAL'); n.title = LE('newDeal', 0, '配り直す | NEW DEAL'); }
+        const two = (b, k, d, tip) => { if (!b) return; b.className = 'two'; b.innerHTML = '<b>' + esc(LJ(k, 0, d)) + '</b><i>' + esc(LE(k, 0, d)) + '</i>'; b.title = tip || L(k, 0, d); };
+        two(q('undo'), 'undo', '戻す | UNDO');
+        two(q('hint'), 'hintB', 'ヒント | HINT', S && S.n && S.n.hintCost ? L('hintB', 0, 'ヒント | HINT') + ' (-' + S.n.hintCost + ')' : '');
+        two(q('new'), 'newDeal', '配り直す | NEW DEAL');
     }
     const touchy = () => matchMedia('(any-pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches;
     function onKey(e) {
@@ -1044,6 +1043,9 @@ window.os = window.os || {};
             .sl-btn.hot { border-image-source: var(--sl-keyon); color: #07040b; }
             .sl-keys { position: absolute; z-index: 2; display: flex; flex-wrap: wrap; gap: 3px; pointer-events: none; }
             .sl-keys.tall { right: 4px; bottom: 4px; justify-content: flex-end; }
+            .sl-keys button.two { height: auto; min-height: 22px; padding: 0 4px 1px; line-height: 1; }
+            .sl-keys button.two b, .sl-keys button.two i { display: block; font-weight: normal; font-style: normal; }
+            .sl-keys button.two i { margin-top: 1px; font-size: 7px; letter-spacing: 1px; opacity: 0.65; }
             .sl-keys button { pointer-events: auto; min-width: 22px; height: 22px; padding: 0 3px 2px; border: 6px solid transparent; border-image: var(--sl-key) 4 fill / 6px stretch; background: none; color: #cfcbd6; font: 11px/1 'DotGothic16', monospace; cursor: inherit; white-space: nowrap; }
             .sl-keys button:active { transform: translateY(1px); }
             .sl-keys button[hidden] { display: none; }
