@@ -21,7 +21,7 @@ body {
     cursor: crosshair; 
 }
 
-/* focus state */
+/* so you can see where tab is */
 :focus-visible {
     outline: none;
     box-shadow: 0 0 0 1px var(--bg-base), 0 0 0 3px var(--neon-primary), 0 0 15px var(--neon-glow);
@@ -648,7 +648,7 @@ html.glass-on.low-spec .window-body { background: rgba(8, 2, 6, 0.9) !important;
 #boot-seq.bye { opacity: 0; }
 #boot-seq::after { content: '_'; animation: blink 1s infinite; }
 
-/* popups bottom right */
+/* popups live bottom right */
 #sys-notices { position: fixed; right: 16px; bottom: 90px; z-index: 9400; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
 .sys-notice {
     width: 280px; padding: 10px 14px; font-size: 13px; line-height: 1.5; color: var(--text-main);

@@ -352,12 +352,12 @@ window.os = window.os || {};
             '<button class="sw-mode sw-marks' + (D.marks ? ' on' : '') + '" data-act="marks" aria-pressed="' + !!D.marks + '" title="' + esc(line('marks').en) + '">?</button>' +
             '<button class="sw-mode' + (flagMode ? ' on' : '') + '" data-act="mode" aria-pressed="' + flagMode + '">' + (flagMode ? L('flag') : L('dig')) + '</button><button class="sw-btn" data-act="again">↻</button>';
         let st = $('sw-stats'), id = B.bd.id, pl = D.played[id] || 0;
-        if (st) st.innerHTML = '最速 <b>' + (D.best[id] ? D.best[id] + 's' : '—') + '</b>' + (D.stars && D.stars[id] ? ' <b class="sw-star">★</b>' : '') + ' <span>//</span> 規定 <b>' + B.bd.par + 's</b> <span>//</span> 突破 <b>' + (D.clears[id] || 0) + '</b><span class="sw-of">/' + pl + '</span>';
+        if (st) st.innerHTML = '最速 <b>' + (D.best[id] ? D.best[id] + 's' : '-') + '</b>' + (D.stars && D.stars[id] ? ' <b class="sw-star">★</b>' : '') + ' <span>//</span> 規定 <b>' + B.bd.par + 's</b> <span>//</span> 突破 <b>' + (D.clears[id] || 0) + '</b><span class="sw-of">/' + pl + '</span>';
     }
     function renderPick() {
         let el = $('sw-pick'); if (!el) return;
         let bs = ownedBoards(), ls = LOOKS.filter(l => has(l.part));
-        el.innerHTML = '<div class="sw-boards">' + bs.map(b => { let n = named(b.id); return '<button class="sw-board' + (B && B.bd.id === b.id ? ' on' : '') + '" data-act="board" data-arg="' + b.id + '" title="' + esc(n.sub) + '"><span class="sw-bk">' + esc(n.jp.charAt(0)) + '</span><span>' + two(n) + '<em>' + b.w + '×' + b.h + ' · ' + esc(line('cams', b.n).en) + (D.best[b.id] ? ' // ' + D.best[b.id] + 's' : '') + (D.stars && D.stars[b.id] ? ' ★' : '') + '</em></span></button>'; }).join('') + '</div>' +
+        el.innerHTML = '<div class="sw-wall n' + bs.length + '">' + bs.map(b => { let n = named(b.id); return '<button class="sw-mon' + (B && B.bd.id === b.id ? ' on' : '') + '" data-act="board" data-arg="' + b.id + '" title="' + esc(n.sub) + '"><span class="sw-scr"><canvas data-feed="' + b.id + '" aria-hidden="true"></canvas></span><span class="sw-osd"><span class="sw-bk">' + esc(n.jp.charAt(0)) + '</span><span>' + two(n) + '<em>' + b.w + '×' + b.h + ', ' + esc(line('cams', b.n).en) + (D.best[b.id] ? ' // ' + D.best[b.id] + 's' : '') + (D.stars && D.stars[b.id] ? ' ★' : '') + '</em></span></span></button>'; }).join('') + '</div>' +
             (ls.length > 1 ? '<div class="sw-looks"><span class="sw-label">' + L('looks') + '</span>' + ls.map(l => '<button class="sw-look l-' + l.id + (look() === l.id ? ' on' : '') + '" data-act="look" data-arg="' + l.id + '" aria-label="' + l.id + '"></button>').join('') + '</div>' : '');
     }
     function say(parts, cls) {
@@ -376,7 +376,7 @@ window.os = window.os || {};
             let b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
             if (typeof os.clickAudio === 'function') os.clickAudio();
             let a = b.dataset.act, arg = b.dataset.arg;
-            if (a === 'board') { newBoard(arg); renderPick(); renderBar(); }
+            if (a === 'board') { newBoard(arg); renderPick(); renderBar(); let f = FEED[arg]; if (f) f.noise = 1; tone([[90, 0.05], [1700, 0.025]], 'sawtooth'); }
             else if (a === 'again') { newBoard(B ? B.bd.id : D.board); renderPick(); renderBar(); }
             else if (a === 'look') { D.look = arg; saveD(); renderPick(); render(); }
             else if (a === 'mode') { flagMode = !flagMode; renderBar(); }
@@ -416,6 +416,94 @@ window.os = window.os || {};
         else { renderPick(); renderBar(); }
         let v = play ? p : h; v.classList.remove('in'); void v.offsetWidth; v.classList.add('in');
     }
+    // cctv wall. one telly per district and theyre all live
+    const FEED = {}, G5 = { R: '110101110101101', E: '111100110100111', C: '011100100100011', A: '010101111101101', M: '101111111101101', ' ': '000000000000000', X: '101101010101101', ':': '000010000010000', 0: '111101101101111', 1: '010110010010111', 2: '110001010100111', 3: '110001010001110', 4: '101101111001001', 5: '111100110001110', 6: '011100110101010', 7: '111001010010010', 8: '010101010101010', 9: '010101011001110' };
+    // every telly looks like its own map now, not four of the same street
+    function feedOf(id, cw) {
+        if (FEED[id] && (!cw || FEED[id].cw === cw)) return FEED[id];
+        let big = id === 'district', C = (cw || 12) * (big ? 2 : 1), Rw = big ? 14 : 7, T = 16, seed = [...id].reduce((a, ch) => a * 31 + ch.charCodeAt(0), 7) % 2147483647 || 7, rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        let rowsOf = { alley: [3], street: [3, 4], district: [1, 5, 9, 13], mirror: [2, 5] }[id] || [3];
+        let colOf = i => id === 'alley' ? false : id === 'district' ? i % 7 === 3 : id === 'mirror' ? i % 12 === 6 : false;
+        let map = [];
+        for (let j = 0; j < Rw; j++) { map.push([]); for (let i = 0; i < C; i++) { let st = rowsOf.includes(j) || colOf(i); map[j].push(st ? 'street' + Math.floor(rnd() * 4) : 'roof' + Math.floor(rnd() * 6)); } }
+        if (id === 'mirror') for (let j = 0; j < Rw; j++) for (let i = 0; i < C / 2; i++) map[j][C - 1 - i] = map[j][i];
+        let roofs = []; for (let j = 0; j < Rw; j++) for (let i = 0; i < C; i++) if (/roof/.test(map[j][i]) && (rowsOf.includes(j - 1) || rowsOf.includes(j + 1))) roofs.push([i, j]);
+        let nCam = Math.round(({ alley: 1.5, street: 4, district: 16, mirror: 2 }[id] || 2) * C / (big ? 24 : 12)), cams = [];
+        for (let k = 0; k < nCam && roofs.length; k++) { let [i, j] = roofs.splice(Math.floor(rnd() * roofs.length), 1)[0], up = rowsOf.includes(j - 1); cams.push({ x: i * T + 8, y: j * T + 8, base: up ? -Math.PI / 2 : Math.PI / 2, ph: rnd() * 6, hit: 0, a: 0 }); }
+        if (id === 'mirror') cams = cams.concat(cams.map(c => Object.assign({}, c, { x: C * T - c.x, ph: c.ph + Math.PI, mir: true })));
+        let folk = [], cols = ['#3ad8ff', '#46f08a', '#ff4d8d', '#b46bff', '#ffa43a', '#3fe0c8', '#f4f4f4'], per = { alley: 1, street: 3, district: 3, mirror: 2 }[id] || 2;
+        rowsOf.forEach(row => { for (let k = 0; k < per * C / (big ? 24 : 12); k++) folk.push({ row, x: rnd() * C * T, v: (rnd() < 0.5 ? -1 : 1) * (7 + rnd() * 12), col: cols[Math.floor(rnd() * cols.length)], seen: 0 }); });
+        if (id === 'mirror') folk = folk.concat(folk.map(f => Object.assign({}, f, { x: C * T - f.x, v: -f.v, mir: true })));
+        // little map of the real board for the corner. dots are cams
+        let bd = BOARDS.find(b => b.id === id) || { w: 9, h: 9, n: 10 }, mini = [];
+        for (let k = 0; k < bd.n; k++) mini.push([Math.floor(rnd() * bd.w), Math.floor(rnd() * bd.h)]);
+        return (FEED[id] = { cw, C, Rw, T, map, cams, folk, t: rnd() * 10, noise: 0, z: big ? 2 : 1, bd, mini, lamp: rnd() * C * T });
+    }
+    function feedDraw(cvf, id, on, dt, n, cw) {
+        let F = feedOf(id, cw), T = F.T, W = F.C * T, H = F.Rw * T, x = cvf.getContext('2d'), still = calm(), sw = look() === 'print' ? PRINT : null;
+        if (cvf.width !== W || cvf.height !== H) { cvf.width = W; cvf.height = H; }
+        F.t += dt; F.noise = Math.max(0, F.noise - dt * 2.5);
+        for (let j = 0; j < F.Rw; j++) for (let i = 0; i < F.C; i++) os.spriteDraw(x, 'sweep/' + F.map[j][i], i * T, j * T, 1, sw);
+        const cone = (c, px_, py) => { let dx = px_ - c.x, dy = py - c.y, d = Math.hypot(dx, dy); if (d > 70 || d < 6) return false; let da = Math.atan2(dy, dx) - c.a; da = Math.atan2(Math.sin(da), Math.cos(da)); return Math.abs(da) < 0.38; };
+        F.cams.forEach(c => { c.a = c.base + (still ? 0.4 : Math.sin(F.t * 0.7 + c.ph)) * 0.95 * (c.mir ? -1 : 1); c.hit = Math.max(0, c.hit - dt); });
+        F.folk.forEach(f => {
+            f.x += f.v * dt; if (f.x < -6) f.x = W + 4; if (f.x > W + 6) f.x = -4;
+            let fy = f.row * T + 5, spot = F.cams.some(c => cone(c, f.x, fy + 2));
+            if (spot) { f.seen = 0.6; F.cams.forEach(c => { if (cone(c, f.x, fy + 2)) c.hit = 0.5; }); }
+            f.seen = Math.max(0, f.seen - dt);
+            let bob = Math.floor(F.t * 8 + f.x) % 2, fx = Math.round(f.x);
+            x.fillStyle = '#08060c'; x.fillRect(fx - 2, fy - 1 + bob, 5, 7); x.fillStyle = f.seen > 0 ? '#ff2030' : f.col; x.fillRect(fx - 1, fy + bob, 3, 5); x.fillStyle = '#e6e1d8'; x.fillRect(fx - 1, fy + bob, 3, 2);
+            if (f.seen > 0) { x.fillStyle = '#ff2030'; x.fillRect(fx, fy - 6, 1, 3); x.fillRect(fx, fy - 2, 1, 1); }
+        });
+        F.cams.forEach(c => { x.fillStyle = c.hit > 0 ? 'rgba(255,32,48,0.32)' : 'rgba(255,214,120,0.13)'; x.beginPath(); x.moveTo(c.x, c.y); x.arc(c.x, c.y, 70, c.a - 0.38, c.a + 0.38); x.closePath(); x.fill(); os.spriteDraw(x, 'sweep/' + (c.hit > 0 ? 'watcherHit' : 'watcher'), c.x - 8, c.y - 8, 1, sw); });
+        if (id === 'mirror') {
+            x.fillStyle = 'rgba(180,220,255,0.35)'; for (let y = 0; y < H; y += 4) x.fillRect(W / 2, y, 1, 2);
+            x.fillStyle = 'rgba(120,200,255,0.07)'; x.fillRect(W / 2, 0, W / 2, H);
+            // the edges wrap, so arrows going off one side + coming in the other
+            if (Math.floor(F.t * 2) % 2 || still) { x.fillStyle = '#9fe6ff'; for (let row of [2, 5]) { let y = row * T + 8; for (let q = 0; q < 3; q++) { x.fillRect(2 + q, y - q, 1, q * 2 + 1); x.fillRect(W - 3 - q, y - q, 1, q * 2 + 1); } } }
+        }
+        if (id === 'alley') {
+            // tight walls + one lamp on its last legs
+            x.fillStyle = 'rgba(0,0,0,0.5)'; x.fillRect(0, 0, W, 2 * T); x.fillRect(0, 5 * T, W, 2 * T);
+            x.fillStyle = 'rgba(0,0,0,0.25)'; x.fillRect(0, 2 * T, W, 4); x.fillRect(0, 5 * T - 4, W, 4);
+            let fl = still ? 0.8 : (Math.sin(F.t * 13) > -0.6 ? 0.8 : 0.15) * (Math.random() < 0.03 ? 0.2 : 1), g = x.createRadialGradient(F.lamp, 3 * T, 2, F.lamp, 3 * T + 8, 46);
+            g.addColorStop(0, 'rgba(255,200,120,' + 0.35 * fl + ')'); g.addColorStop(1, 'rgba(255,200,120,0)'); x.fillStyle = g; x.fillRect(F.lamp - 50, 2 * T - 10, 100, 3 * T + 20);
+            x.fillStyle = 'rgba(255,230,170,' + fl + ')'; x.fillRect(F.lamp - 1, 2 * T + 6, 3, 2);
+        }
+        if (id === 'street') { x.fillStyle = 'rgba(255,214,120,0.5)'; for (let i = (Math.floor(F.t * 20) % 16) - 16; i < W; i += 16) x.fillRect(i, 4 * T, 8, 1); }
+        x.fillStyle = 'rgba(0,0,0,0.25)'; for (let y = 0; y < H; y += 2) x.fillRect(0, y, W, 1);
+        if (!on) { x.fillStyle = 'rgba(4,3,8,0.5)'; x.fillRect(0, 0, W, H); }
+        let nz = on ? F.noise : 0.12 + F.noise;
+        if (nz > 0 && !still) for (let k = 0; k < 40 * nz; k++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.5)'; x.fillRect(Math.random() * W, Math.random() * H, 1 + Math.random() * 6, 1); }
+        if (!still && Math.random() < (on ? 0.015 : 0.05)) { let y = Math.floor(Math.random() * H); x.drawImage(cvf, 0, y, W, 3, (Math.random() - 0.5) * 8, y, W, 3); }
+        const txt = (s, px_, py, col) => { x.fillStyle = col; [...String(s)].forEach((ch, k) => { let g = G5[ch] || G5[' ']; for (let q = 0; q < 15; q++) if (g[q] === '1') x.fillRect(px_ + k * 4 + q % 3, py + Math.floor(q / 3), 1, 1); }); };
+        let d = new Date(), hh = [d.getHours(), d.getMinutes(), d.getSeconds()].map(v => String(v).padStart(2, '0')).join(':'), z = F.z;
+        x.save(); x.scale(z, z); let Wz = W / z, Hz = H / z;
+        x.fillStyle = 'rgba(8,6,12,0.8)'; x.fillRect(2, 2, 49, 9); x.fillRect(Wz - 36, 2, 34, 9);
+        if (on && (Math.floor(F.t * 2) % 2 || still)) { x.fillStyle = '#ff2030'; x.fillRect(5, 4, 4, 5); }
+        txt((on ? 'REC' : '   ') + ' CAM 0' + n, 11, 4, on ? '#e6e1d8' : '#8a8494'); txt(hh, Wz - 34, 4, '#e6e1d8');
+        let bd = F.bd, mw = bd.w + 4, mh = bd.h + 10, mx = Wz - mw - 2, my = Hz - mh - 2;
+        x.fillStyle = 'rgba(8,6,12,0.85)'; x.fillRect(mx, my, mw, mh); x.fillStyle = 'rgba(230,225,216,0.18)'; x.fillRect(mx + 2, my + 8, bd.w, bd.h);
+        txt(bd.w + 'X' + bd.h, mx + 2, my + 2, '#8a8494');
+        let blink = Math.floor(F.t * 3);
+        F.mini.forEach(([a, b], k) => { x.fillStyle = (k + blink) % 9 === 0 && on ? '#ff2030' : 'rgba(255,90,110,0.7)'; x.fillRect(mx + 2 + a, my + 8 + b, 1, 1); });
+        if (bd.wrap) { x.fillStyle = '#9fe6ff'; x.fillRect(mx + 1, my + 8, 1, bd.h); x.fillRect(mx + 2 + bd.w, my + 8, 1, bd.h); }
+        x.restore();
+    }
+    let feedRaf = 0, feedLast = 0;
+    function feeds(now) {
+        feedRaf = requestAnimationFrame(feeds);
+        if (asleep || !root) return;
+        let h = $('sw-home'); if (!h || h.hidden) return;
+        let dt = feedLast ? Math.min(0.1, (now - feedLast) / 1000) : 0; feedLast = now;
+        h.querySelectorAll('canvas[data-feed]').forEach((c, i) => {
+            // whole feed in the telly, no cropping the rec dot off
+            // wide tellys get a wider street
+            let p = c.parentNode, cw = p.clientHeight ? Math.max(12, Math.min(28, Math.floor(7 * p.clientWidth / p.clientHeight))) : 12, F = feedOf(c.dataset.feed, cw), fw = F.C * 16, fh = F.Rw * 16, k = Math.min(p.clientWidth / fw, p.clientHeight / fh), w = Math.floor(fw * k) + 'px';
+            if (k > 0 && c.style.width !== w) { c.style.width = w; c.style.height = Math.floor(fh * k) + 'px'; }
+            feedDraw(c, c.dataset.feed, c.closest('.on') !== null, dt, i + 1, cw);
+        });
+    }
     function init() {
         loadD();
         wire();
@@ -426,7 +514,7 @@ window.os = window.os || {};
         let mn = $('sw-menu'); if (mn) mn.innerHTML = '◀ ' + L('menu');
         let rt = $('sw-rtext'); if (rt) rt.innerHTML = esc(line('rules').jp) + '<br><i>' + esc(line('rules').en) + '</i>';
         newBoard(D.board);
-        renderPick(); renderBar();
+        renderPick(); renderBar(); cancelAnimationFrame(feedRaf); feedRaf = requestAnimationFrame(feeds);
     }
     // lives in the games tablet now. it says go, I go
     os.gg = os.gg || {}; os.gg.hooks = os.gg.hooks || {};
@@ -441,8 +529,9 @@ window.os = window.os || {};
             tick(); render();
         },
         best() { loadD(); let b = Object.values(D.clears || {}).reduce((a, n) => a + (+n || 0), 0); return b; },
-        scores() { loadD(); return BOARDS.filter(b => D.played[b.id]).map(b => { let n = named(b.id); return { t: n.jp + ' ' + n.en, rows: [['★', D.best[b.id] ? D.best[b.id] + 's' : '—', (D.stars && D.stars[b.id]) ? 'par' : ''], ['✓', (D.clears[b.id] || 0) + ' / ' + D.played[b.id], ''], ['⏱', b.par + 's', 'par']] }; }); },
+        scores() { loadD(); return BOARDS.filter(b => D.played[b.id]).map(b => { let n = named(b.id); return { t: n.jp + ' ' + n.en, rows: [['★', D.best[b.id] ? D.best[b.id] + 's' : '-', (D.stars && D.stars[b.id]) ? 'par' : ''], ['✓', (D.clears[b.id] || 0) + ' / ' + D.played[b.id], ''], ['⏱', b.par + 's', 'par']] }; }); },
         stop() {
+            cancelAnimationFrame(feedRaf); feedRaf = 0;
             clearInterval(idle); clearInterval(timer); clearTimeout(press); cancelAnimationFrame(raf); raf = 0;
             window.removeEventListener('resize', onResize);
             if (gl) { let lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext(); }
@@ -510,6 +599,24 @@ window.os = window.os || {};
             @keyframes swSpin { to { transform: rotate(360deg); } }
             .sw-head > div:nth-child(2) { flex: 1; min-width: 0; }
             .sw-board { transition: transform 0.12s, border-color 0.12s; } .sw-board:hover { transform: translateY(-2px); border-color: var(--neon-primary); }
+            #sw-pick { flex: 1; min-height: 150px; display: flex; flex-direction: column; }
+            .sw-wall { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, 1fr); grid-auto-rows: minmax(0, 1fr); gap: 10px; margin-bottom: 8px; }
+            .sw-wall.n1 { grid-template-columns: 1fr; max-width: 520px; } .sw-wall.n3 .sw-mon:last-child { grid-column: span 2; }
+            .sw-mon { position: relative; display: flex; flex-direction: column; min-height: 0; padding: 8px 8px 34px; background: linear-gradient(180deg, #2a2632, #17141d); border: 0; border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 0 #000, 0 6px 14px rgba(0,0,0,0.6); cursor: inherit; color: var(--text-main); font: inherit; text-align: left; transition: transform 0.12s; }
+            .sw-mon::after { content: ''; position: absolute; right: 12px; bottom: 11px; width: 6px; height: 6px; border-radius: 50%; background: #3a1018; box-shadow: inset 0 0 0 1px #000; }
+            .sw-mon.on::after { background: #ff2030; box-shadow: 0 0 8px #ff2030; }
+            .sw-scr { flex: 1; min-height: 0; display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #0d0b12, #050407 75%); border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 6px 18px #000; }
+            .sw-mon canvas { display: block; image-rendering: pixelated; border-radius: 10px / 14px; box-shadow: 0 0 0 2px #050407, inset 0 0 30px #000; filter: saturate(0.9); }
+            .sw-mon.on canvas { animation: swOn .3s steps(6) both; }
+            @keyframes swOn { 0% { transform: scaleY(0.02); filter: brightness(3); } 40% { transform: scaleY(1); filter: brightness(2); } 100% { transform: none; filter: none; } }
+            @media (prefers-reduced-motion: reduce) { .sw-mon.on canvas { animation: none; } }
+            .sw-mon.on canvas { box-shadow: 0 0 0 2px #050407, 0 0 0 4px var(--neon-primary), 0 0 22px var(--neon-glow); filter: none; }
+            .sw-mon:hover { transform: translateY(-2px); } .sw-mon:active { transform: translateY(1px); }
+            .sw-osd { position: absolute; left: 10px; right: 26px; bottom: 6px; display: flex; gap: 8px; align-items: center; font-size: 12px; white-space: nowrap; overflow: hidden; }
+            .sw-osd em { display: block; font-style: normal; font-size: 10px; opacity: 0.6; }
+            .sw-mon .sw-bk { width: 20px; height: 20px; font-size: 13px; }
+            .sw-go { border-radius: 0; clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 2px 4px, 2px 2px, 4px 2px); }
+            .sw-go { font-family: 'DotGothic16', monospace; box-shadow: 5px 5px 0 #000, 0 0 22px var(--neon-glow); }
             .sw-go { margin-top: auto; align-self: center; padding: 12px 40px; font-size: 18px; letter-spacing: 3px; color: #000; background: var(--neon-primary); border: 0; box-shadow: 0 0 22px var(--neon-glow), 0 4px 0 color-mix(in srgb, var(--neon-primary) 45%, #000); animation: swPulse 2s ease-in-out infinite; }
             .sw-go:active { transform: translateY(3px); box-shadow: 0 0 22px var(--neon-glow), 0 1px 0 color-mix(in srgb, var(--neon-primary) 45%, #000); }
             .sw-go i { color: #000; opacity: 0.7; }

@@ -1,4 +1,3 @@
-// --- (snake.exe) ---
 // asked a friend what was missing from the site, he said snake, so here I am, this was hell.
 
 window.os = window.os || {};
@@ -14,12 +13,12 @@ window.os = window.os || {};
 
     // all the modes. all unlocked
     const MODES = [
-        { id: 'run', jp: '走', en: 'RUN', pay: 1, sub: 'the classic. eat the packets, dont hit the walls or yourself. see how long you last' },
-        { id: 'zen', jp: '凪', en: 'ZEN', part: 'sx_zen', pay: 0.3, sub: 'no walls, you come out the other side, and biting yourself only costs you the tail. slow and calm, and it scores a third of what RUN does' },
-        { id: 'rush', jp: '急', en: 'RUSH', part: 'sx_rush', pay: 1.25, sub: 'sixty seconds. three packets on the board at once. as many as you can' },
-        { id: 'maze', jp: '壁', en: 'FIREWALLS', part: 'sx_maze', pay: 1.15, sub: 'twelve firewalls, one after another. take the shards, the gate opens, go through it' },
-        { id: 'glitch', jp: '乱', en: 'GLITCH', pay: 1.2, sub: 'the board glitches. blocks of wall flicker in red, warn you for two seconds, then go solid for a while. watch the red' },
-        { id: 'ouro', jp: '環', en: 'OUROBOROS', part: 'sx_ouro', pay: 1.5, sub: 'no food at all. you grow on your own, every few seconds. the only way to score is to catch your own tail' }
+        { id: 'run', jp: '走', en: 'RUN', mult: 1, sub: 'the classic. eat the packets, dont hit the walls or yourself. see how long you last' },
+        { id: 'zen', jp: '凪', en: 'ZEN', part: 'sx_zen', mult: 0.3, sub: 'no walls, you come out the other side, and biting yourself only costs you the tail. slow and calm, and it scores a third of what RUN does' },
+        { id: 'rush', jp: '急', en: 'RUSH', part: 'sx_rush', mult: 1.25, sub: 'sixty seconds. three packets on the board at once. as many as you can' },
+        { id: 'maze', jp: '壁', en: 'FIREWALLS', part: 'sx_maze', mult: 1.15, sub: 'twelve firewalls, one after another. take the shards, the gate opens, go through it' },
+        { id: 'glitch', jp: '乱', en: 'GLITCH', mult: 1.2, sub: 'the board glitches. blocks of wall flicker in red, warn you for two seconds, then go solid for a while. watch the red' },
+        { id: 'ouro', jp: '環', en: 'OUROBOROS', part: 'sx_ouro', mult: 1.5, sub: 'no food at all. you grow on your own, every few seconds. the only way to score is to catch your own tail' }
     ];
     const PERKS = [
         { id: 'slow', part: 'sx_slow', jp: '遅', en: 'SLOW', sub: 'hold SHIFT (or the ⏱ button) and time crawls. the meter fills back up when you let go' },
@@ -113,6 +112,7 @@ window.os = window.os || {};
         if (!alive()) { stopAll(); return; }
         if (!S || S.state !== 'playing') return;
         let now = performance.now(); S.prev = S.snake.map(p => ({ x: p.x, y: p.y })); S.at = now; S.step++;
+        if (S.demo) brain();
         if (S.want.length) S.dir = S.want.shift();
         let d = S.dir; if (now < S.reverseUntil) d = turn[d];
         let h = { x: S.snake[0].x, y: S.snake[0].y };
@@ -131,7 +131,7 @@ window.os = window.os || {};
             else return die('self');
         }
         if (S.hunter && S.hunter.x === h.x && S.hunter.y === h.y) return die('hunter');
-        // CLOSE CALL!! you were about to die and dodged it
+        // close call. that was nearly a wall
         if (S.danger && d !== S.dangerDir && now - S.near > 1500) { S.near = now; S.score += 5; text(h.x, h.y, 'ギリ! CLOSE +5', '#ff8a3d', true); snd('bonus'); }
         S.snake.unshift(h);
         let fi = S.food.findIndex(f => f.x === h.x && f.y === h.y), ate = false;
@@ -175,7 +175,7 @@ window.os = window.os || {};
             if (S.tick > 62) S.tick -= 2.5;
             extras(); return true;
         }
-        if (f.type === 'gold') { S.score += 50; snd('bonus'); burst(h.x, h.y, '#ffea00', 20, true); text(h.x, h.y, 'レアテイク +50', '#ffea00'); say('> !! rare shard @ ' + hex() + ' :: +50', 'good'); return true; }
+        if (f.type === 'gold') { S.score += 50; snd('bonus'); burst(h.x, h.y, '#ffea00', 20, true); text(h.x, h.y, 'お宝 +50', '#ffea00'); say('> !! rare shard @ ' + hex() + ' :: +50', 'good'); return true; }
         if (f.type === 'phase') { S.score += 20; S.phaseUntil = performance.now() + PHASE_MS; snd('phase'); burst(h.x, h.y, '#05d9e8', 16, true); text(h.x, h.y, '位相シフト', '#05d9e8'); say('> tunnel open :: walls dont count for ' + (PHASE_MS / 1000) + 's', 'info'); return true; }
         if (f.type === 'purge') { let cut = Math.min(3, S.snake.length - 3); for (let i = 0; i < cut; i++) S.snake.pop(); S.score += 80; S.firewall = Math.max(0, S.firewall - 10); snd('purge'); burst(h.x, h.y, '#bd00ff', 14, true); text(h.x, h.y, '-' + cut + '節 +80', '#bd00ff'); say('> node self purged :: +80', 'alert'); return true; }
         if (f.type === 'bug') { S.glitch = 1; S.reverseUntil = performance.now() + 3000; S.firewall = Math.max(0, S.firewall - 18); S.flash = 1; snd('hazard'); burst(h.x, h.y, '#ff2a6d', 14); text(h.x, h.y, 'データ破損', '#ff2a6d'); say('> [ALERT] IDS triggered :: controls flipped 3s', 'alert'); return false; }
@@ -209,6 +209,7 @@ window.os = window.os || {};
     }
     function die(why) {
         if (!S || S.state === 'dead') return;
+        if (S.demo) { S.state = 'dead'; clearTimeout(loopT); S.shake = 0.6; S.glitch = 0.6; burst(S.snake[0].x, S.snake[0].y, '#ff2a6d', 18); setTimeout(() => { if (S && S.demo && /menu|loadout/.test(showing())) attract(true); }, 1300); return; }
         S.state = 'dead'; clearTimeout(loopT);
         let won = why === 'win';
         if (!won) { snd('death'); S.shake = 1; S.flash = 0.8; burst(S.snake[0].x, S.snake[0].y, '#ff2a6d', 26); say('> CONNECTION TERMINATED :: ' + ({ wall: 'hit a wall', self: 'bit yourself', hunter: 'the hunter got you', time: 'out of time' }[why] || why), 'alert'); }
@@ -407,7 +408,7 @@ window.os = window.os || {};
         let now = performance.now(), msg = null, col = '#ff2a6d';
         if (now < S.reverseUntil) msg = '操作反転 // CONTROLS FLIPPED ' + ((S.reverseUntil - now) / 1000).toFixed(1);
         else if (S.hunter) msg = '追跡者 // HUNTER ON THE BOARD';
-        else if (S.trace > 80 && S.state === 'playing') { msg = 'TRACE ' + Math.round(S.trace) + '% // 追跡が来る'; col = '#ff8a3d'; }
+        else if (S.trace > 80 && S.state === 'playing') { msg = 'TRACE ' + Math.round(S.trace) + '% // 追っ手が来る'; col = '#ff8a3d'; }
         else if (S.mode.id === 'rush' && S.timeLeft < 10000 && S.state === 'playing') msg = '残り // ' + (S.timeLeft / 1000).toFixed(1) + 's';
         else if (S.banner && now < S.banner.until) { msg = S.banner.s; col = S.banner.col; }
         if (!msg || (S.state === 'playing' && Math.floor(t / 260) % 4 === 3 && col === '#ff2a6d')) return;
@@ -477,7 +478,7 @@ window.os = window.os || {};
 
     os.snakeAudio = function (type, level) { snd(type, level); };
     function snd(type, level) {
-        if (D.muted) return;
+        if (D.muted || (S && S.demo && type !== 'menu')) return;
         try {
             window.AudioContext = window.AudioContext || window.webkitAudioContext; if (!window.audioCtx) window.audioCtx = new AudioContext();
             let A = window.audioCtx, now = A.currentTime; if (A.state === 'suspended') A.resume();
@@ -494,6 +495,7 @@ window.os = window.os || {};
             else if (type === 'record') { [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, f, 'triangle', i === 4 ? 0.3 : 0.08, 0.05, i * 0.08)); }
             else if (type === 'boot') { [440, 660, 880].forEach((f, i) => tone(f, f, 'square', 0.06, 0.04, i * 0.07)); }
             else if (type === 'pause') tone(500, 300, 'sine', 0.08, 0.03);
+            else if (type === 'menu') { tone(990, 990, 'square', 0.03, 0.03); tone(1480, 1480, 'square', 0.04, 0.025, 0.03); }
             else tone(220, 40, 'sawtooth', 0.35, 0.06);
         } catch (e) {}
     }
@@ -511,6 +513,47 @@ window.os = window.os || {};
         set('snake-mode-text', S.mode.en);
         set('snake-best-text', String(Math.max(0, ...Object.values(D.best).map(Number).filter(isFinite))));
     }
+    // attract mode like the old cabinets. a lil guy plays while you pick
+    function attract(again) {
+        if (!again && S && S.demo && S.mode.id === D.mode && S.state === 'playing') return;
+        clearTimeout(loopT); newRun(D.mode); S.demo = true; S.state = 'playing'; S.at = performance.now(); S.log = []; hud(); schedule();
+    }
+    // grabs the closest food. if hes boxed in he just runs for room
+    function brain() {
+        let hd = S.snake[0], wrap = S.mode.id === 'zen', back = turn[S.dir], hit = new Uint8Array(G * G);
+        S.snake.slice(0, -1).forEach(p => { hit[p.y * G + p.x] = 1; }); if (S.hunter) hit[S.hunter.y * G + S.hunter.x] = 1;
+        const mv = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+        const at = (x, y) => { if (wrap) { x = (x + G) % G; y = (y + G) % G; } if (x < 0 || y < 0 || x >= G || y >= G || wallAt(x, y) || hit[y * G + x]) return -1; return y * G + x; };
+        const room = c0 => { let seen = new Uint8Array(G * G), q = [c0], n = 0; seen[c0] = 1; while (q.length && n < 200) { let c = q.pop(); n++; for (const d in mv) { let k = at(c % G + mv[d][0], (c / G | 0) + mv[d][1]); if (k >= 0 && !seen[k]) { seen[k] = 1; q.push(k); } } } return n; };
+        let food = new Set(S.food.filter(f => f.type !== 'bug').map(f => f.y * G + f.x)), opts = [];
+        for (const d in mv) { if (d === back) continue; let c = at(hd.x + mv[d][0], hd.y + mv[d][1]); if (c >= 0) opts.push({ d, c, room: room(c) }); }
+        if (!opts.length) return;
+        let best = null, seen = new Map(), q = [];
+        opts.forEach(o => { if (o.room > S.snake.length) { seen.set(o.c, o.d); q.push(o.c); } });
+        while (q.length) { let c = q.shift(); if (food.has(c)) { best = seen.get(c); break; } for (const d in mv) { let k = at(c % G + mv[d][0], (c / G | 0) + mv[d][1]); if (k >= 0 && !seen.has(k)) { seen.set(k, seen.get(c)); q.push(k); } } }
+        if (!best || Math.random() < 0.04) best = opts.sort((a, b) => b.room - a.room)[0].d;
+        S.want = [best];
+    }
+    function flipMode(dir) { let ms = ownedModes(), i = Math.max(0, ms.findIndex(m => m.id === D.mode)); D.mode = ms[(i + dir + ms.length) % ms.length].id; saveD(); snd('menu'); showOverlay('menu'); }
+    function play() { clearTimeout(loopT); newRun(D.mode); showOverlay('ready'); hud(); }
+    const FONT5 = { A: '010101111101101', B: '110101110101110', C: '011100100100011', D: '110101101101110', E: '111100110100111', F: '111100110100100', G: '011100101101011', H: '101101111101101', I: '111010010010111', J: '001001001101010', K: '101110100110101', L: '100100100100111', M: '101111111101101', N: '111101101101101', O: '010101101101010', P: '110101110100100', Q: '010101101110011', R: '110101110101101', S: '011100010001110', T: '111010010010010', U: '101101101101111', V: '101101101101010', W: '101101111111101', X: '101101010101101', Y: '101101010010010', Z: '111001010100111', '0': '111101101101111', '1': '010110010010111', '2': '110001010100111', '3': '110001010001110', '4': '101101111001001', '5': '111100110001110', '6': '011100110101010', '7': '111001010010010', '8': '010101010101010', '9': '010101011001110', ' ': '000000000000000', '-': '000000111000000' };
+    // drawn tiny then blown up so theyre real pixels
+    function logo() {
+        let g = (typeof appsDB !== 'undefined' && (appsDB.games || []).find(q => q.id === 'snake')) || { jp: 'スネーク', name: 'SNAKE' }, k = skin();
+        let W = 150, H = 42, c = document.createElement('canvas'); c.width = W; c.height = H; c.className = 'sx-logo';
+        let q = c.getContext('2d'), m = document.createElement('canvas'); m.width = W; m.height = H; let mq = m.getContext('2d');
+        mq.textAlign = 'center'; mq.textBaseline = 'middle'; mq.fillStyle = '#fff';
+        mq.font = "28px 'DotGothic16', monospace"; mq.fillText(g.jp, W / 2, 16);
+        let d = mq.getImageData(0, 0, W, H); for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] > 100 ? 255 : 0; mq.putImageData(d, 0, 0);
+        // the english is too small for the font, so its done in blocks by hand
+        let en = g.name.toUpperCase(), ex = Math.round(W / 2 - en.length * 3);
+        [...en].forEach((ch, n) => { let gl = FONT5[ch] || ''; for (let k2 = 0; k2 < 15; k2++) if (gl[k2] === '1') mq.fillRect(ex + n * 6 + (k2 % 3) * 1, 33 + Math.floor(k2 / 3), 1, 1); });
+        const tint = (col, y0, y1) => { let t = document.createElement('canvas'); t.width = W; t.height = H; let tq = t.getContext('2d'); tq.drawImage(m, 0, 0); tq.globalCompositeOperation = 'source-in'; let gr = tq.createLinearGradient(0, y0, 0, y1); col.forEach((s_, i) => gr.addColorStop(i / (col.length - 1), s_)); tq.fillStyle = gr; tq.fillRect(0, 0, W, H); return t; };
+        let dark = tint(['#000000', '#000000'], 0, H), body = tint([mix(k.a, '#ffffff', 0.55), k.a, mix(k.a, '#000000', 0.25)], 2, 30), shade = tint([k.b, k.b], 0, H);
+        [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [1, -1], [-1, 1]].forEach(([dx, dy]) => q.drawImage(dark, dx, dy));
+        q.drawImage(shade, 2, 2); q.drawImage(dark, 1, 1); q.drawImage(body, 0, 0);
+        return c;
+    }
     function showOverlay(kind) {
         let ov = document.getElementById('snake-ov'); if (!ov) return; ov.hidden = false; ov.innerHTML = ''; mark(kind);
         const el = (t, c, s) => { let e = document.createElement(t); if (c) e.className = c; if (s != null) e.textContent = s; return e; };
@@ -520,27 +563,47 @@ window.os = window.os || {};
             card.appendChild(el('div', 'sx-score', String(S.score)));
             card.appendChild(el('div', 'sx-sub', (S.rec ? '新記録 // a new best for ' : 'best for ') + S.mode.en + ': ' + (D.best[S.mode.id] || 0)));
             let top = D.top[S.mode.id] || [];
-            if (top.length) { let tb = el('div', 'sx-top'); tb.appendChild(el('div', 'sx-h', 'TOP 10 // ' + S.mode.en + (S.place ? '  ·  you placed #' + S.place : '')));
+            if (top.length) { let tb = el('div', 'sx-top'); tb.appendChild(el('div', 'sx-h', 'TOP 10 // ' + S.mode.en + (S.place ? ' // you placed #' + S.place : '')));
                 top.forEach((e, i) => { let r = el('div', 'sx-tr' + (S.place === i + 1 ? ' me' : '')); r.appendChild(el('span', '', '#' + (i + 1))); r.appendChild(el('b', '', String(e.s))); r.appendChild(el('small', '', e.d)); tb.appendChild(r); });
                 card.appendChild(tb); }
             let r = el('div', 'sx-row'); let again = el('button', 'sx-btn hot', '↻ AGAIN  [R]'); again.onclick = () => { newRun(S.mode.id); showOverlay('ready'); }; r.appendChild(again);
             let menu = el('button', 'sx-btn', '☰ MODES'); menu.onclick = () => showOverlay('menu'); r.appendChild(menu); card.appendChild(r); ov.appendChild(card); return;
         }
-        if (kind === 'ready') { let card = el('div', 'sx-card sx-mini'); card.appendChild(el('div', 'sx-big', S.mode.jp + ' ' + S.mode.en)); card.appendChild(el('div', 'sx-sub', S.mode.sub)); card.appendChild(el('div', 'sx-hint', touchy() ? 'swipe or tap to go' : 'arrows / WASD / swipe to go' + (S.perks.indexOf('slow') >= 0 ? ' · SHIFT = slow' : '') + ' · SPACE pause · M sound')); let m = el('button', 'sx-btn', '☰ MODES'); m.onclick = e => { e.stopPropagation(); showOverlay('menu'); }; card.appendChild(m); ov.appendChild(card); return; }
-        let card = el('div', 'sx-card sx-menu');
-        card.appendChild(el('div', 'sx-h', 'MODE'));
-        let mg = el('div', 'sx-grid'); ownedModes().forEach(m => { let b = el('button', 'sx-mode' + (D.mode === m.id ? ' on' : '')); b.appendChild(el('b', '', m.jp)); b.appendChild(el('span', '', m.en)); b.appendChild(el('small', '', 'best ' + (D.best[m.id] || 0))); b.title = m.sub; b.onclick = () => { D.mode = m.id; saveD(); showOverlay('menu'); }; mg.appendChild(b); }); card.appendChild(mg);
-        let cur = MODES.find(m => m.id === D.mode) || MODES[0]; card.appendChild(el('div', 'sx-sub', cur.sub));
-        let perks = ownedPerks();
-        if (perks.length) { card.appendChild(el('div', 'sx-h', 'PERKS  (' + (D.perks || []).filter(id => perks.some(p => p.id === id)).length + ' / ' + slots() + ')')); let pg = el('div', 'sx-row wrap'); perks.forEach(p => { let on = (D.perks || []).indexOf(p.id) >= 0, b = el('button', 'sx-chip' + (on ? ' on' : ''), p.jp + ' ' + p.en); b.title = p.sub; b.onclick = () => { D.perks = (D.perks || []).filter(id => perks.some(q => q.id === id)); if (on) D.perks = D.perks.filter(x => x !== p.id); else if (D.perks.length < slots()) D.perks.push(p.id); saveD(); showOverlay('menu'); }; pg.appendChild(b); }); card.appendChild(pg); }
-        let ars = ownedArenas();
-        if (ars.length > 1) { card.appendChild(el('div', 'sx-h', 'ARENA')); let ag = el('div', 'sx-row wrap'); ars.forEach(a => { let b = el('button', 'sx-chip' + (D.arena === a.id ? ' on' : ''), a.jp + ' ' + a.en); b.onclick = () => { D.arena = a.id; saveD(); bg = null; showOverlay('menu'); }; ag.appendChild(b); }); card.appendChild(ag); }
-        let skins = [{ id: '', name: { jp: 'テーマ', en: 'THEME' } }].concat((typeof appsDB !== 'undefined' && appsDB.parts || []).filter(p => p.kind === 'snake'));
-        card.appendChild(el('div', 'sx-h', 'SKIN')); let kg = el('div', 'sx-row wrap');
-        skins.forEach(k => { let nm = k.name || {}, lab = String(nm.en || nm.jp || k.id).replace(/^[^:：]*[:：]\s*/, ''), b = el('button', 'sx-chip' + ((D.skin || '') === k.id ? ' on' : ''), lab); if (k.a) b.style.borderColor = k.a; b.onclick = () => { D.skin = k.id; saveD(); colC = null; bg = null; showOverlay('menu'); }; kg.appendChild(b); });
-        card.appendChild(kg);
-        let go = el('button', 'sx-btn hot sx-go', '▶ PLAY'); go.onclick = () => { newRun(D.mode); showOverlay('ready'); hud(); }; card.appendChild(go);
-        ov.appendChild(card);
+        if (kind === 'ready') { let card = el('div', 'sx-card sx-mini'); card.appendChild(el('div', 'sx-big', S.mode.jp + ' ' + S.mode.en)); card.appendChild(el('div', 'sx-sub', S.mode.sub)); card.appendChild(el('div', 'sx-hint', touchy() ? 'swipe or tap to go' : 'arrows, WASD or swipe to go' + (S.perks.indexOf('slow') >= 0 ? '. hold SHIFT to slow down' : '') + '. SPACE pauses, M for sound')); let m = el('button', 'sx-btn', '☰ MODES'); m.onclick = e => { e.stopPropagation(); showOverlay('menu'); }; card.appendChild(m); ov.appendChild(card); return; }
+        if (kind === 'loadout') {
+            let card = el('div', 'sx-card sx-menu');
+            card.appendChild(el('div', 'sx-big', '装備 // LOADOUT'));
+            let perks = ownedPerks();
+            if (perks.length) { card.appendChild(el('div', 'sx-h', 'PERKS  (' + (D.perks || []).filter(id => perks.some(p => p.id === id)).length + ' / ' + slots() + ')')); let pg = el('div', 'sx-row wrap'); perks.forEach(p => { let on = (D.perks || []).indexOf(p.id) >= 0, b = el('button', 'sx-chip' + (on ? ' on' : ''), p.jp + ' ' + p.en); b.title = p.sub; b.onclick = () => { D.perks = (D.perks || []).filter(id => perks.some(q => q.id === id)); if (on) D.perks = D.perks.filter(x => x !== p.id); else if (D.perks.length < slots()) D.perks.push(p.id); saveD(); snd('menu'); showOverlay('loadout'); }; pg.appendChild(b); }); card.appendChild(pg); }
+            let ars = ownedArenas();
+            if (ars.length > 1) { card.appendChild(el('div', 'sx-h', 'ARENA')); let ag = el('div', 'sx-row wrap'); ars.forEach(a => { let b = el('button', 'sx-chip' + (D.arena === a.id ? ' on' : ''), a.jp + ' ' + a.en); b.onclick = () => { D.arena = a.id; saveD(); bg = null; snd('menu'); showOverlay('loadout'); }; ag.appendChild(b); }); card.appendChild(ag); }
+            let skins = [{ id: '', name: { jp: 'テーマ', en: 'THEME' } }].concat((typeof appsDB !== 'undefined' && appsDB.parts || []).filter(p => p.kind === 'snake'));
+            card.appendChild(el('div', 'sx-h', 'SKIN')); let kg = el('div', 'sx-row wrap');
+            skins.forEach(k => { let nm = k.name || {}, lab = String(nm.en || nm.jp || k.id).replace(/^[^:：]*[:：]\s*/, ''), b = el('button', 'sx-chip' + ((D.skin || '') === k.id ? ' on' : ''), lab); if (k.a) b.style.borderColor = k.a; b.onclick = () => { D.skin = k.id; saveD(); colC = null; bg = null; snd('menu'); showOverlay('loadout'); }; kg.appendChild(b); });
+            card.appendChild(kg);
+            let bk = el('button', 'sx-btn hot sx-go', '◀ 戻る // BACK'); bk.onclick = () => { snd('menu'); showOverlay('menu'); }; card.appendChild(bk);
+            ov.appendChild(card); return;
+        }
+        attract();
+        let ms = ownedModes(), cur = ms.find(m => m.id === D.mode) || ms[0], mi = ms.indexOf(cur), box = el('div', 'sx-arcade');
+        box.appendChild(logo());
+        // which map the demo is on. flip it right here if you own more than one
+        let ars = ownedArenas().length ? ownedArenas() : [ARENAS[0]], a0 = ar(), stg = el('div', 'sx-stage');
+        const flipArena = d => { let i = ars.findIndex(a => a.id === a0.id); D.arena = ars[(i + d + ars.length) % ars.length].id; saveD(); snd('menu'); showOverlay('menu'); };
+        if (ars.length > 1) { let l = el('button', 'sx-sa', '◀'); l.onclick = () => flipArena(-1); stg.appendChild(l); }
+        let tag = el('span', 'sx-st'); tag.appendChild(el('small', '', '舞台 // ARENA')); tag.appendChild(el('b', '', a0.jp + ' ' + a0.en)); stg.appendChild(tag);
+        if (ars.length > 1) { let rr = el('button', 'sx-sa', '▶'); rr.onclick = () => flipArena(1); stg.appendChild(rr); }
+        box.appendChild(stg);
+        let car = el('div', 'sx-car'), prev = el('button', 'sx-arrow', '◀'), next = el('button', 'sx-arrow', '▶'), face = el('div', 'sx-face');
+        face.appendChild(el('b', 'sx-kanji', cur.jp));
+        let ft = el('div', 'sx-ft'); ft.appendChild(el('span', 'sx-en', cur.en)); ft.appendChild(el('small', '', cur.sub)); ft.appendChild(el('em', '', 'BEST ' + (D.best[cur.id] || 0))); face.appendChild(ft);
+        prev.onclick = () => flipMode(-1); next.onclick = () => flipMode(1);
+        car.append(prev, face, next); box.appendChild(car);
+        let dots = el('div', 'sx-dots'); ms.forEach((m, i) => { let dd = el('i', i === mi ? 'on' : ''); dd.onclick = () => { D.mode = m.id; saveD(); snd('menu'); showOverlay('menu'); }; dots.appendChild(dd); }); box.appendChild(dots);
+        let row = el('div', 'sx-acts'), lo = el('button', 'sx-btn', '装備 // LOADOUT'), go = el('button', 'sx-btn hot sx-go', touchy() ? 'TAP TO START' : 'PRESS START');
+        lo.onclick = () => { snd('menu'); showOverlay('loadout'); }; go.onclick = play;
+        row.append(lo, go); box.appendChild(row);
+        ov.appendChild(box);
     }
     function hideOverlay() { let ov = document.getElementById('snake-ov'); if (ov) ov.hidden = true; mark('play'); }
     function mark(k) { let st = root && root.querySelector('.snake-stage'); if (st && st.dataset.k !== k) { st.dataset.k = k; if (cv) fit(); } }
@@ -561,6 +624,14 @@ window.os = window.os || {};
         let k = e.key, map = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right', W: 'up', S: 'down', A: 'left', D: 'right' };
         if (k === 'Shift') { keys.Shift = e.type === 'keydown'; return; }
         if (e.type !== 'keydown') return;
+        if (S.demo) {
+            if (showing() !== 'menu') { if (k === 'l' || k === 'L' || k === 'Enter') { e.preventDefault(); showOverlay('menu'); } return; }
+            if (map[k] === 'left' || map[k] === 'right') { e.preventDefault(); flipMode(map[k] === 'left' ? -1 : 1); }
+            else if (k === 'Enter' || k === ' ') { e.preventDefault(); play(); }
+            else if (k === 'l' || k === 'L') showOverlay('loadout');
+            else if (k === 'm' || k === 'M') toggleMute();
+            return;
+        }
         if (map[k]) { e.preventDefault(); if (S.state === 'dead') return; setDir(map[k]); flash(map[k]); }
         else if (k === ' ') { e.preventDefault(); togglePause(); }
         else if (k === 'm' || k === 'M') toggleMute();
@@ -581,7 +652,7 @@ window.os = window.os || {};
         let board = root.querySelector('.snake-board'), sw = null;
         board.addEventListener('pointerdown', e => {
             if (e.pointerType !== 'mouse') beTouchy();
-            if (!S || e.button > 0 || e.target.closest('button') || /menu|dead/.test(showing()) || S.state === 'dead') return;
+            if (!S || e.button > 0 || e.target.closest('button') || /menu|dead|loadout/.test(showing()) || S.state === 'dead') return;
             if (e.target.closest('.sx-menu')) return;
             e.preventDefault(); sw = { id: e.pointerId, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, t: performance.now(), moved: false };
             try { board.setPointerCapture(e.pointerId); } catch (er) {}
@@ -612,20 +683,29 @@ window.os = window.os || {};
     function stopAll() { clearTimeout(loopT); clearTimeout(fillT); cancelAnimationFrame(raf); raf = null; }
     // the games app tells me when to start / stop. I dont own a window anymore, I live in the tablet
     os.gg = os.gg || {}; os.gg.hooks = os.gg.hooks || {};
+    // the help box shows one tip at a time. tap it to skip
+    let tipT = 0;
+    function tips() {
+        let h = root && root.querySelector('.snake-help'); if (!h) return;
+        let ps = [...h.querySelectorAll('.sh-tip')], bar = h.querySelector('.sh-bar'), n = h.querySelector('.sh-n'), k = -1;
+        const go = () => { k = (k + 1) % ps.length; ps.forEach((p, i) => p.classList.toggle('on', i === k)); n.textContent = (k + 1) + '/' + ps.length; bar.classList.remove('run'); void bar.offsetWidth; bar.classList.add('run'); };
+        h.onclick = () => { go(); clearInterval(tipT); tipT = setInterval(() => { if (!asleep) go(); }, 4200); };
+        go(); clearInterval(tipT); tipT = setInterval(() => { if (!asleep) go(); }, 4200);
+    }
     os.gg.hooks.snake = {
         start(el) {
             root = el; asleep = false;
             style = styles();
             el.innerHTML = markup();
             document.addEventListener('keydown', handleKey); document.addEventListener('keyup', handleKey);
-            init();
+            init(); tips();
         },
-        pause() { asleep = true; if (S && S.state === 'playing') togglePause(); stopAll(); },
-        resume() { if (!alive() || !asleep) return; asleep = false; cancelAnimationFrame(raf); last = 0; raf = requestAnimationFrame(frame); filler(); },
+        pause() { asleep = true; if (S && S.state === 'playing' && !S.demo) togglePause(); stopAll(); },
+        resume() { if (!alive() || !asleep) return; asleep = false; cancelAnimationFrame(raf); last = 0; raf = requestAnimationFrame(frame); filler(); if (S && S.demo && S.state === 'playing') schedule(); },
         best() { loadD(); return Math.max(0, ...Object.values(D.best || {}).map(Number).filter(n => n > 0)); },
         scores() { loadD(); return MODES.map(m => ({ t: m.jp + ' ' + m.en, rows: (D.top[m.id] || []).map((e, i) => [i + 1, e.s, e.d || '']) })).filter(b => b.rows.length); },
         stop() {
-            stopAll();
+            stopAll(); clearInterval(tipT);
             document.removeEventListener('keydown', handleKey); document.removeEventListener('keyup', handleKey);
             if (gl) { let lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext(); }
             if (style) style.remove();
@@ -656,7 +736,8 @@ window.os = window.os || {};
             .snake-stage[data-k="menu"] .snake-board, .snake-stage[data-k="dead"] .snake-board { touch-action: pan-y; position: static; }
             .snake-stage[data-k="menu"] #snake-dpad, .snake-stage[data-k="dead"] #snake-dpad { visibility: hidden; }
             #snake-ov { position: absolute; inset: 0; display: grid; place-items: center; z-index: 3; background: radial-gradient(circle, rgba(0,0,0,0.35), rgba(0,0,0,0.75)); border-radius: 6px; }
-            #snake-ov[hidden] { display: none; }
+                #snake-ov[hidden] { display: none; }
+            .snake-stage[data-k="menu"] #snake-ov { background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.05) 32%, rgba(0,0,0,0.05) 58%, rgba(0,0,0,0.8)); place-items: stretch; }
             .sx-card { background: linear-gradient(180deg, rgba(24,6,22,0.96), rgba(6,1,6,0.96)); border: 1px solid var(--neon-primary); border-radius: 10px; padding: 16px 18px; max-width: 92%; box-shadow: 0 0 30px var(--neon-glow); text-align: center; font-family: 'Courier New', monospace; }
             .sx-menu { text-align: left; width: 440px; max-height: calc(100% - 16px); box-sizing: border-box; overflow: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
             .sx-big { font-size: 18px; font-weight: bold; color: #fff; letter-spacing: 3px; text-shadow: 0 0 10px var(--neon-primary); }
@@ -684,12 +765,53 @@ window.os = window.os || {};
             .snake-score { margin: 0 !important; padding: 10px 12px !important; font-size: 14px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .snake-btns { display: flex; gap: 6px; } .snake-btns button { flex: 1; }
             .snake-side .snake-panel { flex: 1 1 auto; max-width: none; min-height: 0; }
-            .snake-help { margin: 0; font-size: 10.5px !important; line-height: 1.45; color: var(--neon-secondary); opacity: 0.8; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+            .snake-help { position: relative; margin: 0; min-height: 84px; padding: 7px 10px 10px; font-size: 11px !important; line-height: 1.45; color: var(--neon-secondary); border: 1px dashed color-mix(in srgb, var(--neon-secondary) 40%, transparent); background: rgba(0,0,0,0.35); cursor: pointer; overflow: hidden; }
+            .sh-top { display: flex; justify-content: space-between; font-size: 9px; letter-spacing: 1px; opacity: 0.55; }
+            .sh-n { font-style: normal; }
+            .sh-tip { position: absolute; left: 10px; right: 10px; top: 24px; margin: 0; color: #d8f6ef; opacity: 0; transform: translateY(8px); }
+            .sh-tip.on { opacity: 1; transform: none; transition: opacity 0.2s steps(3), transform 0.25s steps(4); }
+            .sh-tip.on b { animation: shPop 0.4s steps(2) both; }
+            .sh-tip b { font-weight: normal; } .sh-tip .cy { color: #3ad8ff; text-shadow: 0 0 6px #3ad8ff; } .sh-tip .go { color: #ffea00; text-shadow: 0 0 6px #ffea00; } .sh-tip .pu { color: #b46bff; text-shadow: 0 0 6px #b46bff; } .sh-tip .rd { color: #ff3355; text-shadow: 0 0 6px #ff3355; }
+            @keyframes shPop { 0%, 50% { filter: brightness(2.4); } }
+            .sh-bar { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--neon-secondary); transform-origin: 0 50%; box-shadow: 0 0 6px var(--neon-secondary); }
+            .sh-bar.run { animation: shBar 4.2s linear both; }
+            @keyframes shBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+            .reduce-motion .sh-bar { display: none; } .reduce-motion .sh-tip.on, .reduce-motion .sh-tip.on b { transition: none; animation: none; }
             #snake-ov .sx-card { max-height: calc(100% - 16px); overflow: auto; box-sizing: border-box; animation: sxIn 0.35s cubic-bezier(.2, 1.3, .4, 1) both; }
             @keyframes sxIn { from { opacity: 0; transform: translateY(12px) scale(0.94); } }
             .sx-big { animation: sxGlitch 3.2s steps(1) infinite; }
             @keyframes sxGlitch { 0%, 90%, 100% { transform: none; } 92% { transform: translateX(2px) skewX(-6deg); text-shadow: -2px 0 #ff0040, 2px 0 #00e5ff; } 95% { transform: translateX(-2px); } }
             .sx-mode, .sx-chip { transition: transform 0.12s, border-color 0.12s; } .sx-mode:hover, .sx-chip:hover { transform: translateY(-2px); }
+.sx-arcade { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; padding: 14px 12px 12px; box-sizing: border-box; gap: 8px; animation: sxIn 0.35s cubic-bezier(.2, 1.3, .4, 1) both; }
+            .sx-logo { width: min(90%, 450px); height: auto; image-rendering: pixelated; filter: drop-shadow(0 0 10px var(--neon-glow)); animation: sxLogo 3.2s steps(1) infinite; }
+            @keyframes sxLogo { 0%, 92%, 100% { transform: none; filter: drop-shadow(0 0 10px var(--neon-glow)); } 93% { transform: translateX(-4px) skewX(-8deg); filter: drop-shadow(3px 0 0 #05d9e8) drop-shadow(-3px 0 0 #ff2a6d); } 95% { transform: translateX(3px); filter: drop-shadow(-2px 0 0 #05d9e8) drop-shadow(2px 0 0 #ff2a6d); } 97% { transform: none; } }
+            .sx-stage { display: flex; align-items: center; gap: 8px; margin-top: -4px; }
+            .sx-st { display: flex; flex-direction: column; align-items: center; padding: 4px 14px 5px; border: 1px solid var(--neon-primary); background: rgba(0,0,0,0.55); box-shadow: 0 0 10px var(--neon-glow), inset 0 0 8px var(--neon-glow); clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px); }
+            .sx-st small { font-size: 9px; letter-spacing: 2px; opacity: 0.6; }
+            .sx-st b { font-weight: normal; letter-spacing: 2px; color: #fff; text-shadow: 0 0 6px var(--neon-primary), 0 0 14px var(--neon-primary); animation: sxNeon 4.3s steps(1) infinite; }
+            @keyframes sxNeon { 0%, 71%, 74%, 77%, 100% { opacity: 1; } 72%, 75% { opacity: 0.35; } }
+            .sx-sa { padding: 2px 8px; border: 0; background: none; color: var(--neon-primary); font: inherit; cursor: inherit; animation: sxNudge 1.2s ease-in-out infinite; }
+            .sx-sa:last-child { animation-direction: reverse; }
+            @keyframes sxNudge { 50% { transform: translateX(-3px); } }
+            .reduce-motion .sx-st b, .reduce-motion .sx-sa { animation: none; }
+            .sx-car { display: flex; align-items: stretch; gap: 6px; width: min(100%, 470px); margin-top: auto; }
+            .sx-arrow { width: 38px; flex: none; font: 18px 'DotGothic16', monospace; color: var(--neon-primary); background: rgba(0,0,0,0.7); border: 1px solid color-mix(in srgb, var(--neon-primary) 60%, transparent); cursor: inherit; }
+            .sx-arrow:active { background: var(--neon-primary); color: #000; }
+            .sx-face { flex: 1; display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 4px), rgba(0,0,0,0.78); box-shadow: inset 0 0 0 1px var(--neon-primary), 0 0 18px var(--neon-glow); text-align: left; animation: sxFace 0.25s ease-out; }
+            @keyframes sxFace { from { transform: scaleX(0.92); filter: brightness(2); } }
+            .sx-kanji { font: 52px/1 'DotGothic16', monospace; color: var(--neon-primary); text-shadow: 3px 3px 0 #000, 0 0 16px var(--neon-glow); }
+            .sx-ft { display: flex; flex-direction: column; gap: 3px; min-width: 0; } .sx-en { font: 18px 'DotGothic16', monospace; letter-spacing: 4px; color: #fff; }
+            .sx-ft small { font-size: 11px; opacity: 0.75; line-height: 1.35; } .sx-ft em { font-style: normal; font-size: 11px; color: #ffea00; letter-spacing: 2px; }
+            .sx-dots { display: flex; gap: 6px; } .sx-dots i { width: 8px; height: 8px; background: rgba(255,255,255,0.2); cursor: inherit; } .sx-dots i.on { background: var(--neon-primary); box-shadow: 0 0 8px var(--neon-glow); }
+            .sx-acts { display: flex; gap: 8px; width: min(100%, 470px); } .sx-acts .sx-btn { flex: 1; } .sx-acts .sx-go { flex: 2; margin: 0; animation: sxBlink 1.1s steps(1) infinite; }
+            @keyframes sxBlink { 50% { filter: brightness(0.6); } }
+            .reduce-motion .sx-logo, .reduce-motion .sx-acts .sx-go { animation: none; }
+            .sx-menu .sx-mode, .sx-menu .sx-chip, .sx-menu .sx-btn, #snake-ov .sx-btn { border-radius: 0; clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, calc(100% - 2px) 2px, calc(100% - 2px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 2px) calc(100% - 4px), calc(100% - 2px) calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 2px calc(100% - 2px), 2px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 2px 4px, 2px 2px, 4px 2px); }
+            .sx-menu .sx-mode { background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 4px), rgba(0,0,0,0.35); }
+            .sx-menu .sx-mode b { font-family: 'DotGothic16', monospace; font-size: 20px; text-shadow: 2px 2px 0 #000; }
+            .sx-menu .sx-mode.on { background: repeating-linear-gradient(0deg, color-mix(in srgb, var(--neon-primary) 14%, transparent) 0 2px, transparent 2px 4px), rgba(0,0,0,0.35); }
+            .sx-menu .sx-h { font-family: 'DotGothic16', monospace; letter-spacing: 3px; } .sx-menu .sx-h::before { content: '▶ '; color: var(--neon-primary); }
+            .sx-menu .sx-go { font-family: 'DotGothic16', monospace; font-size: 16px; letter-spacing: 4px; box-shadow: 4px 4px 0 #000, 0 0 16px var(--neon-glow); }
             @media (hover: hover) and (pointer: fine) { .snake-rig:not(.touchy) #snake-dpad { display: none; } }
             @media (max-width: 760px) { .snake-rig { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; } .snake-side { flex-direction: row; flex-wrap: wrap; } .snake-side .snake-panel, .snake-help { display: none; } .snake-score { flex: 1; } }
         `;
@@ -724,7 +846,14 @@ window.os = window.os || {};
                     <div class="snake-stat-row"><div class="snake-stat-label"><span>BEST // 最高</span></div><div class="snake-stat-text" id="snake-best-text">0</div></div>
                     <div class="snake-ip-row">SPOOFED IP: <span id="snake-ip-text">0.0.0.0</span></div>
                 </div>
-                <p class="window-text snake-help">// ◆ packet · ¥ gold +50 · ▲ cyan = through the walls for a bit · ✕ purple = lose three, +80 · ! red = your controls flip · fill the TRACE and a hunter comes for you · a red X = death straight ahead · turn off it last second for a CLOSE CALL</p>
+                <div class="window-text snake-help" title="tap for the next one"><div class="sh-top"><span>// 遊び方 // how it works</span><i class="sh-n"></i></div>
+                    <p class="sh-tip"><b class="cy">◆</b> packet. <b class="go">★</b> gold, +50</p>
+                    <p class="sh-tip"><b class="cy">▲</b> cyan lets you through the walls for a bit</p>
+                    <p class="sh-tip"><b class="pu">✕</b> purple takes three off you but its +80</p>
+                    <p class="sh-tip"><b class="rd">!</b> red flips your controls</p>
+                    <p class="sh-tip">fill the <b class="rd">TRACE</b> and a hunter comes for you</p>
+                    <p class="sh-tip">a red <b class="rd">X</b> means youre about to die, swerve at the last second for a <b class="go">CLOSE CALL</b></p>
+                    <i class="sh-bar"></i></div>
                 </div>
             </div>
         `;

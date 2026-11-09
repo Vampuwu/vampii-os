@@ -38,7 +38,7 @@ window.os = window.os || {};
                     <button class="fl-t" data-act="undo" title="${esc(LL('undo'))} (ctrl z)">↶</button>
                 </div>
                 <div class="fl-mid">
-                    <div class="fl-stage"><canvas id="fl-cv" width="${W0}" height="${H0}"></canvas><div class="fl-msg" id="fl-msg"></div></div>
+                    <div class="fl-stage"><canvas id="fl-cv" width="${W0}" height="${H0}"></canvas><canvas class="fl-ghost" id="fl-ghost" width="${W0}" height="${H0}" aria-hidden="true"></canvas><div class="fl-msg" id="fl-msg"></div></div>
                     <div class="fl-side">
                         <b class="fl-h">${esc(LL('sound'))}</b>
                         <div class="fl-ed" id="fl-ed"></div>
@@ -198,7 +198,7 @@ window.os = window.os || {};
         let h = `<div class="fl-row"><button class="fl-b${rec ? ' hot' : ''}" data-snd="rec">${rec ? '■ ' + esc(L('recStop')) : '● ' + esc(L(s ? 'reRec' : 'rec'))}</button>`;
         if (s && !rec) h += `<button class="fl-b" data-snd="test">▶ ${esc(L('test'))}</button><button class="fl-b" data-snd="clear">✕</button>`;
         h += '</div>';
-        h += s ? `<canvas class="fl-wave" id="fl-wave" width="220" height="34"></canvas><p class="fl-nm">${s.buf.duration.toFixed(1)}s</p>` : `<p class="fl-nm">${esc(LL('recHint'))}</p>`;
+        h += s ? `<canvas class="fl-wave" id="fl-wave" width="220" height="34"></canvas><p class="fl-nm">${s.buf.duration.toFixed(1)}s</p>` : `<p class="fl-nm fl-wrap">${esc(LL('recHint'))}</p>`;
         ed.innerHTML = h;
         if (s) wave(s);
     }
@@ -260,6 +260,7 @@ window.os = window.os || {};
         dirty = false; say(LL('saved'));
     }
     async function openFile(file) {
+        ghostOff();
         try {
             let d = JSON.parse(await file.text());
             if (!d || d.vflip !== 1 || !Array.isArray(d.frames) || !d.frames.length) throw 0;
@@ -286,11 +287,33 @@ window.os = window.os || {};
         play(dest, () => { F.loop = wasLoop; setTimeout(() => mr.stop(), 400); });
     }
 
-    let sayT = 0;
+    let sayT = 0, fitRO = null, gRaf = 0;
+    // a pencil ball bouncing on the blank first page till you draw something
+    function ghost() {
+        let g = $('fl-ghost'); if (!g) return;
+        let x = g.getContext('2d'), k = 0, at = 0;
+        const ball = (i, a) => {
+            let t = (i % 12) / 12, y = 150 * Math.abs(Math.cos(t * Math.PI)), bx = 70 + i % 12 * 15, by = 188 - y, sq = y < 20 ? 0.7 : 1;
+            x.strokeStyle = 'rgba(70,64,80,' + a + ')'; x.lineWidth = 1.5;
+            x.beginPath(); x.ellipse(bx + (Math.random() - 0.5), by + 12 * (1 - sq) + (Math.random() - 0.5), 12 / sq, 12 * sq, 0, 0, Math.PI * 2); x.stroke();
+            x.fillStyle = 'rgba(70,64,80,' + a * 0.4 + ')'; x.fillRect(bx - 8 + (1 - y / 150) * 3, 201, 16 - (1 - y / 150) * 6 + 6, 2);
+        };
+        const go_ = now => {
+            gRaf = requestAnimationFrame(go_);
+            if (asleep || now - at < 125) return; at = now;
+            if (document.documentElement.classList.contains('reduce-motion')) { x.clearRect(0, 0, W0, H0); ball(6, 0.3); return; }
+            x.clearRect(0, 0, W0, H0); if (F.onion) ball(k + 11, 0.12); ball(k, 0.35); k = (k + 1) % 12;
+        };
+        gRaf = requestAnimationFrame(go_);
+    }
+    function ghostOff() { cancelAnimationFrame(gRaf); gRaf = 0; let g = $('fl-ghost'); if (g) g.remove(); }
     function say(t, ms) { let m = $('fl-msg'); if (!m) return; m.textContent = t; m.classList.toggle('on', !!t); clearTimeout(sayT); if (t && ms !== 0) sayT = setTimeout(() => m.classList.remove('on'), ms || 2600); }
 
     function wire() {
         cv = $('fl-cv'); cx = cv.getContext('2d'); cx.imageSmoothingEnabled = false;
+        // paper as big as the stage lets it. whole steps once its 2x or more
+        let stg = cv.parentNode; fitRO = new ResizeObserver(() => { let r = stg.getBoundingClientRect(); if (!r.width || !cv) return; let k = Math.min(r.width / W0, r.height / H0); if (k >= 2) k = Math.floor(k); stg.querySelectorAll('canvas').forEach(c => { c.style.width = Math.floor(W0 * k) + 'px'; c.style.height = Math.floor(H0 * k) + 'px'; }); }); fitRO.observe(stg);
+        ghost(); cv.addEventListener('pointerdown', ghostOff, { once: true });
         wireDraw();
         root.addEventListener('click', e => {
             let b = e.target.closest('button'); if (!b || !root.contains(b)) return;
@@ -359,6 +382,8 @@ window.os = window.os || {};
         scores() { return []; },
         stop() {
             stopPlay(); if (rec) { let r = rec; rec = null; try { r.mr.stop(); } catch (e) {} }
+            if (fitRO) { fitRO.disconnect(); fitRO = null; }
+            ghostOff();
             window.removeEventListener('keydown', key, true); window.removeEventListener('click', homeGuard, true);
             if (style) style.remove(); if (root) root.innerHTML = '';
             root = null; style = null; F = null; cv = null; cx = null;
@@ -380,6 +405,8 @@ window.os = window.os || {};
             .fl-ink.on { border-color: #fff; box-shadow: 0 0 0 2px var(--neon-primary); }
             .fl-mid { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 10px; min-height: 0; }
             .fl-stage { position: relative; display: grid; place-items: center; min-height: 0; background: #050407; border-radius: 6px; overflow: hidden; }
+            #fl-cv, .fl-ghost { grid-area: 1 / 1; }
+            .fl-ghost { pointer-events: none; image-rendering: pixelated; }
             #fl-cv { max-width: 100%; max-height: 100%; aspect-ratio: 4 / 3; image-rendering: pixelated; touch-action: none; box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 6px 18px rgba(0,0,0,0.6); cursor: crosshair; }
             .fl-msg { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); padding: 5px 10px; border-radius: 6px; background: rgba(0,0,0,0.8); opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; }
             .fl-msg.on { opacity: 1; }
@@ -397,6 +424,7 @@ window.os = window.os || {};
             .fl-h { font-weight: normal; font-size: 11px; opacity: 0.8; letter-spacing: 1px; }
             .fl-ed { display: flex; flex-direction: column; gap: 5px; padding: 6px; border-radius: 6px; background: rgba(0,0,0,0.3); }
             .fl-nm { margin: 0; font-size: 10px; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .fl-nm.fl-wrap { white-space: normal; line-height: 1.45; }
             .fl-wave { width: 100%; height: 34px; border-radius: 4px; }
             .fl-files .fl-b { font-size: 11px; padding: 5px 3px; }
             .fl-strip { display: flex; gap: 5px; overflow-x: auto; padding: 2px 2px 6px; }

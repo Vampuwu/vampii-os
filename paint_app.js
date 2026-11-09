@@ -1,4 +1,3 @@
-// --- (paint.exe) ---
 // this one took me way longer than it should've, if I did something dumb PLEASE tell me, idk why this had to exist don't question me
 
 window.os = window.os || {};
@@ -87,7 +86,7 @@ os.requestPaintRender = function(soft) {
     }
 };
 
-// Auto-centre canvas
+// keep the canvas in the middle
 os.resetPaintView = function() {
     const state = os.paintState;
     const displayCanvas = document.getElementById('paint-canvas');
@@ -957,7 +956,7 @@ os.renderPaintCanvas = function() {
     ctx.fillStyle = os._ptDesk.p;
     ctx.fillRect(0, 0, displayCanvas.width, displayCanvas.height);
 
-    // Subtle grid lines 
+    // faint grid so its not just a void
     if (state.showGrid) {
         ctx.save();
         ctx.strokeStyle = 'rgba(255, 0, 153, 0.12)';
@@ -1182,7 +1181,7 @@ os.renderPaintCanvas = function() {
         ex.putImageData(img, 0, 0);
         st.sel = { x: x0, y: y0, w, h, mask: m, path: path || null, edge: e };
     }
-    // magic wand
+    // the magic wand bit
     function wand(px, py, mode) {
         px = Math.floor(px); py = Math.floor(py);
         let W = st.W, Hh = st.H; if (px < 0 || py < 0 || px >= W || py >= Hh) return;

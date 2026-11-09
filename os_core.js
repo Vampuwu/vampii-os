@@ -1,5 +1,4 @@
-// --- VAMPII.OS CORE SYSTEM ---
-// Handles the very real yes yes OS, UI spawning, dragging, and themes.
+// the very real yes yes OS. windows popping up, dragging them round, themes
 
 window.os = window.os || { zTier: 100 };
 os.isPhone = () => window.innerWidth < 768 || (window.innerHeight < 500 && window.matchMedia('(pointer: coarse)').matches);

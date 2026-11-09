@@ -360,7 +360,7 @@ window.os = window.os || {};
     function keepIn(kind, nm) {
         if (!os.files) { say('しまえなかった // couldnt keep it'); return; }
         let pic = flat(), th = os.files.thumb(pic, 180), w = st.W, h = st.H;
-        const done = () => { say('しまった // in files/'); if (os.sfx) os.sfx('noteSave'); os.files.told(nm + (kind === 'wip' ? '.vpaint' : '.png')); };
+        const done = () => { say('しまっといた // in files/'); if (os.sfx) os.sfx('noteSave'); os.files.told(nm + (kind === 'wip' ? '.vpaint' : '.png')); };
         const fail = () => say('しまえなかった // no room left?');
         if (kind === 'wip') os.files.put({ app: 'paint', kind: 'vpaint', name: nm, thumb: th, w, h, blob: new Blob([JSON.stringify(projDoc())], { type: 'application/json' }) }).then(done, fail);
         else picture().toBlob(b => { if (!b) return fail(); os.files.put({ app: 'paint', kind: 'img', name: nm, thumb: th, w, h, type: b.type, blob: b }).then(done, fail); }, { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' }[ex.fmt], ex.q);

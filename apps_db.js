@@ -51,6 +51,9 @@ const appsDB = {
             '⏲': '................................|................................|................................|................................|......kk..kk....................|....kkddkkiik...................|...kdddddIiiLkkk................|..kDssdddIILLkiik...............|..kDDDssddILdIiiLk..............|..kDDDDDssdddIILLk..kk..........|..kDEEDDDDssddILddkkrrk.........|..kEEEEEDDDDssdddddrrrrk........|..kEEEEEEEDDDDssdddrrrrk........|..kpEEEEEEEEDDDDssddrrddkk......|..kpppEEEEEEEEDDDDssddddddk.....|..kEpppEEEEEEEEDDDDDssddssEk....|..kEEEpEEpEEEEEDDDDDDDssEEEk....|..ksEEEEEpppEEpDDDDDDDsEEEEk....|..ksssEEEEpppppDwwDDDDsEEEEk....|..kEssssEEEEppEwwwwwDDsEEEiik...|..kEEEssssEEEEEwwwwwwDsEEIiiLk..|...kEEEEssssEEswwwwwwDsEEIILLk..|....kkEEEEssssswwwwwwDsEEIILLk..|......kkEEEEssEDwwwwwDsEEIILLk..|........kkEEEEEDiiwwDDsEEIILLk..|..........kkEEDIiirrDDsEEIILLk..|............kkDIIrrrrDsEEEILk...|..............kkIrrrrDsEEEEk....|................kkrrDDsEEEEk....|..................kkDDsEEEk.....|....................kksEkk......|......................kk........',
             '🖨': '................................|................................|................................|................................|................................|................................|................................|................................|............kk..................|..........kkiikk................|........kkiiiiiikk..............|......kkiiiiiiiiiikk............|....kkiiiiiiiiiiiiiikk..........|...kiiiiiiiiiiiiiiiiyykk........|..kIssiiiiiiiiiiisyyyyZdkk......|..kIIIssiiiiiiiiiYyyZZZdddk.....|..kDIIIIssiiisrriYnnZZddssEk....|..kDDDIIIIssirrrnnnnndssEEEk....|..kDDDDDIIIIsrrnnnnnnsEEEEEk....|..kDDDDDDDIIIDrnnnnnEEEEwwEk....|..kDDDDDDDDDIDDDnnEEEEwwwwwwk...|..kDiiDDDDDDDDDDsEEEwwwwwwwwVk..|..kIiiiiDDDDDDDDsEEWwwwwwwVVVk..|..kIIIiiiiDDDDDDsEEWWWwwVVVVEk..|...kIIIIiiiiDDDDsEEDWWWVVVEEEk..|....kkIIIIiiiiDDsEEDDDWVEEEEk...|......kkIIIIiiLDsEEEDDsEEEkk....|........kkIIILLDsEEEEEsEkk......|..........kkILDDsEEEEEkk........|............kkDDsEEEkk..........|..............kksEkk............|................kk..............',
             '🦆': '................................|................................|................................|................................|................................|................................|................................|................................|................................|................................|................................|...................kk...........|.........kk......kkookk.........|........kook...kkooooookk.......|.......kOooJkkkoOooooooJok......|.......kOOJJkoooOOOooJJJoJk.....|......kooOJoOooooOOOJJJJJJk.....|.....kOoooooOOOooooOJJJJJJk.....|.....kOoooooOOOkkooJJJJrrJk.....|....koOoooooOOkkkkJJJrrrrrrk....|...kOoOOOoooOOkkkkJJRrrrrrrUk...|...kOOOOOOOoOOOkkOJJRRRrrUUUk...|...kOOOOOOOOOOOOOOJJJRRRUUUk....|...kOOOOOOOOOOOOOOJJJooRUJk.....|....kOOOOOOOOOOOJOJooooJJJk.....|.....kkOOOOOOOOOJooooJJJJJk.....|.......kkOOOOOOOOooJJJJJJJk.....|.........kkOOOOOOOJJJJJJJk......|...........kkOOOOOJJJJJkk.......|.............kkOOOJJJkk.........|...............kkOJkk...........|.................kk.............',
+            '💗': '................................|...........kk...................|.........kkppkk.................|.......kkppppppkk...............|.....kkppppppppppk..............|....kpsppppppppppQkkk...........|...kPpswPppppppQQQkppkk.........|...kswwPPPPppwQQQppppppkk.......|...kswPPPPPPssQppppppppppk......|...kwPPPPPPPspsppppppppppQk.....|...kPPPPPPPPspwPPppppppQQQk.....|...kPPPPPPPsswPPPPPppsQQQppk....|....kPPPPPsswPPPPPPPssQppppQk...|.....kPPPsswPPPPPPPPsppppQQQk...|.....kPPsswPPPPPPPPssppsQQQQk...|......ksswPPPPPPPPsswPssQQQQk...|.......kwPPPPPPPPsswPPssQQQQk...|.......kPPPPPPPPsswPPPssQQQQk...|........kPPPPPPsswPPPPssQQQk....|.........kPPPPsswPPPPPssQkk.....|.........kPPPsswPPPPsPskk.......|..........kPsswPPPsPskk.........|.........kkdswPPsPsddkk.........|........kdddwPsPsddddddk........|.......kDddddPsddddddddEk.......|.......kDddddddddddddddEk.......|.......kDssddddddddddssEk.......|.......kDDDssddssddssEEEk.......|........kDDDDssEDssEEEEk........|.........kkDDsEEDsEEEkk.........|...........kksEkksEkk...........|.............kk..kk.............',
+            '🃏': '................................|................................|................................|................................|...kk..........kk...............|..kiikk.......kddkk.............|.kIssiikk....kDssddkk...........|.kIIIssiikk..kDDDssddkk.........|.kIIIIIssiikkkDDDDDssddkk.......|.kIssIIIIssiikDDDDDDDssddkk.....|.kssssIIIIIssiiDDDDDDDDssddkk...|.kssssIIIIIIIssiiDDDDDDDDssddk..|.kpssppIIIIIIIIssLDDDDDDDDDssEk.|.kppppppIIIIIIIsLLDDDDDDDDDsEEk.|.kppppppIppIIIIsLLDDDDDDDDssEsk.|.kpppppppppppIIsLLDDDDDDDDssssk.|.kppppppppppppIsLLDDDDDDDDDssEk.|.kppppppppppppIsLLDDDDDDDDDsEEk.|.kIpppppppppppIsLLDDDDDDDDssEsk.|.kIIppppppppppIsLLDDDDDDDDssssk.|.kIIppppppppppIsLLDDDDDDDDDssEk.|.kIIIpppppppppIsLLDDDDDDDDDsEEk.|.kIIIIpppppppIIsLLDDDDDDDDssEsk.|.kIIIIpppppIIIIsLLDDDDDDDDssssk.|..kIIIIppIIIIIIsLLDDDDDDDDDssEk.|...kkIIIIIIssIIsLLDDDDDDDDDsEEk.|.....kkIIIssssIsLLkDDDDDDDssEsk.|.......kkIssssIsLLkkkDDDDDssssk.|.........kkssIIsLLk..kkDDDDssEk.|...........kkIIsLLk....kkDDsEEk.|.............kksLk.......kksEk..|...............kk..........kk...',
+            '🛹': '................................|................................|................................|..............k.................|............kkrkk...............|..........kkrrrrrkk.............|........kkoRrrrrrUokk...........|......kkoooRRRrUUUoookk.........|....kkoooookRRUUUkoooookk.......|...kooooooookkUkkooooooook......|...kOOooooooookooooooooJJk......|...kOOOOoooooooooooookJJJk......|...kOOkkOOoooooooooJJJkkJk......|....kkOOOOOOoooookJJJJJJk.......|....kkOOOOkkOOoJJJkkJJJkkkk.....|......kkkkOOOOJJJJJJkkkssssk....|.....kSSkkOOOOkkJJJkkssssTTk....|.....kSSSSkkkkJJkkkssssTTTTk....|.....kSSSSSSkkJkkssssTTTTTTk....|.....kSSSSSSSSkssssTTTTTTTTk....|....kpkkSSSSSSSSsTTTTTTTTkk.....|...kPpppkkSSSSSSTTTTTTTkkpQk....|...kPPPpppkkSSSSTTTTTkkpQQQk....|...kPPPPPpppkkSSTTTkkpQQQQQk....|...kPPPPPPPpppkkTkkpQQQQQQQk....|....kPPPPPPPPpppkpQQQQQQQQk.....|.....kkPPPPPPPPpQQQQQQQQkk......|.......kkPPPPPPQQQQQQQkk........|.........kkPPPPQQQQQkk..........|...........kkPPQQQkk............|.............kkQkk..............|...............k................',
             '📺': '...................kk...........|.................kkddk..........|...............kkddssEk.........|.........kk..kkddssEEEk.........|........kiikkddssEEEEEk.........|.......kIiiddssEEEETEEk.........|.......kIddssEEEETTTEEk.........|......kddssEEEETTTTTEEk.........|.....kDssEEEEwTTTTTTEEk.........|.....kDsEEEwwwTTTTTpEEk.........|.....kDsEEwwwTTTTTppEEk.........|.....kDsEEwwTTTTTTpPEEk.........|.....kDsEEwwTTTTTpPPEEk.........|.....kDsEEwpTTTTppPPEEk.........|.....kDsEEppTTTTpPPPEEk.........|.....kDsEEpPTTTpPPPEEEk.........|.....kDsEEPPTpppPEEEEiikk.......|.....kDsEEPPpppEEEEiiiiiik......|.....kDsEEPPpEEEEiiiiiiiiLk.....|.....kDsEEPEEEEiiiiiiiiLLLk.....|.....kDsEEEEEiiiiiiiiLLLLk......|.....kDsEEEiiiiiiiiLLLLkk.......|.....kIsEiiiiiiiiLLLLLk.........|.....kIIIiiiiiiLLLLILLk.........|......kIIIIiiLLLLkIILLk.........|.......kkIIILLLkkkIILLk.........|.........kIILLk...kILk..........|.........kIILLk....kk...........|.........kIILLk.................|.........kIILLk.................|..........kILk..................|...........kk...................',
             '🗂': '................................|................................|..................kk............|................kkppkk..........|..............kkppppQpk.........|.............kppppwwQpQk........|............kPppwwwwVwQk........|............kPwwwwVVVwVk........|..........kkwwwwVVVVVVVk........|........kkwwwwVVVVVVVVVkkk......|......kkpWwwVVVVVVVVTVVkppk.....|....kkpppWWVVVVVVVTTTVppppQk....|...kppppwwWVVVVVTTTTppppQQQk....|..kPppQWwwVVVVTTTTppppQQQQQk....|..kPPQQWWVVVVTTTppppQQQQsQQk....|..kPPQQWWVVVVTppppQQQQsssQQk....|..kPPQQWWVVVppppQQQQssssQQQk....|..kPPQQWWVppppQQQQQsssQQQQQk....|..kPPQQWppppQQQQQQQsQQQQQQQk....|..kPPQQPppQQQQQQQQQQQQQQQQddk...|..kPPQQPPQQQQQQQQQQQQQQQddssEk..|..kPPQQPPQQQQQQQQQQQQQddssEEEk..|..kPPQQPPQQQQQQQQQQQddssEEEEk...|..kPPQQPPQQQQQQQQQddssEEEEkk....|..kPPQQPPQQQQQQQddssEEEEkk......|..kPPQQPPQQQQQddssEEEEkk........|..kPPQQPPQQQddssEEEEkk..........|...kPQkPPQddssEEEEkk............|....kkkPPDssEEEEkk..............|.......kPDsEEEkk................|........kksEkk..................|..........kk....................',
             '🖼': '................................|................................|................................|................................|................................|....kkkkkkkkkkkkkkkkkkkkkkkk....|...kyyyyyyyyyyyyyyyyyyyyyyyyk...|...kYccccccccccccccccccccccCDk..|...kYcAAAAAAAAAAAAAAAAAAAAcCDk..|...kYcAAAAAAAAAAAAAAAAAAAAcCDk..|...kYcAAAAAAAAAAAAAyyyAAAAcCDk..|...kYcAAAAAAAAAAAAywyyyAAAcCDk..|...kYcAAAAAAAAAAAAyyyyyAAAcCDk..|...kYcAAAAAAAAAAAAyyyyyAAAcCDk..|...kYcBBBBBBBBBBBBByyyBBBBcCDk..|...kYcBBBBBBBBBBBBBBBBBBBBcCDk..|...kYcBBBBBBBNNNNBBBBBBBBBcCDk..|...kYcBBBBBBNNNNNNNBBBBBBBcCDk..|...kYcBBBBNNNNNNNNNNBBBBBBcCDk..|...kYcbMMMMNNNNNNNNNNMMMbbcCDk..|...kYcMMMMMMNNNNNNNMMMMMMMcCDk..|...kYcMMMMMMMMNNNMMMMMMMMMcCDk..|...kYcMMMMMMMMMMMMMMMMMMMMcCDk..|...kYcMMMMMMMMMMMMMMMMMMMMcCDk..|...kYccccccccccccccccccccccCDk..|...kFFFFFFFFFFFFFFFFFFFFFFFFDk..|....kDDDDDDDDDDDDDDDDDDDDDDDDk..|.....kkkkkkkkkkkkkkkkkkkkkkkk...|................................|................................|................................|................................',
@@ -126,12 +129,89 @@ const appsDB = {
         themes: {}
     },
     sweep: { alleyPar: 60, streetPar: 200, districtPar: 600, mirrorPar: 300 },
+    // sizes are in tube units (the tube is 360 wide). odds only cover the 5 that can drop
+    fuse: {
+        gravity: 2200,
+        bounce: 0.12,
+        friction: 0.12,
+        damp: 0.997,
+        cooldown: 0.45,
+        laserPct: 15,
+        overMs: 2000,
+        chainMs: 600,
+        chainStep: 0.5,
+        closeCall: 25,
+        holoBonus: 500,
+        tubeW: 360,
+        tubeH: 480,
+        shakeEvery: 8,
+        shakeMax: 2,
+        shakeKick: 520,
+        bombEvery: 14,
+        bombR: 22,
+        bombBlast: 170,
+        bombForce: 900,
+        bombKill: 3,
+        litEvery: 6,
+        litSecs: 12,
+        litBonus: 15,
+        litShove: 230,
+        litForce: 750,
+        magnetRange: 2.4,
+        magnetPull: 1400,
+        shinyChance: 0.03,
+        shinyPay: 2,
+        musicVol: 0.6,
+        rankAt: [0, 40, 120, 300, 600, 1000, 1600, 2500, 4000, 6500, 10000],
+        radii: [12, 17, 22, 27, 33, 40, 47, 56, 65, 76, 88],
+        points: [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66],
+        odds: [30, 27, 22, 14, 7]
+    },
+    // minus ones take points off. win bonus gets divided by how many seconds it took
+    solitaire: {
+        toFound: 10,
+        wasteToTab: 5,
+        flipUp: 5,
+        foundBack: -15,
+        recycleOne: -100,
+        recycleThree: -20,
+        timeEvery: 10,
+        timeCost: 2,
+        winBonus: 700000,
+        dealGap: 0.045,
+        autoGap: 0.08,
+        glitchMin: 1.6,
+        glitchMax: 6
+    },
+    stack: {
+        speed: 66,             // how fast it slides in at the start
+        speedUp: 1.7,          // added every floor
+        speedMax: 270,
+        insaneSpeed: 140,      // ultra hardcore starts here
+        reach: 74,             // how far it slides each way
+        tol: 2,                // how close counts as perfect
+        regrowEvery: 4,        // perfects in a row before the top grows back
+        leanMax: 22,           // over this and the tower goes
+        leanWarn: 15,
+        slowMo: 0.33,
+        stokeDrain: 0.55,      // how fast holding slow-mo eats the bar
+        stokeGain: 0.2,
+        feverSecs: 8,
+        feverTol: 6,           // in hardcore mode anything this close snaps
+        beatWin: 0.07,         // seconds either side of the beat
+        specialsFrom: 18,      // ice + heavy slabs from this floor, glitch ones after 30
+        beatSync: 1,           // 1 = it crosses the middle on the beat, 0 = old free slide
+        musicVol: 0.8
+    },
     // files get chucked when you leave a game, keep stays loaded, look = its own colours
     games: [
         { id: 'snake', name: 'SNAKE', jp: 'スネーク', icon: '🐍', keep: ['sprites.js'], files: ['sprites/snake.js', 'snake_app.js'], look: { a: '#39ff88', b: '#1fd8ff', bg: '#020c07' }, best: 'best {n}' },
         { id: 'sweep', name: 'SWEEP', jp: '掃除', icon: '👁', keep: ['games_db.js', 'sprites.js'], files: ['sprites/sweep.js', 'sweep_app.js'], look: { a: '#7dffb0', b: '#ffb547', bg: '#020806' }, best: '{n} cleared' },
         { id: 'flip', name: 'FLIPBOOK', jp: 'パラパラ', icon: '📒', keep: ['games_db.js'], files: ['flip_app.js'], look: { a: '#ff5fa2', b: '#ffd04a', bg: '#0a0710' }, best: '' },
-        { id: 'torch', name: 'TORCH', jp: '懐中電灯', icon: '🔦', keep: ['games_db.js'], files: ['torch_app.js'], look: { a: '#ffe08a', b: '#ffffff', bg: '#050407' }, best: '' }
+        { id: 'torch', name: 'TORCH', jp: '懐中電灯', icon: '🔦', keep: ['games_db.js'], files: ['torch_app.js'], look: { a: '#ffe08a', b: '#ffffff', bg: '#050407' }, best: '' },
+        { id: 'fuse', name: 'CRITICAL FUSE', jp: '臨界融合', icon: '💗', keep: ['games_db.js', 'sprites.js'], files: ['sprites/fuse.js', 'fuse_app.js'], look: { bg: '#07050b' }, best: 'best {n}' },
+        { id: 'solitaire', name: 'SOLITAIRE', jp: 'ソリティア', icon: '🃏', keep: ['games_db.js', 'sprites.js'], files: ['sprites/cards.js', 'solitaire_app.js'], look: { bg: '#07050b' }, best: 'best {n}' },
+        { id: 'stack', name: 'HARDCORE STACK', jp: '鬼積み', icon: '🛹', keep: ['games_db.js', 'sprites.js'], files: ['sprites/stack.js', 'stack_app.js'], look: { bg: '#07050b' }, best: 'best {n}' },
     ],
     parts: [
         {
@@ -233,13 +313,13 @@ const appsDB = {
             id: 'sw_scan',
             kind: 'sweepx',
             name: { jp: '掃除: 探知機', en: 'sweep: SCANNER' },
-            note: { jp: '一枚に一回、まだ歩いてない安全な所を開ける', en: 'once a board, it opens somewhere safe you havent walked yet' }
+            note: { jp: '一面に一回、まだ歩いてない安全なマスを開けてくれる', en: 'once a board, it opens somewhere safe you havent walked yet' }
         },
         {
             id: 'sw_sight',
             kind: 'sweepx',
-            name: { jp: '掃除: 二度目の目', en: 'sweep: SECOND SIGHT' },
-            note: { jp: '一回だけ', en: 'once a board. switch it on and the next camera you walk into gets taped over in time' }
+            name: { jp: '掃除: 虫の知らせ', en: 'sweep: SECOND SIGHT' },
+            note: { jp: '一面に一回。オンにすると、次に踏んだカメラを目隠ししてくれる', en: 'once a board. switch it on and the next camera you walk into gets taped over in time' }
         },
         {
             id: 'sw_rain',
@@ -250,7 +330,7 @@ const appsDB = {
         {
             id: 'sw_print',
             kind: 'sweepx',
-            name: { jp: '掃除の見え方: 青図', en: 'sweep look: BLUEPRINT' },
+            name: { jp: '掃除の見え方: 設計図', en: 'sweep look: BLUEPRINT' },
             note: { jp: '街の設計図の上で', en: 'walk it on the city\'s own plans' }
         },
         {
@@ -272,7 +352,7 @@ const appsDB = {
             id: 'sx_rush',
             kind: 'snakex',
             name: { jp: '蛇: 急モード', en: 'snake mode: RUSH' },
-            note: { jp: '六十秒。盤に三つずつ。食べられるだけ食べる', en: 'sixty seconds, three packets on the board at once, as many as you can' }
+            note: { jp: '六十秒。餌はいつも三つ。食べられるだけ食べる', en: 'sixty seconds, three packets on the board at once, as many as you can' }
         },
         {
             id: 'sx_maze',
@@ -285,7 +365,7 @@ const appsDB = {
             kind: 'snakex',
             name: { jp: '蛇の技: 遅', en: 'snake perk: SLOW' },
             note: {
-                jp: 'SHIFTを押してる間、時間が這う。メーターは離すと戻る',
+                jp: 'SHIFTを押してる間、時間がゆっくり進む。離すとメーターが回復する',
                 en: 'hold SHIFT and time crawls. the meter fills back up when you let go'
             }
         },
@@ -317,7 +397,7 @@ const appsDB = {
             id: 'sx_luck',
             kind: 'snakex',
             name: { jp: '蛇の技: 運', en: 'snake perk: LUCK' },
-            note: { jp: '金が二倍出る', en: 'gold turns up twice as often' }
+            note: { jp: 'お宝が二倍出やすい', en: 'gold turns up twice as often' }
         },
         {
             id: 'sx_slot',
@@ -340,7 +420,7 @@ const appsDB = {
         {
             id: 'sx_a_rain',
             kind: 'snakex',
-            name: { jp: '蛇の舞台: 酸の雨', en: 'snake arena: ACID RAIN' },
+            name: { jp: '蛇の舞台: 酸性雨', en: 'snake arena: ACID RAIN' },
             note: { jp: '夜の街、窓の灯り、緑の雨', en: 'the city at night, lit windows, green rain' }
         },
         {

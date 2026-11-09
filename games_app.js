@@ -14,7 +14,7 @@ window.os = window.os || {};
 
     const load = (k, d) => { try { return Object.assign(d, JSON.parse(localStorage.getItem(k) || '{}') || {}); } catch (e) { return d; } };
     const keep = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-    const set = () => load(SET, { boot: true, chime: true, tiles: true, beeps: true, bright: 100, vol: 8 });
+    const set = () => load(SET, { boot: true, logo: true, chime: true, tiles: true, beeps: true, bright: 100, vol: 8 });
     const hook = id => os.gg && os.gg.hooks && os.gg.hooks[id];
     const two = n => String(n).padStart(2, '0');
     function rgba(hex, a) { let n = parseInt(String(hex).slice(1), 16); return 'rgba(' + (n >> 16 & 255) + ', ' + (n >> 8 & 255) + ', ' + (n & 255) + ', ' + a + ')'; }
@@ -31,17 +31,29 @@ window.os = window.os || {};
         let dim = scr.querySelector('.gg-dim'); if (!dim) { dim = document.createElement('i'); dim.className = 'gg-dim'; scr.appendChild(dim); }
         dim.style.opacity = (1 - Math.max(25, Math.min(100, +s.bright || 100)) / 100).toFixed(2);
     }
+    // icons as big as theyll go. whole pixels only or the art goes mushy
+    let fitRO = null;
+    function fit() {
+        let h = $('gg-apps'); if (!h) return;
+        let n = h.children.length, cols = n <= 4 ? 2 : n <= 9 ? 3 : 4, rows = Math.ceil(n / cols), r = h.getBoundingClientRect();
+        h.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)'; h.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
+        if (!r.height) return;
+        let gap = 8, cw = (r.width - gap * (cols - 1)) / cols, ch = (r.height - gap * (rows - 1)) / rows, room = Math.min(ch - 54, cw - 20);
+        let st = 32 / Math.min(4, Math.max(1, Math.round(window.devicePixelRatio || 1))); h.style.setProperty('--ic', Math.max(st, Math.min(256, Math.floor(room / st) * st)) + 'px');
+        if (!fitRO && window.ResizeObserver) { fitRO = new ResizeObserver(() => fit()); fitRO.observe(h); }
+    }
     function home(pop) {
         dress();
         let h = $('gg-apps'); if (!h) return;
-        let line = scoreTiles(), i = 0;
-        let tile = (id, icon, name, jp, extra, cls) => `<button class="gg-app${cls || ''}" data-go="${esc(id)}" style="--i: ${i++}"><i class="gg-ic" data-em="${esc(icon)}"></i><b>${esc(name)}</b><small>${esc(jp || '')}</small>${extra ? `<em>${esc(extra)}</em>` : ''}</button>`;
+        let line = scoreTiles(), i = 0, lastId = load(SET, {}).last;
+        let tile = (id, icon, name, jp, extra, cls) => `<button class="gg-app${cls || ''}" data-go="${esc(id)}" style="--i: ${i++}">${id === lastId ? '<span class="gg-lastk">' + esc(T('ggJustNow', 'さっき')) + '</span>' : ''}<i class="gg-ic" data-em="${esc(icon)}"></i><b>${esc(name)}</b><small>${esc(jp || '')}</small>${extra ? `<em>${esc(extra)}</em>` : ''}</button>`;
         h.innerHTML = LIST().map(g => tile(g.id, g.icon, g.name, g.jp, line(g))).join('') + SYS.map(a => tile('sys:' + a.id, a.icon, T(a.key, a.name), a.jp, '', ' sys')).join('');
+        fit();
         h.querySelectorAll('[data-go]').forEach(x => x.onclick = () => { let id = x.dataset.go; tick(); id.startsWith('sys:') ? openSys(id.slice(4), x) : open(id, x); });
         let hi = $('gg-hi'); if (hi) hi.textContent = T('ggHi', 'pick one');
         let last = load(SET, {}).last, lg = LIST().find(g => g.id === last), le = $('gg-last');
         if (le) le.textContent = lg ? T('ggLast', 'last played // {g}').split('{g}').join(lg.name) : '';
-        let ke = $('gg-keys'); if (ke) ke.textContent = T('ggKeys', '←→ pick   ENTER play   ESC home');
+        let ke = $('gg-keys'); if (ke) ke.textContent = T('ggKeys', '←→↑↓ pick   1-9 open   ENTER play   ESC home');
         let hm = $('gg-home');
         if (pop && hm && !calm()) { hm.classList.remove('in'); void hm.offsetWidth; hm.classList.add('in'); }
         where(T('ggHome', 'ホーム // home'));
@@ -58,8 +70,8 @@ window.os = window.os || {};
         if (g.look.bg) s.style.setProperty('--gg-bg', g.look.bg);
     }
     function zoom(el, from) {
-        if (!el || calm()) return;
-        let s = $('gg-scr').getBoundingClientRect(), r = from ? from.getBoundingClientRect() : null;
+        let sc = $('gg-scr'); if (!el || !sc || calm()) return;
+        let s = sc.getBoundingClientRect(), r = from ? from.getBoundingClientRect() : null;
         el.style.transformOrigin = r ? (r.left + r.width / 2 - s.left) + 'px ' + (r.top + r.height / 2 - s.top) + 'px' : '50% 50%';
         el.classList.remove('gg-zoom'); void el.offsetWidth; el.classList.add('gg-zoom');
     }
@@ -83,6 +95,8 @@ window.os = window.os || {};
             cur = id;
             let st2 = set(); st2.last = id; keep(SET, st2);
             ld.hidden = true; gm.hidden = false; gm.dataset.game = id;
+            if (set().logo) await studio();
+            if (!$('gg-game') || cur !== id) { busy = false; return; }
             h.start(gm);
             where(g.name + (g.jp ? ' // ' + g.jp : ''));
             if (sleeping) h.pause();
@@ -91,6 +105,66 @@ window.os = window.os || {};
             setTimeout(() => { if (!cur) { ld.hidden = true; hm.hidden = false; look(null); } }, 2200);
         }
         busy = false;
+    }
+
+    // ransom note logo. new letters every time. tap skips
+    function studio() {
+        let scr = $('gg-scr'); if (!scr) return Promise.resolve();
+        let word = T('ggStudio', 'VAMPIIWARE'), sub = T('ggStudioSub', 'presents'), r = () => Math.random();
+        let kinds = ['tape', 'stk', 'stamp', 'neon', 'pix', 'note', 'chrome', 'news'].sort(() => r() - 0.5), eyes = word.toUpperCase().indexOf('II');
+        let el = document.createElement('div'); el.className = 'gg-studio';
+        el.innerHTML = '<div class="gs-wrap"><div class="gs-rn">' + [...word].map((ch, i) => {
+            let k = kinds[i % kinds.length], eye = eyes >= 0 && (i === eyes || i === eyes + 1);
+            return '<span class="gs-' + k + (eye ? ' gs-eye' : '') + '" style="--r:' + ((r() - 0.5) * 26).toFixed(1) + 'deg;--y:' + ((r() - 0.5) * 0.4).toFixed(2) + 'em;font-size:' + (1 + r() * 0.6).toFixed(2) + 'em;animation-delay:' + (0.08 + i * 0.06).toFixed(2) + 's">' + (eye ? '<u></u><b><i></i></b>' : esc(ch === ' ' ? ' ' : ch)) + '</span>';
+        }).join('') + '<sup>™</sup></div><p></p></div>';
+        scr.appendChild(el);
+        let rn = el.querySelector('.gs-rn'), fit = rn.scrollWidth > el.clientWidth * 0.9 ? el.clientWidth * 0.9 / rn.scrollWidth : 1; if (fit < 1) rn.style.fontSize = (40 * fit).toFixed(1) + 'px';
+        let tm = [], beep = set().beeps, p = el.querySelector('p'), cut = sub.lastIndexOf(' '), oops = sub, d0 = sub.length;
+        if (cut > 0 && sub.length - cut > 4) { let w = sub.slice(cut + 1), a = Math.floor(w.length / 2); oops = sub.slice(0, cut + 1) + w.slice(0, a - 1) + w[a] + w[a - 1] + w.slice(a + 1); d0 = cut + a; }
+        let snd = beep ? logoSfx() : null;
+        if (snd) [...word].forEach((ch, i) => { if (ch.trim()) snd(kinds[i % kinds.length], 0.3 + i * 0.06); });
+        let at = 900;
+        const put = (txt, d, back) => { tm.push(setTimeout(() => { p.textContent = txt; }, d)); if (snd) snd(back ? 'back' : 'key', d / 1000); };
+        if (calm()) { p.textContent = sub; el.classList.add('look'); }
+        else {
+            for (let i = 1; i <= oops.length; i++) put(oops.slice(0, i), at += 28);
+            if (snd) { snd('boing', 1.0); snd('blink', 2.38); snd('zap', 1.75); }
+            if (oops !== sub) { at += 260; for (let i = oops.length - 1; i >= d0; i--) put(oops.slice(0, i), at += 45, 1); for (let i = d0 + 1; i <= sub.length; i++) put(sub.slice(0, i), at += 50); }
+            tm.push(setTimeout(() => el.classList.add('look'), 1000), setTimeout(() => el.classList.add('gl'), 1750), setTimeout(() => el.classList.remove('gl'), 1900));
+        }
+        return new Promise(done => {
+            let t = 0;
+            const end = () => { clearTimeout(t); tm.forEach(clearTimeout); if (snd) snd('stop'); el.removeEventListener('pointerdown', end); document.removeEventListener('keydown', key); el.classList.add('out'); setTimeout(() => el.remove(), 200); done(); };
+            const key = e => { if (e.key === ' ' || e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); end(); } };
+            el.addEventListener('pointerdown', end); document.addEventListener('keydown', key);
+            t = setTimeout(end, Math.max(2600, at + 500));
+        });
+    }
+
+    // every letter type has its own little noise
+    function logoSfx() {
+        let A, bus, t0;
+        try { A = window.audioCtx || (window.audioCtx = new (window.AudioContext || window.webkitAudioContext)()); if (A.state === 'suspended' && A.resume) A.resume().catch(() => {}); bus = A.createGain(); bus.gain.value = 0.5; bus.connect(os.gg.out(A)); t0 = A.currentTime + 0.02; } catch (e) { return null; }
+        const env = (g, at, v, d) => { g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(v, at + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, at + d); };
+        const tone = (type, f1, f2, at, v, d) => { let o = A.createOscillator(), g = A.createGain(); o.type = type; o.frequency.setValueAtTime(f1, at); if (f2 !== f1) o.frequency.exponentialRampToValueAtTime(f2, at + d); env(g, at, v, d); o.connect(g); g.connect(bus); o.start(at); o.stop(at + d + 0.02); return o; };
+        const hiss = (ft, f, q, at, v, d) => { let n = A.createBufferSource(), b = A.createBuffer(1, Math.ceil(A.sampleRate * (d + 0.02)), A.sampleRate), x = b.getChannelData(0); for (let i = 0; i < x.length; i++) x[i] = Math.random() * 2 - 1; n.buffer = b; let fl = A.createBiquadFilter(), g = A.createGain(); fl.type = ft; fl.frequency.value = f; fl.Q.value = q; env(g, at, v, d); n.connect(fl); fl.connect(g); g.connect(bus); n.start(at); };
+        return (k, dl) => {
+            if (k === 'stop') { try { bus.gain.setTargetAtTime(0, A.currentTime, 0.03); setTimeout(() => bus.disconnect(), 400); } catch (e) {} return; }
+            let at = Math.max(A.currentTime, t0 + (dl || 0)), j = 0.9 + Math.random() * 0.2;
+            if (k === 'tape') { hiss('highpass', 3000, 0.7, at, 0.25, 0.015); tone('square', 1800 * j, 1800 * j, at, 0.04, 0.012); }
+            else if (k === 'stk') tone('sine', 700 * j, 180, at, 0.35, 0.05);
+            else if (k === 'stamp') { tone('sine', 150, 55, at, 0.5, 0.1); hiss('lowpass', 500, 0.7, at, 0.3, 0.06); }
+            else if (k === 'neon') { let o = tone('sawtooth', 100, 100, at, 0.06, 0.16), lf = A.createOscillator(), lg = A.createGain(); lf.frequency.value = 30; lg.gain.value = 40; lf.connect(lg); lg.connect(o.frequency); lf.start(at); lf.stop(at + 0.18); hiss('bandpass', 4000, 2, at, 0.05, 0.12); }
+            else if (k === 'pix') { tone('square', 880 * j, 880 * j, at, 0.06, 0.03); tone('square', 1320 * j, 1320 * j, at + 0.03, 0.06, 0.03); }
+            else if (k === 'note') hiss('bandpass', 2500 * j, 1.2, at, 0.2, 0.07);
+            else if (k === 'chrome') { tone('sine', 2400 * j, 2400 * j, at, 0.08, 0.3); tone('sine', 3610 * j, 3610 * j, at, 0.05, 0.22); }
+            else if (k === 'news') hiss('bandpass', 1500 * j, 0.8, at, 0.25, 0.1);
+            else if (k === 'key') tone('square', 1900 + Math.random() * 600, 1900, at, 0.03, 0.008);
+            else if (k === 'back') tone('square', 900, 700, at, 0.03, 0.012);
+            else if (k === 'boing') { let o = tone('sine', 260, 520, at, 0.2, 0.3), lf = A.createOscillator(), lg = A.createGain(); lf.frequency.value = 18; lg.gain.value = 60; lf.connect(lg); lg.connect(o.frequency); lf.start(at); lf.stop(at + 0.32); }
+            else if (k === 'blink') tone('sine', 1400, 900, at, 0.06, 0.03);
+            else if (k === 'zap') { tone('square', 3200, 160, at, 0.07, 0.14); hiss('highpass', 2000, 0.7, at, 0.12, 0.1); }
+        };
     }
 
     // stop the game, keep its scores, chuck its code
@@ -108,7 +182,8 @@ window.os = window.os || {};
             if (db && db.art) Object.keys(db.art).forEach(k => { if (k.split('/')[0] === g.id) delete db.art[k]; });
             if (db && db.pals) delete db.pals[g.id];
         }
-        let gm = $('gg-game'); if (gm) { gm.innerHTML = ''; gm.hidden = true; delete gm.dataset.game; }
+        // swap in a clean one, games leave listeners on it and they kept firing in the next game
+        let gm = $('gg-game'); if (gm) { let nu = gm.cloneNode(false); nu.hidden = true; delete nu.dataset.game; gm.replaceWith(nu); }
         cur = null;
         look(null);
     }
@@ -121,7 +196,8 @@ window.os = window.os || {};
         if (hm) hm.hidden = false;
         home(!!was);
         if (was) sfx('back');
-        let f = document.querySelector('#gg-apps .gg-app'); if (f && was) f.focus({ preventScroll: true });
+        // back on the tile you just left, not the first one
+        let f = document.querySelector('#gg-apps [data-go="' + (cur === null && was && SYS.some(a => a.id === was) ? 'sys:' : '') + was + '"]') || document.querySelector('#gg-apps .gg-app'); if (f && was) f.focus({ preventScroll: true });
     }
 
     function openSys(id, from) {
@@ -129,34 +205,91 @@ window.os = window.os || {};
         sys = id;
         let v = $('gg-sys'), hm = $('gg-home'); if (!v) return;
         hm.hidden = true; v.hidden = false; v.dataset.app = id;
-        if (id === 'scores') scoresView(v); else settingsView(v);
+        if (id === 'scores') scoresView(v, load(SET, {}).last); else settingsView(v);
         zoom(v, from);
+        sysBg(v, id);
         let a = SYS.find(x => x.id === id);
         where(T(a.key, a.name) + ' // ' + a.jp);
     }
-    function closeSys() { sys = null; let v = $('gg-sys'); if (v) { v.hidden = true; v.innerHTML = ''; } }
+    function closeSys() { sys = null; cancelAnimationFrame(bgRaf); bgRaf = 0; let v = $('gg-sys'); if (v) { v.hidden = true; v.innerHTML = ''; } }
+    // scores gets stars + spotlights, settings gets a circuit board
+    let bgRaf = 0;
+    function sysBg(v, id) {
+        cancelAnimationFrame(bgRaf);
+        let cv = document.createElement('canvas'); cv.className = 'sb-bg'; v.prepend(cv);
+        if (id === 'scores') { let bm = document.createElement('i'); bm.className = 'sb-beams'; v.prepend(bm); }
+        let x = cv.getContext('2d'), W = 0, H = 0, dots = [], lines = [], last = 0;
+        const size = () => {
+            let w = Math.max(1, Math.round(v.clientWidth / 3)), h = Math.max(1, Math.round(v.clientHeight / 3));
+            if (w === W && h === H) return; W = cv.width = w; H = cv.height = h;
+            if (id === 'scores') dots = Array.from({ length: Math.round(W * H / 90) }, () => ({ x: Math.random() * W, y: Math.random() * H, z: 0.3 + Math.random() * 0.7, tw: Math.random() * 6 }));
+            else {
+                lines = []; dots = [];
+                for (let k = 0; k < Math.round(W * H / 700); k++) {
+                    let px = Math.floor(Math.random() * W / 6) * 6, py = Math.floor(Math.random() * H / 6) * 6, pts = [[px, py]];
+                    for (let j = 0; j < 3 + Math.random() * 4; j++) { let [a, b] = pts[pts.length - 1], d = Math.floor(Math.random() * 4), l = 6 * (1 + Math.floor(Math.random() * 4)); pts.push(d === 0 ? [a + l, b] : d === 1 ? [a, b + l] : d === 2 ? [a + l, b + l] : [a, b - l]); }
+                    lines.push(pts);
+                }
+                for (let k = 0; k < 14; k++) dots.push({ l: Math.floor(Math.random() * lines.length), t: Math.random(), v: 0.15 + Math.random() * 0.4 });
+            }
+        };
+        const P = () => getComputedStyle(v).getPropertyValue('--neon-primary').trim() || '#ff2d6f', S = () => getComputedStyle(v).getPropertyValue('--neon-secondary').trim() || '#2de0ff';
+        let cp = P(), cs = S();
+        const go = now => {
+            bgRaf = requestAnimationFrame(go);
+            if (!v.isConnected || v.hidden || sys !== id) { cancelAnimationFrame(bgRaf); return; }
+            size(); let dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now; if (calm()) dt = 0;
+            x.clearRect(0, 0, W, H);
+            if (id === 'scores') {
+                for (let d of dots) {
+                    d.y += d.z * 6 * dt; d.tw += dt * 3; if (d.y > H) { d.y = 0; d.x = Math.random() * W; }
+                    x.globalAlpha = (0.25 + 0.5 * d.z) * (0.6 + 0.4 * Math.sin(d.tw)); x.fillStyle = d.z > 0.85 ? '#ffd04a' : '#fff';
+                    x.fillRect(Math.round(d.x), Math.round(d.y), 1, 1);
+                }
+            } else {
+                x.globalAlpha = 0.18; x.strokeStyle = cs; x.lineWidth = 1;
+                for (let l of lines) { x.beginPath(); l.forEach(([a, b], i) => i ? x.lineTo(a + 0.5, b + 0.5) : x.moveTo(a + 0.5, b + 0.5)); x.stroke(); x.fillStyle = cs; x.fillRect(l[0][0] - 1, l[0][1] - 1, 3, 3); }
+                x.globalAlpha = 1;
+                for (let d of dots) {
+                    d.t += d.v * dt; if (d.t >= 1) { d.t = 0; d.l = Math.floor(Math.random() * lines.length); }
+                    let l = lines[d.l], seg = d.t * (l.length - 1), i = Math.min(l.length - 2, Math.floor(seg)), f = seg - i, a = l[i], b = l[i + 1];
+                    x.fillStyle = cp; x.fillRect(Math.round(a[0] + (b[0] - a[0]) * f) - 1, Math.round(a[1] + (b[1] - a[1]) * f) - 1, 2, 2);
+                }
+            }
+            x.globalAlpha = 1;
+        };
+        bgRaf = requestAnimationFrame(go);
+    }
+    const RANK = ['1ST', '2ND', '3RD'];
     function scoresView(v, pick) {
         let all = load(SCORES, {}), games = LIST().filter(g => all[g.id] && all[g.id].length);
-        if (!games.length) { v.innerHTML = '<div class="gg-empty"><i class="gg-ic" data-em="🏆"></i><p>' + esc(T('ggNoScores', 'nothing yet. go play something')) + '</p></div>'; return; }
+        let head = '<header class="sb-mq"><i class="gg-ic sb-cup" data-em="🏆"></i><div><b class="sb-title">' + esc(T('ggHiScores', 'ハイスコア // HIGH SCORES')) + '</b><small>' + esc(T('ggHiSub', 'ここに残るのはベストだけ // only your best ones stay')) + '</small></div><span class="sb-stk">' + esc(T('ggSticker', 'wow')) + '</span></header>';
+        if (!games.length) { v.innerHTML = '<div class="sb-wrap">' + head + '<div class="gg-empty sb-shelf"><i class="gg-ic" data-em="🏆"></i><i class="sb-web"></i><p>' + esc(T('ggNoScores', 'nothing yet. go play something')) + '</p><b class="sb-blink">PRESS START</b></div></div>'; return; }
         let g = games.find(x => x.id === pick) || games[0];
-        v.innerHTML = '<div class="gg-tabs">' + games.map(x => `<button data-t="${esc(x.id)}" class="${x === g ? 'on' : ''}"><i class="gg-ic sm" data-em="${esc(x.icon)}"></i>${esc(x.name)}</button>`).join('') + '</div><div class="gg-boards"></div>';
-        v.querySelector('.gg-boards').innerHTML = all[g.id].map(b => `<section><h4>${esc(b.t)}</h4>${b.rows && b.rows.length ? '<ol>' + b.rows.map(r => '<li>' + [].concat(r).map(c => '<span>' + esc(c) + '</span>').join('') + '</li>').join('') + '</ol>' : '<p>—</p>'}</section>`).join('');
-        v.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { tick(); scoresView(v, b.dataset.t); });
+        v.innerHTML = '<div class="sb-wrap">' + head + '<div class="gg-tabs">' + games.map(x => `<button data-t="${esc(x.id)}" class="${x === g ? 'on' : ''}"><i class="gg-ic sm" data-em="${esc(x.icon)}"></i>${esc(x.name)}</button>`).join('') + '</div><div class="gg-boards"></div></div>';
+        // a marker ring round your number one on the first board. drawn a bit wonky on purpose
+        const ring = '<svg class="sb-ring" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M8 22 C6 8 60 3 110 4 C160 5 196 10 193 21 C190 33 140 38 96 37 C50 36 4 32 9 18 C11 12 24 9 34 8"/></svg><span class="sb-me">' + esc(T('ggMe', 'me!!')) + '</span>';
+        v.querySelector('.gg-boards').innerHTML = all[g.id].map((b, k) => `<section style="--k:${k}"><h4>${esc(b.t)}</h4>${b.rows && b.rows.length ? '<ol>' + b.rows.map((r, i) => `<li class="${i < 3 ? 'm' + (i + 1) : ''}" style="--n:${i}">` + [].concat(r).map((c, j) => '<span>' + esc(j === 0 && i < 3 ? RANK[i] : c) + '</span>').join('') + (k === 0 && i === 0 ? ring : '') + '</li>').join('') + '</ol>' : '<p>-</p>'}</section>`).join('');
+        v.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { tick(); scoresView(v, b.dataset.t); sysBg(v, 'scores'); });
     }
     function settingsView(v) {
-        let s = set(), rows = [['boot', 'ggSetBoot', 'boot screen'], ['chime', 'ggSetChime', 'the ba-ding'], ['tiles', 'ggSetTiles', 'best scores on the tiles'], ['beeps', 'ggSetBeeps', 'menu beeps']];
-        v.innerHTML = '<div class="gg-set">'
-            + `<label class="gg-tog gg-br"><span>${esc(T('ggSetBright', 'brightness'))}</span><input type="range" min="25" max="100" step="5" value="${+s.bright || 100}"></label>`
-            + rows.map(r => `<button class="gg-tog${s[r[0]] ? ' on' : ''}" data-k="${r[0]}"><span>${esc(T(r[1], r[2]))}</span><i></i></button>`).join('') +
-            `<button class="gg-tog act" data-k="replay"><span>${esc(T('ggSetReplay', 'play the boot again'))}</span><b>▶</b></button>` +
-            `<div class="gg-about"><i class="gg-ic" data-em="🎮"></i><p><b>GAME GIRL AVERAGE</b><br>${esc(T('ggModel', 'model GGA-4444'))}<br>${esc(T('ggGames', '{n} games').split('{n}').join(LIST().length))}</p></div></div>`;
-        let br = v.querySelector('.gg-br input');
-        br.oninput = () => { let n = set(); n.bright = +br.value; keep(SET, n); dress(); };
+        let s = set(), rows = [['boot', 'ggSetBoot', 'boot screen'], ['logo', 'ggSetLogo', 'studio logo'], ['chime', 'ggSetChime', 'the ba-ding'], ['tiles', 'ggSetTiles', 'best scores on the tiles'], ['beeps', 'ggSetBeeps', 'menu beeps']];
+        let diag = T('ggDiag', 'CPU 正常 // CPU OK / 電池 23% // BATT 23% / カセット {n}本 // {n} CARTS IN / ドット抜けなし // NO DEAD PIXELS / 温度 ぬるめ // TEMP LUKEWARM / 異常なし // ALL GOOD').split(' / ').map(t => t.split('{n}').join(LIST().length));
+        v.innerHTML = '<div class="sb-wrap sb-svc"><header class="sb-svh"><b>' + esc(T('ggService', 'サービスモード // SERVICE MODE')) + '</b><i></i></header><div class="sb-tick"><p>' + [...diag, ...diag].map(t => '<span>' + esc(t) + '</span>').join('') + '</p></div><div class="gg-set">'
+            + `<label class="gg-tog gg-br"><span><em class="sb-sun" style="--b:${(+s.bright || 100) / 100}"></em>${esc(T('ggSetBright', 'brightness'))}</span><input type="range" min="25" max="100" step="5" value="${+s.bright || 100}"></label>`
+            + rows.map((r, i) => `<button class="gg-tog${s[r[0]] ? ' on' : ''}" data-k="${r[0]}" style="--n:${i + 1}"><span><u class="sb-led"></u>${esc(T(r[1], r[2]))}</span><i></i></button>`).join('') +
+            `<button class="gg-tog act" data-k="replay" style="--n:6"><span><u class="sb-led"></u>${esc(T('ggSetReplay', 'play the boot again'))}</span><b>▶</b></button>` +
+            `<div class="gg-about"><i class="sb-tape a"></i><i class="sb-tape b"></i><i class="gg-ic sb-spin" data-em="🎮"></i><p><b>GAME GIRL AVERAGE</b><br>${esc(T('ggModel', 'model GGA-4444'))}<br>${esc(T('ggGames', '{n} games').split('{n}').join(LIST().length))}</p></div></div>`
+            + '</div>';
+        v.querySelector('.sb-svc').insertAdjacentHTML('beforeend', '<div class="sb-note"><i></i>' + esc(T('ggNote', 'Don\'t turn the ba-ding off its *authentic* ✨️')) + '</div>');
+        let br = v.querySelector('.gg-br input'), sun = v.querySelector('.sb-sun');
+        br.oninput = () => { let n = set(); n.bright = +br.value; keep(SET, n); dress(); sun.style.setProperty('--b', n.bright / 100); };
         br.onchange = () => tick();
         v.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
             let k = b.dataset.k;
             if (k === 'replay') { tick(); goHome(); startBoot(true); return; }
             let n = set(); n[k] = !n[k]; keep(SET, n); b.classList.toggle('on', n[k]); sfx(n[k] ? 'on' : 'off');
+            b.classList.remove('zap'); void b.offsetWidth; b.classList.add('zap');
         });
     }
 
@@ -220,6 +353,13 @@ window.os = window.os || {};
     // the actual buttons work lol
     function hardware(win) {
         let pwr = win.querySelector('.gg-pwr'), rk = win.querySelector('.gg-vol'), scr = $('gg-scr');
+        // swipe in from the left edge = back home, same as the ipad
+        let sw = null;
+        if (scr) {
+            scr.addEventListener('pointerdown', e => { let r = scr.getBoundingClientRect(); sw = (cur || sys) && e.pointerType !== 'mouse' && e.clientX - r.left < 24 ? { x: e.clientX, y: e.clientY } : null; }, true);
+            scr.addEventListener('pointerup', e => { if (sw && e.clientX - sw.x > 70 && Math.abs(e.clientY - sw.y) < 60) { click(); goHome(); } sw = null; }, true);
+            scr.addEventListener('pointercancel', () => { sw = null; }, true);
+        }
         if (pwr) pwr.onclick = () => {
             off = !off; sfx(off ? 'ggOff' : 'ggOn');
             let o = scr.querySelector('.gg-off'); if (!o) { o = document.createElement('i'); o.className = 'gg-off'; scr.appendChild(o); }
@@ -288,8 +428,15 @@ window.os = window.os || {};
         let bt = $('gg-boot');
         if (bt && !bt.hidden) { e.preventDefault(); e.stopImmediatePropagation(); endBoot(); return; }
         if (e.key === 'Escape' && (cur || sys)) { e.preventDefault(); e.stopImmediatePropagation(); click(); goHome(); return; }
-        if (cur || sys || !/^Arrow/.test(e.key)) return;
+        if (sys === 'scores' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+            let ts = [...document.querySelectorAll('#gg-sys [data-t]')], i = ts.findIndex(b => b.classList.contains('on'));
+            if (ts.length > 1) { e.preventDefault(); ts[(i + (e.key === 'ArrowRight' ? 1 : -1) + ts.length) % ts.length].click(); }
+            return;
+        }
+        if (cur || sys) return;
         let tiles = [...document.querySelectorAll('#gg-apps .gg-app')]; if (!tiles.length) return;
+        if (/^[1-9]$/.test(e.key) && tiles[+e.key - 1] && !e.metaKey && !e.ctrlKey) { e.preventDefault(); tiles[+e.key - 1].click(); return; }
+        if (!/^Arrow/.test(e.key)) return;
         e.preventDefault();
         let i = tiles.indexOf(document.activeElement), cols = tiles.filter(t => t.offsetTop === tiles[0].offsetTop).length || 1;
         let n = i < 0 ? 0 : e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : e.key === 'ArrowDown' ? i + cols : i - cols;
@@ -326,7 +473,7 @@ window.os = window.os || {};
                 <span class="gg-led" aria-hidden="true"></span>
                 <span class="gg-grill" aria-hidden="true">${'<i></i>'.repeat(14)}</span>
                 <span class="gg-spk" aria-hidden="true">${'<i></i>'.repeat(7)}</span>
-                <span class="gg-emb" aria-hidden="true">GGA-4444 · 平均的な女の子 · 2026</span>
+                <span class="gg-emb" aria-hidden="true">GGA-4444 / 平均的な女の子 / 2026</span>
             </div>
         </div>`;
     document.body.appendChild(tpl);
@@ -434,21 +581,20 @@ window.os = window.os || {};
         .gg-hi { color: var(--neon-secondary) !important; margin-top: 3px !important; }
         .gg-foot { position: relative; margin-top: auto; display: flex; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: #8f8b9a; white-space: pre; }
         #gg-last { color: var(--neon-secondary); }
-        .gg-apps { position: relative; display: grid; grid-template-columns: repeat(auto-fill, 130px); gap: 14px 12px; align-content: start; }
-        .gg-app { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px 8px; background: none; border: 0; border-radius: 14px; color: #fff; font: inherit; cursor: inherit; outline: none; transition: background 0.15s; }
+        .gg-apps { --ic: 96px; position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 8px; }
+        .gg-app { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 0; min-width: 0; padding: 4px; background: none; border: 0; border-radius: 14px; color: #fff; font: inherit; cursor: inherit; outline: none; transition: background 0.15s; }
         .gg-app:hover, .gg-app:focus-visible { background: rgba(255,255,255,0.06); }
         .gg-app:focus-visible { box-shadow: inset 0 0 0 2px var(--neon-secondary); }
         .gg-home.in .gg-app { animation: ggPop 0.45s cubic-bezier(.2, 1.5, .4, 1) both; animation-delay: calc(var(--i) * 70ms); }
         @keyframes ggPop { from { opacity: 0; transform: translateY(14px) scale(0.6); } }
-        .gg-app .gg-ic { width: 96px; height: 96px; background-size: 96px 96px; animation: ggBob 3.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.8s); }
+        .gg-app .gg-ic, .gg-app.sys .gg-ic { width: var(--ic); height: var(--ic); background-size: var(--ic) var(--ic); margin: 0 0 4px; animation: ggBob 3.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.8s); }
         @keyframes ggBob { 50% { transform: translateY(-4px); } }
         .gg-app:hover .gg-ic, .gg-app:focus-visible .gg-ic { animation: ggHop 0.5s cubic-bezier(.3, 1.6, .5, 1); filter: drop-shadow(0 6px 3px rgba(0,0,0,0.6)) drop-shadow(0 0 14px var(--neon-glow)) brightness(1.15); }
         @keyframes ggHop { 40% { transform: translateY(-9px) rotate(-3deg); } 70% { transform: translateY(-2px) rotate(2deg); } }
-        .gg-app b { font-weight: normal; font-size: 14px; letter-spacing: 1px; }
-        .gg-app small { font-size: 11px; opacity: 0.55; }
+        .gg-app b { font-weight: normal; font-size: 16px; letter-spacing: 1px; white-space: nowrap; }
+        .gg-app small { font-size: 12px; opacity: 0.6; }
         .gg-app em { font-style: normal; font-size: 11px; color: #000; background: var(--neon-secondary); padding: 0 6px; border-radius: 3px; margin-top: 2px; }
         .gg-app.sys b { color: #cfcbd6; }
-        .gg-app.sys .gg-ic { width: 72px; height: 72px; background-size: 72px 72px; margin: 12px 0; }
         .gg-ic { display: block; width: 64px; height: 64px; background: no-repeat center / 64px 64px; image-rendering: pixelated; filter: drop-shadow(0 5px 3px rgba(0,0,0,0.6)) drop-shadow(0 0 8px var(--neon-glow)); }
         .gg-ic.sm { width: 32px; height: 32px; background-size: 32px 32px; filter: none; }
         .gg-zoom { animation: ggZoom 0.32s cubic-bezier(.2, .9, .3, 1); }
@@ -487,6 +633,132 @@ window.os = window.os || {};
         .gg-tog b { color: var(--neon-secondary); font-weight: normal; }
         .gg-about { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); font-size: 12px; color: #cfcbd6; line-height: 1.7; }
         .gg-about b { font-weight: normal; color: #fff; }
+        .gg-sys { position: relative; isolation: isolate; overflow-x: hidden; scrollbar-width: none; }
+        .gg-sys::-webkit-scrollbar { display: none; }
+        .sb-bg { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; z-index: -1; }
+        .sb-wrap { position: relative; min-height: 100%; display: flex; flex-direction: column; }
+        .sb-beams { position: absolute; inset: 0; overflow: hidden; z-index: -1; pointer-events: none; }
+        .sb-beams::before, .sb-beams::after { content: ''; position: absolute; top: -40%; width: 60%; height: 180%; z-index: -1; pointer-events: none; background: conic-gradient(from 170deg at 50% 0, transparent 0 8deg, color-mix(in srgb, var(--neon-secondary) 12%, transparent) 10deg 16deg, transparent 18deg); animation: sbBeam 7s ease-in-out infinite alternate; }
+        .sb-beams::before { left: -10%; transform-origin: 50% 0; }
+        .sb-beams::after { right: -10%; transform-origin: 50% 0; animation-delay: -3.5s; background: conic-gradient(from 170deg at 50% 0, transparent 0 8deg, color-mix(in srgb, var(--neon-primary) 12%, transparent) 10deg 16deg, transparent 18deg); }
+        @keyframes sbBeam { from { transform: rotate(-24deg); } to { transform: rotate(24deg); } }
+        .sb-mq { position: relative; display: flex; align-items: center; justify-content: center; gap: 14px; margin: 2px 0 14px; padding: 12px 16px; border-radius: 6px; background: rgba(8,4,14,0.75); text-align: center; }
+        .sb-mq::before { content: ''; position: absolute; inset: 0; padding: 5px; border-radius: 6px; background: radial-gradient(circle at 5px 5px, #ffd04a 2px, transparent 2.6px) 0 0 / 10px 10px, radial-gradient(circle at 5px 5px, color-mix(in srgb, var(--neon-primary) 80%, #fff) 2px, transparent 2.6px) 5px 5px / 10px 10px; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: sbBulb 0.5s steps(1) infinite; }
+        @keyframes sbBulb { 50% { background-position: 5px 0, 0 5px; } }
+        .sb-title { display: block; font-size: 26px; font-weight: normal; letter-spacing: 3px; background: linear-gradient(90deg, #ffd04a, var(--neon-primary), var(--neon-secondary), #ffd04a) 0 0 / 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(2px 2px 0 #000) drop-shadow(0 0 8px color-mix(in srgb, var(--neon-primary) 60%, transparent)); animation: sbCycle 4s linear infinite; }
+        @keyframes sbCycle { to { background-position: 300% 0; } }
+        .sb-mq small { display: block; margin-top: 2px; font-size: 11px; color: #cfcbd6; opacity: 0.75; }
+        .sb-cup { width: 48px !important; height: 48px !important; background-size: 48px 48px !important; animation: sbCup 2.6s ease-in-out infinite !important; }
+        @keyframes sbCup { 0%, 100% { translate: 0 0; rotate: -6deg; filter: drop-shadow(0 0 4px #ffd04a); } 50% { translate: 0 -5px; rotate: 6deg; filter: drop-shadow(0 0 14px #ffd04a) brightness(1.25); } }
+        .gg-sys[data-app="scores"] .gg-tabs { flex-wrap: wrap; justify-content: center; }
+        .gg-sys[data-app="scores"] .gg-tabs button { transition: transform 0.15s; }
+        .gg-sys[data-app="scores"] .gg-tabs button.on { transform: translateY(-2px); box-shadow: 0 3px 0 var(--neon-secondary), 0 0 14px color-mix(in srgb, var(--neon-secondary) 40%, transparent); }
+        .gg-sys[data-app="scores"] .gg-boards section { position: relative; overflow: hidden; background: linear-gradient(180deg, rgba(20,10,30,0.85), rgba(6,3,10,0.85)); border-color: color-mix(in srgb, var(--neon-secondary) 30%, transparent); animation: ggPop 0.4s both; animation-delay: calc(var(--k) * 90ms); }
+        .gg-sys[data-app="scores"] .gg-boards h4 { padding-bottom: 6px; border-bottom: 2px solid color-mix(in srgb, var(--neon-primary) 50%, transparent); text-shadow: 0 0 8px currentColor; }
+        .gg-sys[data-app="scores"] .gg-boards li { animation: sbRow 0.35s cubic-bezier(.2, 1.4, .4, 1) both; animation-delay: calc(var(--k) * 90ms + var(--n) * 55ms + 150ms); }
+        @keyframes sbRow { from { opacity: 0; transform: translateX(-14px); } }
+        .gg-sys[data-app="scores"] .gg-boards li span:first-child { width: 30px; }
+        .gg-sys[data-app="scores"] .gg-boards li { position: relative; }
+        .gg-boards li.m1 span:first-child, .gg-boards li.m1 span:nth-child(2) { color: #ffd04a; }
+        .gg-boards li.m2 span:first-child, .gg-boards li.m2 span:nth-child(2) { color: #dfe6f0; }
+        .gg-boards li.m3 span:first-child, .gg-boards li.m3 span:nth-child(2) { color: #e0965a; }
+        .gg-boards li.m1, .gg-boards li.m2, .gg-boards li.m3 { position: relative; background-image: linear-gradient(100deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%); background-size: 250% 100%; background-repeat: no-repeat; animation: sbRow 0.35s cubic-bezier(.2, 1.4, .4, 1) both, sbShine 3.2s linear infinite; }
+        .gg-boards li.m2 { animation-delay: calc(var(--k) * 90ms + 205ms), 0.4s; } .gg-boards li.m3 { animation-delay: calc(var(--k) * 90ms + 260ms), 0.8s; }
+        @keyframes sbShine { from { background-position: 160% 0; } 60%, to { background-position: -60% 0; } }
+        .sb-shelf { flex: 1; position: relative; }
+        .sb-shelf .gg-ic { filter: grayscale(0.7) brightness(0.7) drop-shadow(0 6px 3px rgba(0,0,0,0.6)); animation: sbSway 4s ease-in-out infinite; transform-origin: 50% 100%; }
+        @keyframes sbSway { 50% { rotate: 4deg; } }
+        .sb-shelf::after { content: ''; width: 220px; height: 8px; margin-top: -10px; background: linear-gradient(#5e576c, #332e44); box-shadow: 0 6px 10px rgba(0,0,0,0.6); order: 1; }
+        .sb-shelf p { order: 2; }
+        .sb-web { position: absolute; left: calc(50% + 40px); top: calc(50% - 90px); width: 46px; height: 46px; border-top: 1px solid rgba(255,255,255,0.18); border-right: 1px solid rgba(255,255,255,0.18); background: repeating-radial-gradient(circle at 100% 0, transparent 0 8px, rgba(255,255,255,0.12) 8px 9px); -webkit-mask: linear-gradient(225deg, #000 50%, transparent 50%); mask: linear-gradient(225deg, #000 50%, transparent 50%); animation: sbSway 6s ease-in-out infinite; transform-origin: 100% 0; }
+        .sb-blink { order: 3; font-weight: normal; letter-spacing: 3px; color: #ffd04a; animation: sbBlink 1s steps(1) infinite; }
+        @keyframes sbBlink { 50% { opacity: 0; } }
+        .sb-svh { position: relative; display: flex; align-items: center; justify-content: center; margin: 0 0 8px; padding: 8px; overflow: hidden; border: 2px solid #ffd04a; background: repeating-linear-gradient(-45deg, #ffd04a 0 10px, #0b0710 10px 20px) 0 0 / 28.28px 28.28px; animation: sbStripe 1.2s linear infinite; }
+        @keyframes sbStripe { to { background-position: 28.28px 0; } }
+        .sb-svh b { position: relative; z-index: 1; padding: 3px 14px; background: #0b0710; color: #ffd04a; font-weight: normal; font-size: 18px; letter-spacing: 3px; animation: sbBlink 1.4s steps(1) infinite; }
+        .sb-svh i { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(255,255,255,0.35) 50%, transparent 55%) 0 0 / 100% 300%; animation: sbScan 2.4s linear infinite; }
+        @keyframes sbScan { from { background-position: 0 100%; } to { background-position: 0 -200%; } }
+        .sb-svc .gg-set { max-width: 520px; margin: 0 auto; width: 100%; }
+        .sb-svc .gg-tog { padding: 6px 12px; background: rgba(8,4,14,0.78); animation: sbRow 0.35s cubic-bezier(.2, 1.4, .4, 1) both; animation-delay: calc(var(--n, 0) * 60ms); }
+        .sb-svc .gg-tog > span { display: flex; align-items: center; gap: 10px; }
+        .sb-led { display: inline-block; width: 8px; height: 8px; background: #3a1018; box-shadow: inset 0 0 0 1px #000; transition: background 0.15s, box-shadow 0.15s; }
+        .gg-tog.on .sb-led, .gg-tog.act .sb-led { background: #6dffa0; box-shadow: 0 0 8px #6dffa0, inset 0 0 0 1px #1f7a44; animation: sbLed 2.2s steps(1) infinite; animation-delay: calc(var(--n) * -0.37s); }
+        .gg-tog.act .sb-led { background: #ffd04a; box-shadow: 0 0 8px #ffd04a; }
+        @keyframes sbLed { 92% { opacity: 1; } 94% { opacity: 0.3; } 96% { opacity: 1; } }
+        .sb-svc .gg-tog i { border-radius: 2px; height: 20px; box-shadow: inset 0 0 0 2px #0b0710; }
+        .sb-svc .gg-tog i::after { border-radius: 1px; top: 3px; left: 3px; width: 12px; height: 14px; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.35); }
+        .sb-svc .gg-tog.on i { background: repeating-linear-gradient(90deg, var(--neon-primary) 0 3px, color-mix(in srgb, var(--neon-primary) 70%, #000) 3px 4px); }
+        .gg-tog.zap { animation: sbZap 0.4s steps(4) both !important; }
+        @keyframes sbZap { 0% { box-shadow: 0 0 0 0 var(--neon-primary); filter: brightness(2); } 50% { box-shadow: 0 0 0 6px transparent; filter: brightness(1.3); transform: translateX(2px); } 100% { filter: none; transform: none; } }
+        .sb-sun { position: relative; display: inline-block; flex: none; margin: 0 2px; width: 10px; height: 10px; border-radius: 50%; background: #ffd04a; box-shadow: 0 0 calc(var(--b) * 12px) #ffd04a; scale: calc(0.6 + var(--b) * 0.6); }
+        .sb-sun::before { content: ''; position: absolute; inset: -5px; background: conic-gradient(#ffd04a 0 10deg, transparent 10deg 45deg, #ffd04a 45deg 55deg, transparent 55deg 90deg, #ffd04a 90deg 100deg, transparent 100deg 135deg, #ffd04a 135deg 145deg, transparent 145deg 180deg, #ffd04a 180deg 190deg, transparent 190deg 225deg, #ffd04a 225deg 235deg, transparent 235deg 270deg, #ffd04a 270deg 280deg, transparent 280deg 315deg, #ffd04a 315deg 325deg, transparent 325deg); -webkit-mask: radial-gradient(circle, transparent 6px, #000 6.5px); mask: radial-gradient(circle, transparent 6px, #000 6.5px); animation: sbRot 6s linear infinite; opacity: var(--b); }
+        @keyframes sbRot { to { rotate: 360deg; } }
+        .sb-spin { animation: sbSpin 3.6s ease-in-out infinite !important; }
+        @keyframes sbSpin { 0%, 100% { transform: perspective(200px) rotateY(-30deg) translateY(0); } 50% { transform: perspective(200px) rotateY(30deg) translateY(-4px); } }
+        .sb-svc .gg-about { background: rgba(8,4,14,0.78); border: 1px solid rgba(255,255,255,0.06); }
+        .sb-tick { margin: -3px 0 4px; overflow: hidden; white-space: nowrap; font-size: 11px; color: #6dffa0; -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+        .sb-tick p { display: inline-block; margin: 0; animation: sbTick 28s linear infinite; }
+        .sb-tick span { margin-right: 36px; text-shadow: 0 0 6px #6dffa0; }
+        .sb-tick span::before { content: '■ '; color: #ffd04a; }
+        @keyframes sbTick { to { transform: translateX(-50%); } }
+        .sb-mq { rotate: -0.6deg; }
+        .gg-app { position: relative; }
+        .gg-lastk { position: absolute; top: 4px; right: calc(50% - var(--ic) / 2 - 18px); z-index: 2; padding: 2px 6px; rotate: 9deg; background: #ffd04a; color: #1a0f05; font-size: 10px; box-shadow: 1px 2px 0 rgba(0,0,0,0.5); pointer-events: none; animation: sbWob 4s ease-in-out infinite; }
+        .reduce-motion .gg-lastk { animation: none; }
+        .sb-stk { position: absolute; right: 5%; top: -10px; padding: 8px 10px 6px; rotate: 8deg; background: #ffd04a; color: #1a0f05; font: 18px/1 'Permanent Marker', cursive; box-shadow: 2px 3px 0 rgba(0,0,0,0.5); clip-path: polygon(0 4%, 6% 0, 100% 3%, 97% 100%, 3% 96%); animation: sbWob 5s ease-in-out infinite; }
+        .sb-stk::before { content: ''; position: absolute; left: 30%; top: -7px; width: 40%; height: 12px; rotate: -6deg; background: rgba(240,235,220,0.55); }
+        @keyframes sbWob { 50% { rotate: 5deg; } }
+        .gg-sys[data-app="scores"] .gg-tabs button:nth-child(3n+1) { rotate: -1.2deg; } .gg-sys[data-app="scores"] .gg-tabs button:nth-child(3n+2) { rotate: 0.8deg; } .gg-sys[data-app="scores"] .gg-tabs button:nth-child(4n) { rotate: 1.6deg; }
+        .sb-ring { position: absolute; left: -10px; right: 30%; top: -6px; bottom: -6px; width: auto; height: calc(100% + 12px); overflow: visible; pointer-events: none; }
+        .sb-ring path { fill: none; stroke: #ffd04a; stroke-width: 2.5; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-dasharray: 520; stroke-dashoffset: 520; animation: sbDraw 0.9s 0.9s ease-out forwards; filter: drop-shadow(0 0 3px rgba(255,208,74,0.6)); }
+        @keyframes sbDraw { to { stroke-dashoffset: 0; } }
+        .sb-me { position: absolute; right: 8%; top: -14px; rotate: -10deg; color: #ffd04a; font: 15px/1 'Permanent Marker', cursive; opacity: 0; animation: sbPop 0.25s 1.7s steps(3) forwards; pointer-events: none; }
+        @keyframes sbPop { from { opacity: 0; scale: 1.6; } to { opacity: 1; scale: 1; } }
+        .gg-sys[data-app="scores"] .gg-boards section { overflow: visible; }
+        .sb-note { position: absolute; right: 1.5%; top: 150px; width: 112px; padding: 16px 10px 12px; rotate: 4deg; background: linear-gradient(#fff38a, #f2df5c); color: #2a2205; font: 15px/1.25 'Permanent Marker', cursive; box-shadow: 3px 5px 10px rgba(0,0,0,0.5); animation: sbWob 6s ease-in-out infinite; z-index: 2; }
+        .sb-note i { position: absolute; left: 35%; top: -8px; width: 46px; height: 16px; rotate: -4deg; background: rgba(240,235,220,0.55); }
+        .gg-sys[data-app="settings"] { container-type: inline-size; }
+        @container (max-width: 800px) { .sb-note { display: none; } }
+        .gg-about { position: relative; }
+        .sb-tape { position: absolute; width: 40px; height: 13px; background: rgba(240,235,220,0.7); mix-blend-mode: screen; }
+        .sb-tape.a { left: -12px; top: 6px; rotate: -38deg; } .sb-tape.b { right: -12px; bottom: 8px; rotate: -36deg; }
+        .reduce-motion .sb-stk, .reduce-motion .sb-note { animation: none; } .reduce-motion .sb-ring path { animation: none; stroke-dashoffset: 0; } .reduce-motion .sb-me { animation: none; opacity: 1; }
+        .reduce-motion .sb-title, .reduce-motion .sb-mq::before, .reduce-motion .sb-cup, .reduce-motion .sb-svh, .reduce-motion .sb-svh b, .reduce-motion .sb-svh i, .reduce-motion .sb-tick p, .reduce-motion .sb-spin, .reduce-motion .sb-sun::before, .reduce-motion .sb-led, .reduce-motion .sb-shelf .gg-ic, .reduce-motion .sb-web, .reduce-motion .sb-blink, .reduce-motion .sb-beams::before, .reduce-motion .sb-beams::after { animation: none !important; }
+        .gg-studio { position: absolute; inset: 0; z-index: 7; display: grid; place-content: center; text-align: center; cursor: inherit; transition: opacity 0.2s; overflow: hidden;
+            background: radial-gradient(ellipse at 50% 45%, #1a0f22 0, #07050b 60%), #07050b; }
+        .gg-studio::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px); }
+        .gg-studio::after { content: ''; position: absolute; left: 0; right: 0; height: 18%; top: -20%; pointer-events: none; background: linear-gradient(180deg, transparent, rgba(255,95,162,0.07), transparent); animation: gsRoll 2.4s linear infinite; }
+        .gg-studio.out { opacity: 0; }
+        .gs-wrap { position: relative; }
+        .gs-rn { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 0.14em; font-size: 40px; white-space: nowrap; }
+        .gs-rn > span { position: relative; display: inline-block; padding: 0.08em 0.17em; line-height: 1; transform: rotate(var(--r)) translateY(var(--y)); animation: gsDrop 0.4s cubic-bezier(.2,1.7,.4,1) both; }
+        .gs-rn sup { align-self: flex-start; font: 11px 'DotGothic16', monospace; color: #8f8b9a; margin-left: 3px; }
+        .gs-tape { font: bold 0.8em 'Courier New', monospace; background: #111; color: #f2efe6; letter-spacing: 0.05em; padding: 0.22em 0.3em !important; text-shadow: 0 1px 0 #000, 0 -1px 0 #555; box-shadow: 0 0 0 1px #4a4458, 0 2px 0 #000; }
+        .gs-stk { font-family: Impact, 'Arial Black', sans-serif; background: #ff5fa2; color: #fff; border: 0.08em solid #fff; border-radius: 0.3em; box-shadow: 2px 3px 0 rgba(0,0,0,0.6), inset 0.15em 0.15em 0 rgba(255,255,255,0.35); }
+        .gs-stamp { font: 1em Georgia, serif; color: #ff2a4a; border: 0.08em solid #ff2a4a; background: transparent; opacity: 0.9; text-shadow: 1px 0 0 rgba(255,42,74,0.5); }
+        .gs-neon { font: 1em 'Permanent Marker', cursive; color: transparent; -webkit-text-stroke: 0.04em #2de0ff; text-shadow: 0 0 6px #2de0ff, 0 0 14px #2de0ff; animation: gsDrop 0.4s cubic-bezier(.2,1.7,.4,1) both, gsBuzz 1.3s steps(1) 0.6s infinite !important; }
+        .gs-pix { font: 1.1em 'DotGothic16', monospace; background: #ffd23f; color: #0a0610; box-shadow: 0.12em 0.12em 0 #ff2a4a; image-rendering: pixelated; }
+        .gs-note { font: 1em 'Permanent Marker', cursive; background: #fff27a; color: #2a1a40; box-shadow: 3px 4px 0 rgba(0,0,0,0.55); border-bottom-right-radius: 0.4em 0.2em; }
+        .gs-chrome { font: italic 900 1em Impact, 'Arial Black', sans-serif; color: transparent; background: linear-gradient(180deg, #fff 0 40%, #6a6f80 50%, #e8ecf4 62%, #9aa0b0); -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: 0.03em #0a0610; filter: drop-shadow(2px 2px 0 #ff2a4a); }
+        .gs-news { font: 1em 'Times New Roman', serif; background: #d8d2c4; color: #1a1612; box-shadow: 2px 3px 0 rgba(0,0,0,0.6); clip-path: polygon(0 4%, 18% 0, 40% 6%, 62% 1%, 100% 5%, 97% 50%, 100% 96%, 70% 100%, 45% 94%, 20% 100%, 0 95%, 3% 50%); }
+        .gs-rn > span.gs-eye { width: 0.42em; height: 0.78em; padding: 0.1em 0.14em; }
+        .gs-eye u { position: absolute; left: 50%; bottom: 0.1em; width: 0.17em; height: 0.52em; margin-left: -0.085em; background: currentColor; }
+        .gs-neon.gs-eye u { background: #2de0ff; box-shadow: 0 0 6px #2de0ff; } .gs-chrome.gs-eye u { background: #e8ecf4; box-shadow: 1px 1px 0 #ff2a4a; } .gs-stamp.gs-eye u { background: #ff2a4a; }
+        .gs-eye b { position: absolute; left: 50%; top: -0.32em; width: 0.5em; height: 0.5em; margin-left: -0.25em; border-radius: 50%; background: #f2efe6; border: 0.05em solid #0a0610; box-sizing: border-box; overflow: hidden; box-shadow: 0 0 8px rgba(255,95,162,0.6); }
+        .gs-eye b i { position: absolute; left: 50%; top: 50%; width: 0.24em; height: 0.24em; margin: -0.12em 0 0 -0.12em; border-radius: 50%; background: radial-gradient(circle, #0a0610 0 40%, #ff2a4a 44%); }
+        .gs-eye b i::after { content: ''; position: absolute; left: 20%; top: 18%; width: 25%; height: 25%; border-radius: 50%; background: #fff; }
+        .look .gs-eye b { animation: gsBlink 2s 0.5s both; }
+        .look .gs-eye b i { animation: gsLook 1.8s steps(1) both; }
+        .gl .gs-rn { transform: skewX(-14deg) translateX(5px); filter: hue-rotate(110deg) contrast(1.6); }
+        .gl .gs-rn > span:nth-child(3n) { transform: translateX(-0.4em) scaleY(1.4); }
+        .gg-studio p { position: relative; z-index: 1; min-height: 1.3em; margin: 22px 0 0; font: 11px 'DotGothic16', monospace; letter-spacing: 4px; color: #8f8b9a; }
+        .gg-studio p::after { content: '▌'; margin-left: 2px; color: var(--neon-primary, #ff5fa2); animation: gsBuzz 0.6s steps(1) infinite; }
+        @keyframes gsDrop { from { transform: translateY(-60px) rotate(calc(var(--r) * -4)); opacity: 0; } }
+        @keyframes gsBuzz { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } 53% { opacity: 1; } 70% { opacity: 0.6; } }
+        @keyframes gsBlink { 0%, 40%, 48%, 100% { transform: scaleY(1); } 44% { transform: scaleY(0.08); } }
+        @keyframes gsLook { 0% { transform: translate(0, 0); } 25% { transform: translate(-0.12em, 0.04em); } 55% { transform: translate(0.13em, 0.02em); } 80% { transform: translate(0, -0.1em); } }
+        @keyframes gsRoll { to { top: 110%; } }
+        html.reduce-motion .gg-studio *, html.reduce-motion .gg-studio::after { animation: none !important; }
         .gg-boot { position: absolute; inset: 0; z-index: 8; background: #000; display: grid; place-items: center; cursor: inherit; }
         .gg-boot .gb1, .gg-boot .gb2 { position: absolute; inset: 0; }
         .gg-boot .gb1 { padding: 22px 26px; color: #cfcbd6; }
@@ -552,7 +824,6 @@ window.os = window.os || {};
             .gg-dev { padding: 20px 10px 0; }
             .gg-scr { height: calc(100vh - 220px); }
             .gg-chin { height: 48px; } .gg-mark b { font-size: 17px; } .gg-spk, .gg-led { display: none; }
-            .gg-apps { grid-template-columns: repeat(auto-fill, 104px); } .gg-app .gg-ic { width: 72px; height: 72px; background-size: 72px 72px; }
             .gg-time { font-size: 34px; } .gg-home { padding: 14px; }
         }
     `;
