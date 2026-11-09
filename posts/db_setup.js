@@ -1,4 +1,4 @@
-// SETUP
+// my setup
 database.setup = {
     daw: [
         "Ableton Live 12 - Standard"
