@@ -16,7 +16,7 @@ Object.assign(window.spritesDB.art, {
     "snake/floor_void1": {"w": 12, "h": 12, "px": "zzzzzzzzzzzz|zzzzzzzzzzzz|zzzzzzzzzzzz|zzzzzzzzzzzz|zzzwzzzzzzzz|zzzzzzzzzzzz|zzzzzzzzzzzz|zzzzzzzzzzzz|zzzzzzzzzzzz|zzzzzzzzzzzz|zzzzzzzzzzzz|zzzzzzzzzzzz"},
     "snake/gate0": {"w": 12, "h": 12, "px": "............|....YYYY....|..YYYkkYYY..|..YkkkkkkY..|.YYkkyykkYY.|.YkkyyyykkY.|.YkkyyyykkY.|.YYkkyykkYY.|..YkkkkkkY..|..YYYkkYYY..|....YYYY....|............"},
     "snake/gate1": {"w": 12, "h": 12, "px": "............|....yyyy....|..yyykkyyy..|..ykkkkkky..|.yykkookkyy.|.ykkooookky.|.ykkooookky.|.yykkookkyy.|..ykkkkkky..|..yyykkyyy..|....yyyy....|............"},
-    "snake/gold": {"w": 12, "h": 12, "px": ".....kk.....|...kkyykk...|..kyyyyyyk..|.kyoYYYYyyk.|.kyYyYYyYyk.|kyyyyYYyyyyk|kyyyyYYyyyyk|.kyYyYYyYyk.|.kyyYYYYyyk.|..kyyyyyyk..|...kkyykk...|.....kk....."},
+    "snake/gold": {"w": 12, "h": 12, "px": ".....kk.....|....koyk....|....koyk....|kkkkkoyykkkk|koooooyyyyyk|.kyooyyyyYk.|..kyyyyyYk..|..kyyyyyYk..|.kyyykkyyYk.|.kyyk..kyYk.|kyYk....kYYk|kkk......kkk"},
     "snake/head": {"w": 12, "h": 12, "px": "..kkkk......|kkhhhakk....|ahhaaaaakk..|aaaaaokaaak.|aaaaaaaaaaak|aaBaaaaaaaAk|aaBaaaaaaaAk|aaaaaaaaaaak|aaaaaokaaak.|AAAaaaaakk..|kkAAAAkk....|..kkkk......"},
     "snake/headBit": {"w": 12, "h": 12, "px": "..kkkk......|kkhhhakk....|ahhaaaaakk..|aaaaarkaaak.|aaaaaaaaaaak|aaBaaaaaaawk|aaBaaaaaaawk|aaaaaaaaaaak|aaaaarkaaak.|AAAaaaaakk..|kkAAAAkk....|..kkkk......"},
     "snake/hunter0": {"w": 12, "h": 12, "px": "............|....RRRR....|..RRkkkkRR..|..RkkkkkkR..|.RkkkrrkkkR.|rRkkrwrrkkRr|rRkkrrrrkkRr|.RkkkrrkkkR.|..RkkkkkkR..|..RRkkkkRR..|....RRRR....|............"},
