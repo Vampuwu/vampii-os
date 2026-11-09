@@ -47,7 +47,7 @@ window.os = window.os || {};
         let fuse = [], cons = [], grid = new Map();
         const can = (a, b) => a.t === b.t && a.t < 12 && w.t - a.born > 0.06 && w.t - b.born > 0.06;
         const im = b => 1 / (b.r * b.r);
-        const MU = () => o.friction, MUW = () => o.friction * 0.15, MUF = () => o.friction * 1.5, SEP = 260;
+        let SH = 0.002; const MU = () => o.friction, MUW = () => o.friction * 0.15, MUF = () => o.friction * 1.5, SEP = 260;
         // Positions first, velocities after. The old impulse version turned to mush once the pile got big.
         function collect() {
             let big = 1; for (let b of w.b) if (b.r > big) big = b.r;
@@ -74,6 +74,7 @@ window.os = window.os || {};
         function solve(c) {
             let a = c.a, b = c.b, dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) || 0.001, ov = a.r + b.r - d;
             if (ov <= 0) return;
+            if (a.r < a.R || b.r < b.R) { if (c.gb == null) c.gb = 300 * SH; ov = Math.min(ov, c.gb); c.gb -= ov; if (ov <= 0) return; }
             let wa = im(a) * (a.wl || a.fl ? 0.25 : 1), wb = im(b) * (b.wl || b.fl ? 0.25 : 1), nx = dx / d, ny = dy / d;
             if (wa > wb * 4) wb = wa / 4; else if (wb > wa * 4) wa = wb / 4;
             let k = ov / (wa + wb);
@@ -89,6 +90,7 @@ window.os = window.os || {};
             b.vx += tx * j * im(b); b.vy += ty * j * im(b); b.w += 2 * j * im(b) / b.r;
         }
         function sub(h) {
+            SH = h;
             for (let b of w.b) {
                 if (b.r < b.R) { b.r += (b.R - b.r) * Math.min(1, h * 24); if (b.R - b.r < 0.05) b.r = b.R; }
                 b.vy += o.gravity * h;
@@ -96,8 +98,8 @@ window.os = window.os || {};
                 b.ox = b.x; b.oy = b.y; b.x += b.vx * h; b.y += b.vy * h; b.a += b.w * h; b.wl = b.fl = 0; b.lw = b.lf = 0; b.pvx = b.vx; b.pvy = b.vy;
             }
             collect();
-            if (fuse.length) doFuse();
-            for (let it = 0; it < 12; it++) { if (it % 2) for (let i = cons.length - 1; i >= 0; i--) solve(cons[i]); else for (let c of cons) solve(c); for (let b of w.b) walls(b); }
+            if (fuse.length) { let g = doFuse(); cons = cons.filter(c => !g.has(c.a) && !g.has(c.b)); }
+            for (let it = 0; it < 5; it++) { if (it % 2) for (let i = cons.length - 1; i >= 0; i--) solve(cons[i]); else for (let c of cons) solve(c); for (let b of w.b) walls(b); }
             for (let b of w.b) { b.vx = (b.x - b.ox) / h; b.vy = (b.y - b.oy) / h; }
             // Only bounces on proper hits. friction is how hard they shoved
             for (let c of cons) {
@@ -135,19 +137,20 @@ window.os = window.os || {};
                 }
             }
             w.b = w.b.filter(b => !gone.has(b));
+            return gone;
         }
         w.step = dt => {
             for (let b of w.b) b.touch = false;
             if (o.magnet) pull(dt);
-            let n = 4, h = dt / n;
-            for (let b of w.b) { b.sx = b.x; b.sy = b.y; }
+            let n = 12, h = dt / n;
+            for (let b of w.b) { b.sx = b.x; b.sy = b.y; b.sa = b.a; }
             for (let i = 0; i < n; i++) { w.t += h; sub(h); }
             for (let b of w.b) {
                 let k = Math.pow(o.damp, dt * 120); b.vx *= k; b.vy *= k;
-                if (b.touch) b.w *= Math.pow(1 - o.roll, dt * 120); else b.w *= 0.999;
+                if (b.touch) { b.w *= Math.pow(1 - o.roll, dt * 120); let st = 60 / b.r * dt; b.w = Math.abs(b.w) <= st ? 0 : b.w - Math.sign(b.w) * st; } else b.w *= 0.999;
                 // ugh
                 if (b.touch && b.vx * b.vx + b.vy * b.vy < 9) { b.vx *= 0.5; b.vy *= 0.5; b.w *= 0.5; }
-                if (b.touch && Math.abs(b.w) < 0.6 && Math.abs(b.x - b.sx) + Math.abs(b.y - b.sy) < 0.06) b.w = 0;
+                if (b.touch && Math.abs(b.w) < 0.6 && Math.abs(b.x - b.sx) + Math.abs(b.y - b.sy) < 0.06) { b.w = 0; b.a = b.sa; }
             }
         };
         function pull(dt) {
