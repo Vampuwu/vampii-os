@@ -196,7 +196,7 @@ window.os = window.os || {};
     let css = document.createElement('style');
     css.textContent = `
         /* no window, its just the thing */
-        #desktop > #win-timer\\.exe { background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; }
+        #desktop > #win-timer\\.exe { background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
         #desktop > #win-timer\\.exe::before, #desktop > #win-timer\\.exe::after, #desktop > #win-timer\\.exe .wglow, #desktop > #win-timer\\.exe .wbloom { display: none !important; }
         #desktop > #win-timer\\.exe .window-header { position: absolute !important; z-index: 4; left: 26px; right: 34px; top: 7px; height: 24px; padding: 0 2px 0 8px !important; overflow: visible !important; background: none !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
         #desktop > #win-timer\\.exe .window-header::before, #desktop > #win-timer\\.exe .window-header::after, #desktop > #win-timer\\.exe .win-ic { display: none !important; }

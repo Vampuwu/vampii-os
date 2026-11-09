@@ -114,7 +114,7 @@ window.os = window.os || {};
             #dead-px.back::after { animation: pxBack 1.2s steps(1); }
             @keyframes pxBack { 0%, 20%, 34%, 60% { opacity: 0; } 15%, 30% { opacity: 1; } }
             #burn { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-            #burn i { position: absolute; box-sizing: border-box; border: 2px solid #fff; background: linear-gradient(#fff 0 28px, rgba(255,255,255,0.18) 28px); mix-blend-mode: screen; }
+            #burn img { position: absolute; mix-blend-mode: screen; filter: saturate(0.55) blur(0.6px); }
             .dgs { animation: dgs 0.7s ease-out; }
             @keyframes dgs { 0% { transform: skewX(3deg) scale(1.012); filter: drop-shadow(3px 0 0 rgba(255,0,80,0.55)) drop-shadow(-3px 0 0 rgba(0,240,255,0.55)); } 25% { transform: skewX(-2deg); } 50% { transform: skewX(1deg); filter: drop-shadow(1px 0 0 rgba(255,0,80,0.3)) drop-shadow(-1px 0 0 rgba(0,240,255,0.3)); } 75% { transform: skewX(-0.5deg); } 100% { transform: none; filter: none; } }
             .mb-track { position: absolute; top: 3px; height: 24px; display: flex; align-items: center; gap: 6px; padding: 0 10px; white-space: nowrap; background: #0d0a10; border: 1px solid var(--neon-primary); border-radius: 12px; box-shadow: 0 0 10px color-mix(in srgb, var(--neon-primary) 50%, transparent); animation: mbWalk 11s ease-in-out infinite alternate; }
@@ -144,12 +144,79 @@ window.os = window.os || {};
     }
     // screen burn. leave a window still for ages + it ghosts into the wallpaper
     function burnIn() {
-        const KEY = 'vmp_burn', LIFE = 3 * 3600000, STILL = 20;
-        let ghosts = []; try { ghosts = JSON.parse(localStorage.getItem(KEY) || '[]') || []; } catch (e) {}
+        const KEY = 'vmp_burn', LIFE = 3 * 3600000, STILL = 20, OK = /^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/;
+        let ghosts = []; try { ghosts = (JSON.parse(localStorage.getItem(KEY) || '[]') || []).filter(g => g && OK.test(g.img)); } catch (e) {}
         let layer = document.createElement('div'); layer.id = 'burn'; layer.setAttribute('aria-hidden', 'true'); document.body.insertBefore(layer, document.body.firstChild);
-        const draw = () => { let now = Date.now(); ghosts = ghosts.filter(g => now - g.at < LIFE); layer.innerHTML = ghosts.map(g => `<i style="left:${g.x}px;top:${g.y}px;width:${g.w}px;height:${g.h}px;opacity:${(0.075 * (1 - (now - g.at) / LIFE)).toFixed(3)}"></i>`).join(''); };
-        let seen = {};
+        const draw = () => { let now = Date.now(); ghosts = ghosts.filter(g => now - g.at < LIFE); layer.innerHTML = ghosts.map(g => `<img alt="" src="${g.img}" style="left:${g.x}px;top:${g.y}px;width:${g.w}px;height:${g.h}px;opacity:${(0.16 * (1 - (now - g.at) / LIFE)).toFixed(3)}">`).join(''); };
+        let seen = {}, fonts = {};
         const off = () => os.prefs && os.prefs.burnin === false;
+        const asData = b => new Promise((ok, no) => { let r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(b); });
+        const rw = t => t.replace(/:root\b/g, '.bx-root').replace(/(^|[\s,>+~(])html(?![\w-])/g, '$1.bx-root').replace(/(^|[\s,>+~(])body(?![\w-])/g, '$1.bx-body');
+        const norm = v => String(v || '').replace(/["'\s]/g, '').toUpperCase().replace(/^NORMAL$/, '400').replace(/^BOLD$/, '700');
+        let used = [];
+        const face = async (r, base) => {
+            let fam = norm(r.style.getPropertyValue('font-family')), ur = norm(r.style.getPropertyValue('unicode-range') || 'U+0-10FFFF'), wt = norm(r.style.getPropertyValue('font-weight') || '400');
+            if (!used.some(f => norm(f.family) === fam && norm(f.unicodeRange) === ur && norm(f.weight) === wt)) return '';
+            let m = /url\(\s*["']?([^"')]+)["']?\s*\)/.exec(r.style.getPropertyValue('src') || r.cssText); if (!m) return '';
+            if (/^data:/.test(m[1])) return r.cssText;
+            let u = new URL(m[1], base).href;
+            try { fonts[u] = fonts[u] || await fetch(u).then(x => x.blob()).then(asData); } catch (e) { return ''; }
+            return r.cssText.replace(m[0], `url("${fonts[u]}")`);
+        };
+        const rules = async (list, base, out) => {
+            for (const r of list) {
+                if (r instanceof CSSStyleRule) out.push(r.cssRules && r.cssRules.length ? rw(r.cssText) : rw(r.selectorText) + '{' + r.style.cssText + '}');
+                else if (r instanceof CSSMediaRule) { if (matchMedia(r.media.mediaText).matches) await rules(r.cssRules, base, out); }
+                else if (r instanceof CSSSupportsRule) { if (CSS.supports(r.conditionText)) await rules(r.cssRules, base, out); }
+                else if (r instanceof CSSImportRule) { if (r.styleSheet) await rules(r.styleSheet.cssRules, r.styleSheet.href || base, out); }
+                else if (r instanceof CSSFontFaceRule) out.push(face(r, base));
+                else if (r.cssRules && !(r instanceof CSSKeyframesRule)) await rules(r.cssRules, base, out);
+                else out.push(r.cssText);
+            }
+        };
+        async function snap(w) {
+            let b = w.getBoundingClientRect(), x0 = b.left, y0 = b.top, x1 = b.right, y1 = b.bottom;
+            if (getComputedStyle(w).overflow === 'visible') w.querySelectorAll('*').forEach(el => { let r = el.getBoundingClientRect(); if (!r.width || !r.height) return; x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top); x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom); });
+            x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0)); x1 = Math.min(innerWidth, Math.ceil(x1)); y1 = Math.min(innerHeight, Math.ceil(y1));
+            let W = x1 - x0, H = y1 - y0, VW = innerWidth, VH = innerHeight; if (W < 16 || H < 16) return null;
+            used = [...document.fonts].filter(f => f.status === 'loaded');
+            let cl = w.cloneNode(true), src = [w, ...w.querySelectorAll('*')], dst = [cl, ...cl.querySelectorAll('*')];
+            src.forEach((a, i) => {
+                let c = dst[i], tag = a.tagName;
+                if (tag === 'CANVAS' || tag === 'VIDEO' || tag === 'IFRAME') {
+                    let im = document.createElement('img'), cs = getComputedStyle(a);
+                    if (tag === 'CANVAS') { try { im.src = a.toDataURL(); } catch (e) {} }
+                    else if (tag === 'VIDEO') { try { let k = document.createElement('canvas'); k.width = a.videoWidth; k.height = a.videoHeight; k.getContext('2d').drawImage(a, 0, 0); im.src = k.toDataURL('image/jpeg', 0.7); } catch (e) {} }
+                    if (a.id) im.id = a.id; im.className = a.className;
+                    im.style.cssText = a.style.cssText; im.style.width = a.offsetWidth + 'px'; im.style.height = a.offsetHeight + 'px'; im.style.display = cs.display === 'inline' ? 'inline-block' : cs.display;
+                    if (tag === 'IFRAME') im.style.background = '#000';
+                    c.replaceWith(im); return;
+                }
+                if (tag === 'SCRIPT') { c.remove(); return; }
+                if (tag === 'IMG' && !/^data:/.test(a.currentSrc || a.src)) { try { let k = document.createElement('canvas'); k.width = a.naturalWidth; k.height = a.naturalHeight; k.getContext('2d').drawImage(a, 0, 0); c.src = k.toDataURL(); } catch (e) { c.removeAttribute('src'); c.removeAttribute('srcset'); c.style.visibility = 'hidden'; } }
+                if (tag === 'INPUT') { c.setAttribute('value', a.value); if (a.checked) c.setAttribute('checked', ''); }
+                if (tag === 'TEXTAREA') c.textContent = a.value;
+                if (a.scrollTop || a.scrollLeft) [...c.children].forEach(k => { k.style.translate = `${-a.scrollLeft}px ${-a.scrollTop}px`; });
+            });
+            cl.classList.add('is-active'); cl.classList.remove('is-dragging', 'window-spawn');
+            ['position:absolute', `left:${Math.round(b.left)}px`, `top:${Math.round(b.top)}px`, 'margin:0', 'transform:none', 'translate:none', 'rotate:none', 'scale:none', `width:${getComputedStyle(w).width}`, `height:${getComputedStyle(w).height}`].forEach(d => { let [k, v] = d.split(':'); cl.style.setProperty(k, v, 'important'); });
+            const wrap = (cls, from, id) => { let d = document.createElement('div'); d.className = cls + ' ' + (from ? from.className : ''); if (id) d.id = id; if (from && from.getAttribute('style')) d.setAttribute('style', from.getAttribute('style')); ['position:absolute', 'left:0', 'top:0', 'right:auto', 'bottom:auto', `width:${VW}px`, `height:${VH}px`, 'margin:0', 'padding:0', 'overflow:hidden', 'background:none', 'transform:none', 'filter:none'].forEach(x => { let [k, v] = x.split(':'); d.style.setProperty(k, v, 'important'); }); return d; };
+            let root = wrap('bx-root', document.documentElement), body = wrap('bx-body', document.body), desk = wrap('', $('desktop'), 'desktop');
+            root.appendChild(body); body.appendChild(desk); desk.appendChild(cl);
+            let out = [];
+            for (const sh of document.styleSheets) { let list; try { list = sh.cssRules; } catch (e) { continue; } if (list && !sh.disabled) await rules(list, sh.href || location.href, out); }
+            out = await Promise.all(out);
+            out.push('*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}.bx-root::before,.bx-root::after,.bx-body::before,.bx-body::after,#desktop::before,#desktop::after{display:none!important}');
+            let st = document.createElement('style'); st.textContent = out.join('\n'); root.insertBefore(st, root.firstChild);
+            let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${VW}" height="${VH}"><foreignObject x="0" y="0" width="${VW}" height="${VH}">${new XMLSerializer().serializeToString(root)}</foreignObject></svg>`;
+            let img = new Image(); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+            await img.decode();
+            let k = Math.min(0.6, 640 / Math.max(W, H)), cv = document.createElement('canvas');
+            cv.width = Math.max(1, Math.round(W * k)); cv.height = Math.max(1, Math.round(H * k));
+            let g = cv.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(img, x0, y0, W, H, 0, 0, cv.width, cv.height);
+            let u = cv.toDataURL('image/webp', 0.6); if (!/^data:image\/webp/.test(u)) u = cv.toDataURL('image/jpeg', 0.6);
+            return { x: x0, y: y0, w: W, h: H, img: u };
+        }
         os.burn = {
             clear() { ghosts = []; try { localStorage.removeItem(KEY); } catch (e) {} draw(); },
             apply() { layer.hidden = off(); }
@@ -161,7 +228,12 @@ window.os = window.os || {};
                 if (!w.offsetParent) return;
                 let r = w.getBoundingClientRect(), sig = [r.left, r.top, r.width, r.height].map(Math.round).join(','), s = seen[w.id];
                 if (!s || s.sig !== sig) { seen[w.id] = { sig, n: 0 }; return; }
-                if (++s.n === STILL) { ghosts.push({ x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), at: Date.now() }); ghosts = ghosts.slice(-6); try { localStorage.setItem(KEY, JSON.stringify(ghosts)); } catch (e) {} }
+                if (++s.n === STILL) snap(w).then(g => {
+                    if (!g || off()) return;
+                    g.at = Date.now(); ghosts.push(g); ghosts = ghosts.slice(-6);
+                    for (;;) { try { localStorage.setItem(KEY, JSON.stringify(ghosts)); break; } catch (e) { if (!ghosts.length) break; ghosts.shift(); } }
+                    draw();
+                }).catch(() => {});
             });
             draw();
         }, 60000);

@@ -348,7 +348,7 @@ window.os = window.os || {};
     const E = '#desktop > #win-copier\\.exe';
     css.textContent = `
         /* no window. its a copier */
-        ${E} { background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; }
+        ${E} { background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
         ${E}::before, ${E}::after, ${E} .wglow, ${E} .wbloom { display: none !important; }
         ${E} .window-header { position: absolute !important; z-index: 4; left: 102px; right: 102px; top: 1px; height: 24px; padding: 0 !important; overflow: visible !important; background: none !important; border: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
         ${E} .window-header::before, ${E} .window-header::after, ${E} .win-ic, ${E} .window-header > span:first-child, ${E} .max-btn { display: none !important; }
