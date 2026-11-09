@@ -7,11 +7,15 @@ window.os = window.os || {};
         if (done[f]) return Promise.resolve();
         if (busy[f]) return busy[f];
         return (busy[f] = new Promise((res, rej) => {
-            let s = document.createElement('script');
-            s.src = f;
-            s.onload = () => { done[f] = 1; res(); };
-            s.onerror = () => { delete busy[f]; rej(new Error('could not load ' + f)); };
-            document.head.appendChild(s);
+            const add = () => {
+                let s = document.createElement('script');
+                s.src = f;
+                s.onload = () => { done[f] = 1; res(); };
+                s.onerror = () => { delete busy[f]; rej(new Error('could not load ' + f)); };
+                document.head.appendChild(s);
+            };
+            if (location.protocol === 'file:' || typeof fetch !== 'function') { add(); return; }
+            fetch(f, { cache: 'no-cache' }).then(add, add);
         }));
     }
     os.need = files => [].concat(files).reduce((p, f) => p.then(() => load(f)), Promise.resolve());
